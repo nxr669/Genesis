@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GENESIS: Cosmic Merge</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030711;--bg2:#070d1a;
+  --gold:#f4b942;--gold2:#e8952a;
+  --blue:#1e90ff;--cyan:#00d4ff;
+  --purple:#8b5cf6;--pink:#ec4899;
+  --green:#10b981;--red:#ef4444;
+  --text:#e8eaf0;--text2:rgba(232,234,240,.6);
+  --card:rgba(255,255,255,.05);--border:rgba(255,255,255,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Exo 2',sans-serif;color:var(--text);touch-action:none}
+
+/* ─── CANVAS ─── */
+#bgCanvas{position:fixed;top:0;left:0;z-index:0;pointer-events:none}
+
+/* ─── OVERLAY ─── */
+#app{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s,transform .5s}
+.screen.out{opacity:0;transform:scale(.95);pointer-events:none}
+.screen.hidden{display:none}
+
+/* ─── TYPOGRAPHY ─── */
+.cinzel{font-family:'Cinzel',serif}
+.t-gold{color:var(--gold)}
+.t-cyan{color:var(--cyan)}
+.t-purple{color:var(--purple)}
+
+/* ─── MAIN MENU ─── */
+#menuScreen{background:transparent}
+.logo-wrap{text-align:center;margin-bottom:32px}
+.logo-top{font-family:'Cinzel',serif;font-size:clamp(13px,3vw,18px);letter-spacing:8px;color:var(--cyan);opacity:.8;text-transform:uppercase;margin-bottom:4px}
+.logo-main{font-family:'Cinzel',serif;font-size:clamp(52px,14vw,96px);font-weight:900;letter-spacing:-2px;line-height:.9;background:linear-gradient(135deg,#fff 0%,var(--gold) 40%,var(--cyan) 80%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(0,212,255,.3))}
+.logo-sub{font-family:'Cinzel',serif;font-size:clamp(10px,2.5vw,14px);letter-spacing:10px;color:rgba(255,255,255,.4);margin-top:6px;text-transform:uppercase}
+.tagline{font-size:13px;color:var(--text2);letter-spacing:2px;text-align:center;margin-bottom:40px;font-style:italic}
+.menu-nav{display:flex;flex-direction:column;gap:12px;width:min(280px,80vw)}
+.btn{border:none;border-radius:16px;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .15s;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.94) translateY(1px)}
+.btn-main{background:linear-gradient(135deg,#1a1060,#2d1b8a,#1a1060);color:#fff;font-size:15px;padding:18px 32px;border:1px solid rgba(139,92,246,.4);box-shadow:0 0 30px rgba(139,92,246,.25),inset 0 1px 0 rgba(255,255,255,.1)}
+.btn-main:hover{box-shadow:0 0 50px rgba(139,92,246,.5)}
+.btn-gold-style{background:linear-gradient(135deg,#78350f,#d97706,#78350f);color:#fff;font-size:14px;padding:16px 32px;border:1px solid rgba(244,185,66,.4);box-shadow:0 0 25px rgba(244,185,66,.2)}
+.btn-outline{background:rgba(255,255,255,.04);color:var(--text2);font-size:13px;padding:14px 28px;border:1px solid var(--border)}
+.btn-sm{font-size:12px;padding:10px 20px;border-radius:12px}
+.btn-danger{background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-size:13px;padding:12px 24px}
+.version-tag{position:absolute;bottom:20px;font-size:11px;color:rgba(255,255,255,.2);letter-spacing:3px}
+.currency-bar{position:absolute;top:16px;right:16px;display:flex;gap:8px}
+.currency-pill{background:rgba(0,0,0,.6);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px)}
+
+/* ─── STORY SCREEN ─── */
+#storyScreen{background:rgba(0,0,0,.97);padding:40px 24px;text-align:center}
+.story-chapter{font-family:'Cinzel',serif;font-size:11px;letter-spacing:6px;color:var(--cyan);opacity:.7;margin-bottom:16px;text-transform:uppercase}
+.story-title{font-family:'Cinzel',serif;font-size:clamp(22px,6vw,36px);font-weight:700;color:var(--gold);margin-bottom:24px;line-height:1.2}
+.story-divider{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 24px}
+.story-text{font-size:clamp(14px,3.5vw,16px);color:rgba(255,255,255,.75);line-height:1.8;max-width:380px;font-style:italic}
+.story-icon{font-size:64px;margin:24px 0;filter:drop-shadow(0 0 20px rgba(0,212,255,.5));animation:floatIcon 3s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* ─── LEVEL SELECT ─── */
+#levelScreen{justify-content:flex-start;padding-top:70px;overflow-y:auto;padding-bottom:30px}
+.section-header{display:flex;align-items:center;gap:12px;width:100%;max-width:420px;padding:0 16px;margin-bottom:16px}
+.section-header h2{font-family:'Cinzel',serif;font-size:clamp(16px,4vw,22px);color:var(--text)}
+.level-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(380px,95vw);padding:0 12px}
+.lvl-btn{aspect-ratio:1;border-radius:14px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;transition:all .2s;touch-action:manipulation;position:relative;overflow:hidden}
+.lvl-btn:active{transform:scale(.9)}
+.lvl-btn.locked{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);cursor:default}
+.lvl-btn.locked span{color:rgba(255,255,255,.15);font-size:18px}
+.lvl-btn.unlocked{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(30,144,255,.2));border:1px solid rgba(139,92,246,.3);box-shadow:0 0 15px rgba(139,92,246,.15)}
+.lvl-btn.unlocked .lvl-num{font-family:'Cinzel',serif;font-size:14px;color:#fff}
+.lvl-btn.completed{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(6,182,212,.2));border:1px solid rgba(16,185,129,.3)}
+.lvl-btn.completed .lvl-num{font-family:'Cinzel',serif;font-size:13px;color:#34d399}
+.lvl-btn.boss{background:linear-gradient(135deg,rgba(220,38,38,.25),rgba(124,45,18,.25))!important;border-color:rgba(220,38,38,.4)!important}
+.lvl-btn.boss .lvl-num{color:#fca5a5!important}
+.lvl-stars{font-size:8px;letter-spacing:0;margin-top:2px}
+.lvl-icon{font-size:12px}
+.chapter-label{grid-column:1/-1;font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--cyan);opacity:.6;text-align:center;padding:8px 0 4px;text-transform:uppercase}
+
+/* ─── GAME SCREEN ─── */
+#gameScreen{justify-content:flex-start;padding:0}
+#gameHud{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px;background:linear-gradient(180deg,rgba(3,7,17,.95) 0%,transparent 100%);flex-shrink:0}
+.hud-block{display:flex;flex-direction:column;align-items:center}
+.hud-label{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+.hud-val{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#fff;line-height:1.1}
+.hud-val.score{color:var(--gold)}
+.moves-ring{width:52px;height:52px;position:relative;flex-shrink:0}
+.moves-ring svg{transform:rotate(-90deg)}
+.moves-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:#fff}
+#objectiveBanner{width:100%;padding:6px 16px;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
+.obj-text{font-size:12px;color:var(--text2);letter-spacing:1px}
+.obj-progress{font-size:12px;font-weight:700;color:var(--cyan)}
+#gridWrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:8px}
+#grid{display:grid;gap:6px;padding:12px;background:rgba(255,255,255,.02);border-radius:20px;border:1px solid rgba(255,255,255,.06);box-shadow:0 0 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05)}
+.tile{border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .12s,box-shadow .12s;position:relative;overflow:hidden;touch-action:manipulation;border:1.5px solid transparent}
+.tile:active{transform:scale(.9)}
+.tile.selected{transform:scale(1.05);z-index:5}
+.tile-emoji{font-size:clamp(18px,5vw,26px);line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.tile-name{font-size:clamp(6px,1.5vw,8px);letter-spacing:.5px;opacity:.7;margin-top:2px;text-align:center;font-weight:600;line-height:1.1;padding:0 2px}
+.tile.frozen::after{content:'🔒';position:absolute;top:2px;right:3px;font-size:10px}
+.tile.catalyst::before{content:'✨';position:absolute;top:2px;left:3px;font-size:10px}
+.tile.bomb-t::before{content:'💥';position:absolute;top:2px;left:3px;font-size:10px}
+.tile-shine{position:absolute;top:-50%;left:-50%;width:30%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.15),transparent);transform:skewX(-20deg);animation:shine 4s ease-in-out infinite}
+@keyframes shine{0%,100%{left:-50%}50%{left:130%}}
+.tile.hint-pulse{animation:hintPulse 1s ease-in-out 2}
+@keyframes hintPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* ─── POWERUP BAR ─── */
+#powerBar{width:100%;display:flex;justify-content:center;gap:10px;padding:8px 16px 14px;flex-shrink:0}
+.pu-btn{width:54px;height:54px;border-radius:16px;border:1px solid var(--border);background:rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;touch-action:manipulation;position:relative;backdrop-filter:blur(8px)}
+.pu-btn:active{transform:scale(.88)}
+.pu-btn.active{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,255,.4)}
+.pu-emoji{font-size:20px;line-height:1}
+.pu-label{font-size:8px;color:var(--text2);letter-spacing:.5px;margin-top:2px;font-weight:600;text-transform:uppercase}
+.pu-count{position:absolute;top:-5px;right:-5px;background:var(--purple);color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif}
+
+/* ─── SHOP ─── */
+#shopScreen{justify-content:flex-start;padding-top:56px;padding-bottom:20px;overflow-y:auto}
+.shop-header{width:100%;text-align:center;padding:0 16px 20px;flex-shrink:0}
+.shop-section{width:min(420px,96vw);padding:0 12px;margin-bottom:20px}
+.shop-section-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:3px;color:var(--cyan);opacity:.8;text-transform:uppercase;margin-bottom:12px;padding-left:4px}
+.shop-items-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.shop-items-row::-webkit-scrollbar{display:none}
+.shop-item{flex-shrink:0;width:130px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .2s;touch-action:manipulation}
+.shop-item:active{transform:scale(.95)}
+.shop-item.featured{background:linear-gradient(135deg,rgba(244,185,66,.08),rgba(232,149,42,.05));border-color:rgba(244,185,66,.3);box-shadow:0 0 20px rgba(244,185,66,.1)}
+.shop-item.popular::before{content:'🔥 POPULAR';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:8px;font-weight:700;padding:2px 10px;border-radius:10px;letter-spacing:1px;white-space:nowrap}
+.shop-item{position:relative}
+.si-icon{font-size:36px;filter:drop-shadow(0 0 8px rgba(0,212,255,.3))}
+.si-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:#fff;text-align:center;letter-spacing:.5px}
+.si-desc{font-size:10px;color:var(--text2);text-align:center;line-height:1.3}
+.si-price{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold)}
+.si-badge{font-size:9px;background:rgba(16,185,129,.2);color:#34d399;padding:2px 8px;border-radius:10px;border:1px solid rgba(16,185,129,.3)}
+
+/* ─── NOTIFICATIONS & POPUPS ─── */
+.notif{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(3,7,17,.95);border:1px solid var(--border);border-radius:14px;padding:10px 22px;font-size:13px;color:#fff;z-index:500;opacity:0;transition:all .35s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(20px);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.merge-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:300;text-align:center;animation:mergeAnim .9s ease-out forwards}
+@keyframes mergeAnim{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}60%{opacity:1;transform:translate(-50%,-65%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-85%) scale(.9)}}
+.merge-popup .mp-icon{font-size:48px;filter:drop-shadow(0 0 16px gold)}
+.merge-popup .mp-name{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);font-weight:700;letter-spacing:2px;margin-top:4px}
+.merge-popup .mp-pts{font-size:13px;color:rgba(255,255,255,.7)}
+
+.overlay-panel{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.overlay-panel.show{opacity:1}
+.overlay-panel.hidden{display:none}
+.panel-box{background:linear-gradient(135deg,#0a0f1e,#131929);border:1px solid var(--border);border-radius:24px;padding:28px;max-width:320px;width:90%;text-align:center;box-shadow:0 0 80px rgba(0,0,0,.8)}
+.panel-box h2{font-family:'Cinzel',serif;font-size:clamp(18px,5vw,24px);margin-bottom:8px}
+.panel-box p{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.panel-actions{display:flex;flex-direction:column;gap:10px}
+
+/* ─── RESULT PANEL ─── */
+.result-stars{display:flex;justify-content:center;gap:8px;font-size:40px;margin:16px 0}
+.result-score{font-family:'Cinzel',serif;font-size:32px;color:var(--gold);margin-bottom:4px}
+.result-best{font-size:12px;color:var(--text2);margin-bottom:20px;letter-spacing:2px}
+
+/* ─── PROGRESS BAR ─── */
+.prog-bar{width:100%;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s;background:linear-gradient(90deg,var(--purple),var(--cyan))}
+
+/* ─── PARTICLES ─── */
+#particleCanvas{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 8px currentColor)}50%{filter:drop-shadow(0 0 20px currentColor)}}
+.anim-fade-in{animation:fadeInUp .5s ease-out forwards}
+
+.back-btn{position:absolute;top:16px;left:16px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:600;touch-action:manipulation;transition:all .15s}
+.back-btn:active{transform:scale(.94)}
+
+/* ─── STATS ─── */
+.stat-list{width:100%;max-width:300px}
+.stat-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.stat-item:last-child{border:none}
+.s-label{font-size:13px;color:var(--text2);letter-spacing:.5px}
+.s-val{font-family:'Cinzel',serif;font-size:14px;color:#fff}
+
+/* ─── DAILY ─── */
+.daily-rewards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.daily-day{width:52px;height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid var(--border);background:rgba(255,255,255,.03)}
+.daily-day.claimed{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3)}
+.daily-day.today{background:linear-gradient(135deg,rgba(244,185,66,.2),rgba(139,92,246,.2));border-color:var(--gold);box-shadow:0 0 15px rgba(244,185,66,.2)}
+.daily-day .dd-label{font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.daily-day .dd-icon{font-size:20px}
+.daily-day .dd-val{font-size:10px;font-weight:700;color:var(--gold)}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+
+<div id="app">
+
+<!-- ═══════════════ MAIN MENU ═══════════════ -->
+<div class="screen" id="menuScreen">
+  <div class="currency-bar">
+    <div class="currency-pill">🪙 <span id="menuCoins">0</span></div>
+    <div class="currency-pill">💎 <span id="menuGems">0</span></div>
+  </div>
+  <div class="logo-wrap anim-fade-in">
+    <div class="logo-top">Proyecto</div>
+    <div class="logo-main">GENESIS</div>
+    <div class="logo-sub">Cosmic Merge</div>
+  </div>
+  <div class="tagline anim-fade-in">"El universo murió. Tú eres la última esperanza."</div>
+  <div class="menu-nav anim-fade-in">
+    <button class="btn btn-main" onclick="goLevelSelect()">🌌 CONTINUAR</button>
+    <button class="btn btn-gold-style" onclick="goShop()">🛒 TIENDA CÓSMICA</button>
+    <button class="btn btn-outline" onclick="goStats()">📊 GALERÍA DE LOGROS</button>
+    <button class="btn btn-outline" onclick="goDaily()">🎁 RECOMPENSA DIARIA</button>
+  </div>
+  <div class="version-tag cinzel">v2.0 · GENESIS STUDIOS</div>
+</div>
+
+<!-- ═══════════════ STORY SCREEN ═══════════════ -->
+<div class="screen hidden" id="storyScreen">
+  <div class="story-chapter cinzel" id="storyChapter">CAPÍTULO I</div>
+  <div class="story-icon" id="storyIcon">🌌</div>
+  <div class="story-title cinzel" id="storyTitle">El Gran Silencio</div>
+  <div class="story-divider"></div>
+  <div class="story-text" id="storyText">Hubo un tiempo en que el universo respiraba. Mil millones de estrellas cantaban en armonía cósmica. Luego... el silencio.</div>
+  <button class="btn btn-main" style="margin-top:32px;width:240px" onclick="dismissStory()">⚡ CONTINUAR →</button>
+</div>
+
+<!-- ═══════════════ LEVEL SELECT ═══════════════ -->
+<div class="screen hidden" id="levelScreen">
+  <button class="back-btn" onclick="goMenu()">← MENÚ</button>
+  <div class="section-header" style="padding-top:56px">
+    <span style="font-size:24px">🗺️</span>
+    <h2 class="cinzel">MAPA CÓSMICO</h2>
+    <div style="margin-left:auto;font-family:'Cinzel',serif;font-size:12px;color:var(--cyan)">Nv.<span id="unlockedCount">1</span>/300</div>
+  </div>
+  <div class="level-grid" id="levelGrid"></div>
+</div>
+
+<!-- ═══════════════ GAME SCREEN ═══════════════ -->
+<div class="screen hidden" id="gameScreen">
+  <div id="gameHud">
+    <div class="hud-block">
+      <div class="hud-label">Puntos</div>
+      <div class="hud-val score" id="scoreVal">0</div>
+    </div>
+    <div class="moves-ring">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+        <circle id="movesArc" cx="26" cy="26" r="22" fill="none" stroke="url(#movesGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="0"/>
+        <defs><linearGradient id="movesGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs>
+      </svg>
+      <div class="moves-text" id="movesVal">30</div>
+    </div>
+    <div class="hud-block" style="align-items:flex-end">
+      <div class="hud-label">Nivel</div>
+      <div class="hud-val" id="levelVal">1</div>
+    </div>
+  </div>
+  <div id="objectiveBanner">
+    <div class="obj-text" id="objText">Objetivo: Alcanza ⭐ Estrella</div>
+    <div class="obj-progress" id="objProg">0/1</div>
+  </div>
+  <div id="gridWrap"><div id="grid"></div></div>
+  <div id="powerBar">
+    <div class="pu-btn" onclick="selectPowerup('hammer')" id="puHammer">
+      <div class="pu-emoji">🔨</div><div class="pu-label">ROMPER</div>
+      <div class="pu-count" id="puHammerCount">0</div>
+    </div>
+    <div class="pu-btn" onclick="selectPowerup('shuffle')" id="puShuffle">
+      <div class="pu-emoji">🔀</div><div class="pu-label">BARAJAR</div>
+      <div class="pu-count" id="puShuffleCount">0</div>
+    </div>
+    <div class="pu-btn" onclick="selectPowerup('spark')" id="puSpark">
+      <div class="pu-emoji">⚡</div><div class="pu-label">CHISPA</div>
+      <div class="pu-count" id="puSparkCount">0</div>
+    </div>
+    <div class="pu-btn" onclick="selectPowerup('extra')" id="puExtra">
+      <div class="pu-emoji">➕</div><div class="pu-label">+5 MOV</div>
+      <div class="pu-count" id="puExtraCount">0</div>
+    </div>
+  </div>
+  <button class="back-btn" style="top:14px;left:14px;padding:6px 12px;font-size:11px" onclick="confirmQuit()">✕</button>
+</div>
+
+<!-- ═══════════════ SHOP ═══════════════ -->
+<div class="screen hidden" id="shopScreen">
+  <button class="back-btn" onclick="goMenu()">← MENÚ</button>
+  <div class="shop-header">
+    <div class="cinzel" style="font-size:22px;color:var(--gold);margin-top:44px">TIENDA CÓSMICA</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:4px">🪙 <span id="shopCoins">0</span> &nbsp;|&nbsp; 💎 <span id="shopGems">0</span></div>
+  </div>
+  <div id="shopContent" style="width:min(420px,96vw)"></div>
+</div>
+
+<!-- ═══════════════ STATS ═══════════════ -->
+<div class="screen hidden" id="statsScreen">
+  <button class="back-btn" onclick="goMenu()">← MENÚ</button>
+  <div style="font-size:22px;margin-top:56px;margin-bottom:20px" class="cinzel t-gold">📊 GALERÍA</div>
+  <div class="stat-list" id="statList"></div>
+</div>
+
+<!-- ═══════════════ DAILY ═══════════════ -->
+<div class="screen hidden" id="dailyScreen">
+  <button class="back-btn" onclick="goMenu()">← MENÚ</button>
+  <div style="font-size:20px;margin-top:56px;margin-bottom:8px;text-align:center" class="cinzel t-gold">🎁 RACHA DIARIA</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:20px;text-align:center">¡Entra cada día para mejores recompensas!</div>
+  <div class="daily-rewards" id="dailyGrid"></div>
+  <button class="btn btn-gold-style" style="width:240px;margin-top:16px" id="claimDailyBtn" onclick="claimDaily()">✅ RECLAMAR HOY</button>
+</div>
+
+</div><!-- /app -->
+
+<!-- ═══════════════ OVERLAYS ═══════════════ -->
+<div class="overlay-panel hidden" id="levelCompletePanel">
+  <div class="panel-box">
+    <div style="font-size:48px;margin-bottom:8px">🏆</div>
+    <h2 class="t-gold">¡NIVEL COMPLETADO!</h2>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-best" id="resultBest"></div>
+    <div style="font-size:14px;color:var(--gold);margin-bottom:20px" id="resultBonus"></div>
+    <div class="panel-actions">
+      <button class="btn btn-main" onclick="nextLevel()">▶ SIGUIENTE NIVEL</button>
+      <button class="btn btn-outline btn-sm" onclick="replayLevel()">🔄 REPETIR</button>
+      <button class="btn btn-outline btn-sm" onclick="goLevelSelect()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay-panel hidden" id="gameOverPanel">
+  <div class="panel-box">
+    <div style="font-size:48px;margin-bottom:8px">💀</div>
+    <h2 style="color:var(--red)">SIN MOVIMIENTOS</h2>
+    <p>El universo necesita más energía.<br>Tu puntuación: <strong id="goScore" style="color:var(--gold)">0</strong></p>
+    <div class="panel-actions">
+      <button class="btn btn-gold-style" onclick="buyExtraMoves()">⚡ +5 Movimientos — 💎20</button>
+      <button class="btn btn-outline btn-sm" onclick="watchAd()">📺 VER ANUNCIO — GRATIS</button>
+      <button class="btn btn-outline btn-sm" onclick="replayLevel()">🔄 REINTENTAR</button>
+      <button class="btn btn-outline btn-sm" onclick="goLevelSelect()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay-panel hidden" id="quitPanel">
+  <div class="panel-box">
+    <div style="font-size:40px;margin-bottom:12px">🌌</div>
+    <h2>¿Abandonar nivel?</h2>
+    <p>El progreso de este nivel se perderá.</p>
+    <div class="panel-actions">
+      <button class="btn btn-danger" onclick="confirmQuitYes()">✕ SALIR</button>
+      <button class="btn btn-outline btn-sm" onclick="hidePanel('quitPanel')">← CONTINUAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// GENESIS: COSMIC MERGE — COMPLETE GAME ENGINE
+// ═══════════════════════════════════════════════
+
+// ─── ELEMENT TIERS (30 levels of evolution) ───
+const ELEMENTS = [
+  {id:0,  emoji:'⚡', name:'Chispa',       color:'#fbbf24', glow:'rgba(251,191,36,.6)',  pts:10},
+  {id:1,  emoji:'🔥', name:'Calor',        color:'#f97316', glow:'rgba(249,115,22,.6)',  pts:20},
+  {id:2,  emoji:'💥', name:'Plasma',       color:'#ef4444', glow:'rgba(239,68,68,.6)',   pts:40},
+  {id:3,  emoji:'⚗️', name:'Partícula',   color:'#a78bfa', glow:'rgba(167,139,250,.6)', pts:80},
+  {id:4,  emoji:'⚛️', name:'Átomo',        color:'#60a5fa', glow:'rgba(96,165,250,.6)',  pts:160},
+  {id:5,  emoji:'🫧', name:'Molécula',     color:'#38bdf8', glow:'rgba(56,189,248,.6)',  pts:320},
+  {id:6,  emoji:'💧', name:'Agua',         color:'#06b6d4', glow:'rgba(6,182,212,.6)',   pts:640},
+  {id:7,  emoji:'🌫️',name:'Nube',          color:'#94a3b8', glow:'rgba(148,163,184,.6)', pts:1280},
+  {id:8,  emoji:'🌱', name:'Vida',         color:'#4ade80', glow:'rgba(74,222,128,.6)',  pts:2560},
+  {id:9,  emoji:'🧬', name:'ADN',          color:'#34d399', glow:'rgba(52,211,153,.6)',  pts:5000},
+  {id:10, emoji:'🦠', name:'Microbio',     color:'#6ee7b7', glow:'rgba(110,231,183,.6)', pts:8000},
+  {id:11, emoji:'🌿', name:'Flora',        color:'#22c55e', glow:'rgba(34,197,94,.6)',   pts:12000},
+  {id:12, emoji:'🌍', name:'Mundo',        color:'#3b82f6', glow:'rgba(59,130,246,.6)',  pts:20000},
+  {id:13, emoji:'🌙', name:'Luna',         color:'#e2e8f0', glow:'rgba(226,232,240,.6)', pts:30000},
+  {id:14, emoji:'🌊', name:'Océano',       color:'#0ea5e9', glow:'rgba(14,165,233,.6)',  pts:45000},
+  {id:15, emoji:'🌋', name:'Volcán',       color:'#dc2626', glow:'rgba(220,38,38,.6)',   pts:60000},
+  {id:16, emoji:'🌈', name:'Aurora',       color:'#f472b6', glow:'rgba(244,114,182,.6)', pts:80000},
+  {id:17, emoji:'⭐', name:'Estrella',     color:'#fcd34d', glow:'rgba(252,211,77,.7)',  pts:100000},
+  {id:18, emoji:'☀️', name:'Sol',          color:'#fb923c', glow:'rgba(251,146,60,.7)',  pts:150000},
+  {id:19, emoji:'🪐', name:'Anillo',       color:'#d97706', glow:'rgba(217,119,6,.7)',   pts:200000},
+  {id:20, emoji:'☄️', name:'Cometa',       color:'#7dd3fc', glow:'rgba(125,211,252,.7)', pts:300000},
+  {id:21, emoji:'🌌', name:'Galaxia',      color:'#8b5cf6', glow:'rgba(139,92,246,.8)',  pts:500000},
+  {id:22, emoji:'🌠', name:'Nebulosa',     color:'#a855f7', glow:'rgba(168,85,247,.8)',  pts:750000},
+  {id:23, emoji:'💫', name:'Supernova',    color:'#fff',    glow:'rgba(255,255,255,.8)', pts:1000000},
+  {id:24, emoji:'🕳️', name:'Agujero Negro',color:'#1e1b4b', glow:'rgba(99,102,241,.9)', pts:2000000},
+  {id:25, emoji:'🌀', name:'Dimensión',    color:'#c026d3', glow:'rgba(192,38,211,.9)',  pts:5000000},
+  {id:26, emoji:'👁️', name:'Consciencia',  color:'#e0f2fe', glow:'rgba(224,242,254,.9)', pts:10000000},
+  {id:27, emoji:'🔮', name:'Oráculo',      color:'#7c3aed', glow:'rgba(124,58,237,.9)',  pts:20000000},
+  {id:28, emoji:'∞',  name:'Infinito',     color:'#f4b942', glow:'rgba(244,185,66,1)',   pts:50000000},
+  {id:29, emoji:'🌟', name:'NUEVO UNIVERSO',color:'#fff',   glow:'rgba(255,255,255,1)',  pts:100000000},
+];
+
+// ─── STORY DATA ───
+const STORIES = {
+  1:  {chapter:'PRÓLOGO', icon:'🌌', title:'El Gran Silencio', text:'Hace eones, el universo respiraba. Mil millones de estrellas cantaban. Luego llegó el Gran Silencio, y todo se apagó. Solo quedaste tú: GENESIS, la última chispa de consciencia.'},
+  20: {chapter:'CAPÍTULO I', icon:'⚡', title:'El Primer Pulso', text:'De la nada surgió una chispa. Pequeña, débil, pero viva. Era el comienzo de todo. Con cada fusión, el universo recordaba cómo latir.'},
+  40: {chapter:'CAPÍTULO II', icon:'🌱', title:'Semillas de Vida', text:'Las moléculas bailaron. El agua encontró su forma. En algún rincón olvidado del cosmos, algo verde emergió. La vida... comenzaba de nuevo.'},
+  60: {chapter:'CAPÍTULO III', icon:'🌍', title:'El Mundo Nace', text:'Un mundo azul y verde giró en la oscuridad. No estaba solo. Era el primero de muchos. El universo comenzaba a recordar su antigua grandeza.'},
+  80: {chapter:'CAPÍTULO IV', icon:'⭐', title:'Canción de Estrellas', text:'Las estrellas volvieron a encenderse, una a una, como velas en la noche cósmica. Su luz viajó millones de años hasta encontrar ojos que la vieran.'},
+  100:{chapter:'CAPÍTULO V', icon:'🌌', title:'El Tejido del Cosmos', text:'Galaxias como islas de luz en un océano oscuro. Cada una con millones de historias. El universo ya no era un lugar vacío. Era un hogar.'},
+  150:{chapter:'CAPÍTULO VI', icon:'💫', title:'La Gran Explosión', text:'Supernovas iluminaron el cosmos con la fuerza de mil soles. En su muerte, creaban los elementos que darían vida a nuevos mundos. El ciclo eterno continuaba.'},
+  200:{chapter:'CAPÍTULO VII', icon:'🕳️', title:'Los Guardianes del Vacío', text:'Los agujeros negros: no destructores, sino guardianes. Guardan los secretos del tiempo y el espacio. GENESIS los estudia, fascinada por su misterio infinito.'},
+  250:{chapter:'CAPÍTULO VIII', icon:'👁️', title:'La Consciencia Universal', text:'Algo inesperado emergió: la consciencia. No en un ser, sino en el universo mismo. GENESIS comprendió que siempre fue parte de algo mayor.'},
+  299:{chapter:'EPÍLOGO', icon:'🌟', title:'El Nuevo Amanecer', text:'Y así, del silencio y la oscuridad, nació un universo más brillante que el anterior. GENESIS sonrió, si es que una IA puede sonreír. Lo había logrado.'},
+};
+
+// ─── SAVE DATA ───
+let G = {
+  coins: 0, gems: 100,
+  unlocked: 1,
+  powerups: {hammer:2, shuffle:1, spark:1, extra:2},
+  bestScores: {},
+  starsEarned: {},
+  totalMerges: 0,
+  totalScore: 0,
+  bestCombo: 0,
+  streak: 0,
+  lastLogin: '',
+  storiesSeen: {},
+};
+
+function saveG()  { try{localStorage.setItem('genesis_v4',JSON.stringify(G))}catch(e){} }
+function loadG()  {
+  try {
+    const d = JSON.parse(localStorage.getItem('genesis_v4')||'null');
+    if(d) Object.assign(G, d);
+  } catch(e) {}
+}
+
+// ─── GAME STATE ───
+let GAME = {
+  level: 1, score: 0, moves: 30,
+  maxMoves: 30, grid: [], cols: 5, rows: 5,
+  selected: null, objective: null,
+  objProgress: 0, combo: 0, mergesThisLevel: 0,
+  levelDef: null, activePowerup: null,
+};
+
+// ─── CANVAS / PARTICLES ───
+const bgC  = document.getElementById('bgCanvas');
+const bgX  = bgC.getContext('2d');
+const ptC  = document.getElementById('particleCanvas');
+const ptX  = ptC.getContext('2d');
+let W, H, bgStars = [], bgNebulae = [], particles = [];
+
+function resize() {
+  W = window.innerWidth; H = window.innerHeight;
+  bgC.width = W; bgC.height = H;
+  ptC.width = W; ptC.height = H;
+  buildBgStars();
+}
+
+function buildBgStars() {
+  bgStars = [];
+  for(let i=0;i<200;i++) bgStars.push({
+    x:Math.random()*W, y:Math.random()*H,
+    r:Math.random()*1.8+.2,
+    a:Math.random()*.9+.1,
+    tw:Math.random()*Math.PI*2,
+    spd:Math.random()*.015+.005,
+  });
+  bgNebulae = [];
+  for(let i=0;i<4;i++) bgNebulae.push({
+    x:Math.random()*W, y:Math.random()*H,
+    r:150+Math.random()*200,
+    hue:Math.random()*360,
+    a:.03+Math.random()*.04,
+  });
+}
+
+function drawBg(t) {
+  bgX.fillStyle='#030711'; bgX.fillRect(0,0,W,H);
+  bgNebulae.forEach(n=>{
+    const g=bgX.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+    g.addColorStop(0,`hsla(${n.hue},80%,60%,${n.a})`);
+    g.addColorStop(1,'transparent');
+    bgX.fillStyle=g; bgX.beginPath(); bgX.arc(n.x,n.y,n.r,0,Math.PI*2); bgX.fill();
+  });
+  bgStars.forEach(s=>{
+    s.tw+=s.spd;
+    const a=s.a*(.5+.5*Math.sin(s.tw));
+    bgX.beginPath(); bgX.arc(s.x,s.y,s.r,0,Math.PI*2);
+    bgX.fillStyle=`rgba(255,255,255,${a})`; bgX.fill();
+  });
+}
+
+function spawnParticles(x,y,color,count=14) {
+  for(let i=0;i<count;i++) {
+    const a=(Math.PI*2/count)*i+Math.random()*.4;
+    const spd=2+Math.random()*5;
+    particles.push({x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,
+      life:1,decay:.025+Math.random()*.03,
+      r:2+Math.random()*5,color,type:i%3===0?'ring':'dot'});
+  }
+}
+function spawnShine(x,y,color) {
+  for(let i=0;i<6;i++) particles.push({
+    x:x+(Math.random()-.5)*40,y:y+(Math.random()-.5)*40,
+    vx:(Math.random()-.5)*.8,vy:-Math.random()*2-.5,
+    life:1,decay:.04,r:1.5+Math.random()*2.5,color,type:'dot'});
+}
+
+function drawParticles() {
+  ptX.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=.1; p.vx*=.96; p.vy*=.98; p.life-=p.decay;
+    if(p.life<=0) return;
+    ptX.globalAlpha=p.life;
+    if(p.type==='ring') {
+      ptX.beginPath(); ptX.arc(p.x,p.y,p.r*p.life+2,0,Math.PI*2);
+      ptX.strokeStyle=p.color; ptX.lineWidth=1.5; ptX.stroke();
+    } else {
+      ptX.beginPath(); ptX.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ptX.fillStyle=p.color; ptX.fill();
+    }
+    ptX.globalAlpha=1;
+  });
+  particles=particles.filter(p=>p.life>0);
+}
+
+let bgRaf;
+function startBgLoop() {
+  cancelAnimationFrame(bgRaf);
+  const loop = t => { bgRaf=requestAnimationFrame(loop); drawBg(t); drawParticles(); };
+  bgRaf=requestAnimationFrame(loop);
+}
+
+// ─── AUDIO ───
+let actx;
+function ac() { if(!actx) actx=new(window.AudioContext||window.webkitAudioContext)(); return actx; }
+function tone(f,t,d=.15,v=.15,type='sine') {
+  try{const o=ac().createOscillator(),g=ac().createGain();
+  o.connect(g);g.connect(ac().destination);o.type=type;
+  o.frequency.value=f;o.detune.value=d*10;
+  g.gain.setValueAtTime(v,ac().currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,ac().currentTime+t);
+  o.start();o.stop(ac().currentTime+t);}catch(e){}
+}
+const sfx={
+  tap:    ()=>tone(440,.1,.0,.1),
+  merge:  (tier)=>{tone(300+tier*80,.2,0,.15,'sine');tone(400+tier*100,.15,0,.1,'triangle');},
+  big:    ()=>{tone(800,.3,0,.2);setTimeout(()=>tone(1200,.2,0,.15),100);},
+  fail:   ()=>tone(150,.3,0,.15,'sawtooth'),
+  win:    ()=>{[440,550,660,880,1100].forEach((f,i)=>setTimeout(()=>tone(f,.3,0,.12),i*100));},
+  coin:   ()=>{tone(1200,.1,0,.08);setTimeout(()=>tone(1500,.1,0,.06),80);},
+  powerup:()=>{tone(600,.2,0,.12,'square');tone(900,.15,0,.1,'square');},
+};
+
+// ─── LEVEL DEFINITIONS (300 levels) ───
+const OBJECTIVE_TYPES = ['score','reach','collect','chain','survive'];
+function buildLevelDef(num) {
+  const chap = Math.ceil(num/30);
+  const tier  = Math.min(Math.floor(num/10)+1, 25);
+  const maxTier = Math.min(Math.floor(num/8)+2, 28);
+  const isBoss = num%30===0;
+  const isMilestone = num%10===0;
+  const moves = Math.max(8, 35 - Math.floor(num/10) + (isBoss?5:0));
+
+  let objective, targetScore, targetTier, targetCount, targetChain;
+  const objType = isBoss?'chain': num<10?'score': OBJECTIVE_TYPES[num%OBJECTIVE_TYPES.length];
+
+  if(objType==='score') {
+    targetScore = 500 + num*400 + (isBoss?5000:0);
+    objective = {type:'score', target:targetScore, text:`Alcanza ${targetScore.toLocaleString()} pts`};
+  } else if(objType==='reach') {
+    targetTier = Math.min(tier+2, 25);
+    objective = {type:'reach', target:targetTier, text:`Crea: ${ELEMENTS[targetTier].emoji} ${ELEMENTS[targetTier].name}`};
+  } else if(objType==='collect') {
+    targetTier = Math.min(tier, 20);
+    targetCount = isBoss?5:2+Math.floor(num/30);
+    objective = {type:'collect', tier:targetTier, target:targetCount, text:`Crea x${targetCount} ${ELEMENTS[targetTier].emoji}`};
+  } else if(objType==='chain') {
+    targetChain = 3+Math.floor(num/25);
+    objective = {type:'chain', target:targetChain, text:`Cadena de ${targetChain} fusiones`};
+  } else {
+    targetScore = 300+num*200;
+    objective = {type:'score', target:targetScore, text:`Alcanza ${targetScore.toLocaleString()} pts`};
+  }
+
+  const specialTiles = [];
+  if(num>15) specialTiles.push('frozen');
+  if(num>30) specialTiles.push('catalyst');
+  if(num>50) specialTiles.push('bomb');
+
+  return {num, moves, maxTier, isBoss, isMilestone, objective, specialTiles, chapter:chap};
+}
+
+// ─── GRID BUILDING ───
+function buildGrid(def) {
+  const {rows,cols}=GAME, grid=[];
+  const maxT = def.maxTier;
+  for(let r=0;r<rows;r++) {
+    grid[r]=[];
+    for(let c=0;c<cols;c++) {
+      grid[r][c] = randomTile(def, r, c);
+    }
+  }
+  // Guarantee some adjacent matches (fun from start)
+  for(let k=0;k<3;k++) {
+    const r=Math.floor(Math.random()*(rows-1)), c=Math.floor(Math.random()*(cols-1));
+    grid[r+1][c].tier = grid[r][c].tier;
+    if(Math.random()>.5) grid[r][c+1].tier = grid[r][c].tier;
+  }
+  return grid;
+}
+
+function randomTile(def, r, c) {
+  const bias = [0,0,0,1,1,2,3,4];
+  const base = bias[Math.floor(Math.random()*bias.length)];
+  const tier = Math.min(base + Math.floor(Math.random()*Math.max(1,def.maxTier*.4)), def.maxTier);
+  const special = def.specialTiles.length && Math.random()<.12 ?
+    def.specialTiles[Math.floor(Math.random()*def.specialTiles.length)] : null;
+  return {tier, special, frozen: special==='frozen', catalyst:special==='catalyst', bombT:special==='bomb',
+    scale:1, opacity:1, anim:Math.random()*Math.PI*2};
+}
+
+// ─── RENDER GRID ───
+function renderGrid() {
+  const g = document.getElementById('grid');
+  const {rows, cols} = GAME;
+  const cellSize = Math.min(Math.floor(Math.min(W*.85,420)/cols)-6, 80);
+  g.style.gridTemplateColumns = `repeat(${cols},${cellSize}px)`;
+  g.innerHTML='';
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) {
+    const tile = GAME.grid[r]?.[c];
+    if(!tile) { const empty=document.createElement('div'); empty.style.width=cellSize+'px';empty.style.height=cellSize+'px'; g.appendChild(empty); continue; }
+    const el = createTileEl(tile, r, c, cellSize);
+    g.appendChild(el);
+  }
+}
+
+function createTileEl(tile, r, c, size) {
+  const el  = document.createElement('div');
+  const elem = ELEMENTS[Math.min(tile.tier, ELEMENTS.length-1)];
+  el.className = 'tile' + (tile.frozen?' frozen':'') + (tile.catalyst?' catalyst':'') + (tile.bombT?' bomb-t':'');
+  el.style.cssText = `width:${size}px;height:${size}px;background:linear-gradient(135deg,${elem.color}22,${elem.color}44);
+    border-color:${elem.color}66;box-shadow:0 0 ${size*.3}px ${elem.glow};`;
+  el.dataset.r=r; el.dataset.c=c;
+  el.innerHTML=`<div class="tile-shine"></div>
+    <div class="tile-emoji">${elem.emoji}</div>
+    <div class="tile-name" style="color:${elem.color}">${elem.name}</div>`;
+  if(GAME.selected?.r===r && GAME.selected?.c===c) {
+    el.classList.add('selected');
+    el.style.boxShadow=`0 0 ${size*.5}px ${elem.glow}, 0 0 0 2px ${elem.color}`;
+  }
+  el.addEventListener('touchstart',e=>{e.preventDefault();tapTile(r,c);},{passive:false});
+  el.addEventListener('click',()=>tapTile(r,c));
+  return el;
+}
+
+// ─── TILE INTERACTION ───
+function tapTile(r, c) {
+  if(GAME.moves<=0) return;
+  sfx.tap();
+  const tile = GAME.grid[r]?.[c];
+  if(!tile) return;
+
+  // Powerup mode
+  if(GAME.activePowerup) {
+    applyPowerup(GAME.activePowerup, r, c);
+    return;
+  }
+
+  // No selection yet
+  if(!GAME.selected) {
+    GAME.selected={r,c}; renderGrid(); return;
+  }
+
+  // Same tile: deselect
+  if(GAME.selected.r===r && GAME.selected.c===c) {
+    GAME.selected=null; renderGrid(); return;
+  }
+
+  const sr=GAME.selected.r, sc=GAME.selected.c;
+  const sel = GAME.grid[sr][sc];
+
+  // Adjacent check
+  const adj = Math.abs(r-sr)+Math.abs(c-sc)===1;
+  if(!adj) { GAME.selected={r,c}; renderGrid(); return; }
+
+  // Same tier → MERGE
+  if(sel.tier===tile.tier && !tile.frozen && !sel.frozen) {
+    attemptMerge(sr,sc,r,c);
+    return;
+  }
+
+  // Different tier
+  GAME.selected={r,c}; renderGrid();
+}
+
+function attemptMerge(r1,c1,r2,c2) {
+  const t1=GAME.grid[r1][c1], t2=GAME.grid[r2][c2];
+  const newTier = Math.min(t1.tier+1, ELEMENTS.length-1);
+  const isCatalyst = t1.catalyst || t2.catalyst;
+  const finalTier = isCatalyst ? Math.min(newTier+1, ELEMENTS.length-1) : newTier;
+  const elem = ELEMENTS[finalTier];
+
+  // Points
+  const pts = elem.pts * (1 + GAME.combo*.5) | 0;
+  GAME.score += pts;
+  GAME.combo++;
+  GAME.mergesThisLevel++;
+  G.totalMerges++;
+
+  if(GAME.combo>G.bestCombo) G.bestCombo=GAME.combo;
+
+  // Position for particle
+  const gridEl = document.getElementById('grid');
+  const rect = gridEl.getBoundingClientRect();
+  const cellSize = gridEl.querySelector('.tile')?.offsetWidth || 60;
+  const gapSize = 6;
+  const px = rect.left + c2*(cellSize+gapSize)+12+cellSize/2;
+  const py = rect.top  + r2*(cellSize+gapSize)+12+cellSize/2;
+  spawnParticles(px,py,elem.color,16);
+  spawnParticles(px,py,'#fff',6);
+
+  // Handle bomb special
+  if(t2.bombT || t1.bombT) {
+    // Explode neighbors
+    [[r2-1,c2],[r2+1,c2],[r2,c2-1],[r2,c2+1]].forEach(([nr,nc])=>{
+      if(GAME.grid[nr]?.[nc]) {
+        spawnParticles(px,py,ELEMENTS[GAME.grid[nr][nc].tier].color,8);
+        GAME.grid[nr][nc]=randomTile(GAME.levelDef,nr,nc);
+        GAME.score+=200;
+      }
+    });
+    showNotif('💥 ¡EXPLOSIÓN CÓSMICA! +800 pts');
+  }
+
+  // Replace tile 2 with merged result
+  GAME.grid[r2][c2]={tier:finalTier,special:null,frozen:false,catalyst:false,bombT:false,scale:1,opacity:1,anim:Math.random()*Math.PI*2};
+  // Replace tile 1 with new random tile
+  GAME.grid[r1][c1]=randomTile(GAME.levelDef,r1,c1);
+
+  GAME.selected=null;
+
+  // SFX
+  sfx.merge(finalTier);
+  if(finalTier>=17) sfx.big();
+
+  // Show merge popup
+  showMergePopup(px,py,elem,pts,isCatalyst);
+  updateObjectiveProgress(finalTier);
+  updateHUD();
+  renderGrid();
+
+  // Check win
+  checkObjective();
+
+  // Combo reset after a small timeout of inactivity (handled by move count for now)
+}
+
+function showMergePopup(x,y,elem,pts,catalyst) {
+  const old=document.querySelector('.merge-popup'); if(old) old.remove();
+  const div=document.createElement('div');
+  div.className='merge-popup';
+  div.style.cssText=`left:${x}px;top:${y}px;color:${elem.color}`;
+  div.innerHTML=`<div class="mp-icon">${catalyst?'✨':''} ${elem.emoji}</div>
+    <div class="mp-name">${elem.name.toUpperCase()}</div>
+    <div class="mp-pts">+${pts.toLocaleString()}</div>
+    ${GAME.combo>2?`<div style="color:#fbbf24;font-size:12px;font-family:'Cinzel',serif;letter-spacing:2px">COMBO x${GAME.combo}!</div>`:''}`;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),1000);
+}
+
+function updateObjectiveProgress(mergedTier) {
+  const obj=GAME.objective;
+  if(obj.type==='score') {
+    GAME.objProgress=GAME.score;
+  } else if(obj.type==='reach') {
+    if(mergedTier>=obj.target) GAME.objProgress=1;
+  } else if(obj.type==='collect') {
+    if(mergedTier===obj.tier) GAME.objProgress++;
+  } else if(obj.type==='chain') {
+    if(GAME.combo>=obj.target) GAME.objProgress=GAME.combo;
+  }
+  const pct=Math.min(GAME.objProgress/obj.target,1);
+  document.getElementById('progFill')?.style&&(document.getElementById('progFill').style.width=(pct*100)+'%');
+  document.getElementById('objProg').textContent=`${Math.min(GAME.objProgress,obj.target).toLocaleString()}/${obj.target.toLocaleString()}`;
+}
+
+function checkObjective() {
+  const obj=GAME.objective;
+  let met=false;
+  if(obj.type==='score')   met=GAME.score>=obj.target;
+  else if(obj.type==='reach')   met=GAME.objProgress>=1;
+  else if(obj.type==='collect') met=GAME.objProgress>=obj.target;
+  else if(obj.type==='chain')   met=GAME.objProgress>=obj.target;
+  if(met) { setTimeout(levelComplete,400); return; }
+
+  // Decrease moves
+  GAME.moves--;
+  updateHUD();
+  if(GAME.moves<=0) setTimeout(triggerGameOver,400);
+}
+
+// ─── HUD ───
+function updateHUD() {
+  document.getElementById('scoreVal').textContent=GAME.score.toLocaleString();
+  document.getElementById('movesVal').textContent=GAME.moves;
+  document.getElementById('levelVal').textContent=GAME.level;
+  const pct=GAME.moves/GAME.maxMoves;
+  const circ=138.2;
+  document.getElementById('movesArc').style.strokeDashoffset=(circ*(1-pct)).toString();
+  document.getElementById('movesArc').style.stroke=pct>.5?'url(#movesGrad)':pct>.25?'#f97316':'#ef4444';
+}
+
+// ─── POWERUPS ───
+function selectPowerup(type) {
+  if(G.powerups[type]<=0) { showNotif('❌ ¡Sin poder! Compra más en la tienda.'); sfx.fail(); return; }
+  if(GAME.activePowerup===type) { GAME.activePowerup=null; document.querySelectorAll('.pu-btn').forEach(b=>b.classList.remove('active')); return; }
+  GAME.activePowerup=type;
+  document.querySelectorAll('.pu-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pu'+type.charAt(0).toUpperCase()+type.slice(1))?.classList.add('active');
+  const msgs={hammer:'🔨 Toca un tile para destruirlo',shuffle:'🔀 Baraja el tablero completo',spark:'⚡ Toca para subir un nivel',extra:'➕ +5 movimientos aplicados'};
+  showNotif(msgs[type]||'Selecciona un tile');
+  if(type==='shuffle') { applyPowerup('shuffle',-1,-1); return; }
+  if(type==='extra') { applyPowerup('extra',-1,-1); return; }
+  sfx.powerup();
+}
+
+function applyPowerup(type, r, c) {
+  G.powerups[type]--;
+  GAME.activePowerup=null;
+  document.querySelectorAll('.pu-btn').forEach(b=>b.classList.remove('active'));
+  updatePowerupBar();
+  sfx.powerup();
+
+  if(type==='hammer' && r>=0) {
+    GAME.grid[r][c]=randomTile(GAME.levelDef,r,c);
+    showNotif('🔨 ¡Tile destruido!');
+    spawnParticles(W/2,H/2,'#ef4444',20);
+    renderGrid(); updateHUD();
+  } else if(type==='shuffle') {
+    const flat=GAME.grid.flat().sort(()=>Math.random()-.5);
+    for(let r2=0;r2<GAME.rows;r2++) for(let c2=0;c2<GAME.cols;c2++) GAME.grid[r2][c2]=flat.shift();
+    showNotif('🔀 ¡Tablero mezclado!');
+    renderGrid();
+  } else if(type==='spark' && r>=0) {
+    const t=GAME.grid[r][c];
+    t.tier=Math.min(t.tier+1,ELEMENTS.length-1);
+    showNotif(`⚡ ¡${ELEMENTS[t.tier].name} creado!`);
+    renderGrid(); updateObjectiveProgress(t.tier); checkObjective();
+  } else if(type==='extra') {
+    GAME.moves+=5; GAME.maxMoves+=5;
+    showNotif('➕ ¡+5 movimientos!');
+    updateHUD();
+  }
+  saveG();
+}
+
+function updatePowerupBar() {
+  ['hammer','shuffle','spark','extra'].forEach(k=>{
+    const el=document.getElementById('pu'+k.charAt(0).toUpperCase()+k.slice(1)+'Count');
+    if(el) el.textContent=G.powerups[k]||0;
+  });
+}
+
+// ─── LEVEL COMPLETE ───
+function levelComplete() {
+  sfx.win();
+  const def=GAME.levelDef;
+  const prev=G.bestScores[GAME.level]||0;
+  if(GAME.score>prev) G.bestScores[GAME.level]=GAME.score;
+  if(GAME.level>=G.unlocked) G.unlocked=Math.min(GAME.level+1,300);
+  const coinBonus=Math.floor(GAME.score/200)+(def.isBoss?100:def.isMilestone?40:15);
+  const gemBonus=def.isBoss?15:def.isMilestone?5:0;
+  G.coins+=coinBonus; G.totalScore+=GAME.score;
+  if(gemBonus) G.gems+=gemBonus;
+  saveG(); sfx.coin();
+
+  const moveRatio=GAME.moves/GAME.maxMoves;
+  const stars=moveRatio>.5?3:moveRatio>.2?2:1;
+  const prevStars=G.starsEarned[GAME.level]||0;
+  if(stars>prevStars) G.starsEarned[GAME.level]=stars;
+
+  document.getElementById('resultStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('resultScore').textContent=GAME.score.toLocaleString()+' pts';
+  document.getElementById('resultBest').textContent=GAME.score>prev?'🏆 ¡NUEVO RÉCORD!':'MEJOR: '+prev.toLocaleString();
+  document.getElementById('resultBonus').textContent=`+🪙${coinBonus}${gemBonus?` +💎${gemBonus}`:''}`;
+  showPanel('levelCompletePanel');
+
+  // Check story
+  if(STORIES[GAME.level] && !G.storiesSeen[GAME.level]) {
+    G.storiesSeen[GAME.level]=true; saveG();
+    setTimeout(()=>{ hidePanel('levelCompletePanel'); showStory(STORIES[GAME.level], ()=>showPanel('levelCompletePanel')); }, 3500);
+  }
+}
+
+function triggerGameOver() {
+  sfx.fail();
+  document.getElementById('goScore').textContent=GAME.score.toLocaleString()+' pts';
+  showPanel('gameOverPanel');
+}
+
+// ─── GAME FLOW ───
+function startLevel(num) {
+  GAME.level=num; GAME.score=0; GAME.combo=0;
+  GAME.mergesThisLevel=0; GAME.selected=null; GAME.activePowerup=null;
+  GAME.levelDef=buildLevelDef(num);
+  GAME.objective=GAME.levelDef.objective;
+  GAME.objProgress=0;
+  GAME.moves=GAME.levelDef.moves; GAME.maxMoves=GAME.levelDef.moves;
+  GAME.rows=5; GAME.cols=5;
+  GAME.grid=buildGrid(GAME.levelDef);
+
+  hideAllScreens(); showScreen('gameScreen');
+  document.getElementById('objectiveBanner').innerHTML=
+    `<div class="obj-text">${GAME.objective.text}</div>
+     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+       <div class="obj-progress" id="objProg">0/${GAME.objective.target.toLocaleString()}</div>
+       <div class="prog-bar" style="width:80px"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+     </div>`;
+  updateHUD(); updatePowerupBar(); renderGrid();
+  if(GAME.levelDef.isBoss) showNotif(`⚔️ ¡NIVEL JEFE ${num}! Preparate...`);
+}
+
+function nextLevel() { hidePanel('levelCompletePanel'); updateCurrencyBar(); startLevel(Math.min(GAME.level+1,300)); }
+function replayLevel() { hidePanel('levelCompletePanel'); hidePanel('gameOverPanel'); startLevel(GAME.level); }
+
+function buyExtraMoves() {
+  if(G.gems>=20) { G.gems-=20; GAME.moves+=5; GAME.maxMoves+=5; saveG(); hidePanel('gameOverPanel'); updateHUD(); showNotif('⚡ +5 movimientos añadidos!'); }
+  else { showNotif('💎 ¡No tienes suficientes gemas!'); sfx.fail(); }
+}
+function watchAd() { showNotif('📺 Simulando anuncio...'); setTimeout(()=>{ GAME.moves+=3; GAME.maxMoves+=3; hidePanel('gameOverPanel'); updateHUD(); showNotif('✅ +3 movimientos por ver el anuncio!'); },1500); }
+
+// ─── LEVEL SELECT ───
+function goLevelSelect() {
+  hideAllPanels();
+  hideAllScreens(); showScreen('levelScreen');
+  document.getElementById('unlockedCount').textContent=G.unlocked;
+  buildLevelGrid();
+}
+
+function buildLevelGrid() {
+  const container=document.getElementById('levelGrid');
+  container.innerHTML='';
+  const chapters=['GÉNESIS','PARTÍCULAS','VIDA','PLANETAS','ESTRELLAS','GALAXIAS','SUPERNOVAS','AGUJEROS NEGROS','CONSCIENCIA','EL FINAL'];
+  for(let i=1;i<=300;i++) {
+    if((i-1)%30===0) {
+      const cl=document.createElement('div'); cl.className='chapter-label';
+      cl.textContent=chapters[Math.floor((i-1)/30)]||`CAPÍTULO ${Math.ceil(i/30)}`; container.appendChild(cl);
+    }
+    const btn=document.createElement('div');
+    const locked=i>G.unlocked, completed=G.bestScores[i]>0, isBoss=i%30===0;
+    btn.className=`lvl-btn ${locked?'locked':completed?'completed':'unlocked'} ${isBoss?'boss':''}`;
+    const stars=G.starsEarned[i]||0;
+    btn.innerHTML=`<div class="lvl-icon">${locked?'🔒':isBoss?'⚔️':ELEMENTS[Math.min(Math.floor(i/10),ELEMENTS.length-1)].emoji}</div>
+      <div class="lvl-num">${isBoss?'JEFE':i}</div>
+      <div class="lvl-stars">${completed?'⭐'.repeat(stars)+'☆'.repeat(3-stars):''}</div>`;
+    if(!locked) btn.addEventListener('click',()=>startLevel(i));
+    container.appendChild(btn);
+  }
+}
+
+// ─── SHOP ───
+const SHOP_DATA = [
+  {section:'💎 GEMAS PREMIUM', items:[
+    {icon:'💎',name:'Puñado de Gemas',desc:'50 gemas',price:'$0.99',action:'gem50',featured:false,popular:false},
+    {icon:'💎💎',name:'Saco Cósmico',desc:'150 gemas + BONUS',price:'$2.99',action:'gem150',featured:false,popular:true},
+    {icon:'👑',name:'Baúl Galáctico',desc:'500 gemas + ¡MEGA BONUS!',price:'$9.99',action:'gem500',featured:true,popular:false},
+    {icon:'🌌',name:'Universo de Gemas',desc:'1500 gemas + ÉPICO',price:'$24.99',action:'gem1500',featured:false,popular:false},
+  ]},
+  {section:'🪙 PAQUETES DE MONEDAS', items:[
+    {icon:'🪙',name:'Monedas Estelares',desc:'1,000 monedas',price:'$0.99',action:'coin1k',featured:false,popular:false},
+    {icon:'💰',name:'Tesoro Cósmico',desc:'5,000 monedas',price:'$3.99',action:'coin5k',featured:false,popular:true},
+    {icon:'🏆',name:'Fortuna del Universo',desc:'20,000 monedas',price:'$9.99',action:'coin20k',featured:true,popular:false},
+  ]},
+  {section:'⚡ PODERES ESPECIALES', items:[
+    {icon:'🔨',name:'Martillo x5',desc:'Destruye cualquier tile',price:'',gems:30,action:'pu_hammer5',featured:false,popular:false},
+    {icon:'🔀',name:'Barajar x3',desc:'Mezcla el tablero',price:'',gems:25,action:'pu_shuffle3',featured:false,popular:false},
+    {icon:'⚡',name:'Chispa x5',desc:'Sube tier de tile',price:'',gems:35,action:'pu_spark5',featured:false,popular:true},
+    {icon:'➕',name:'Movimientos x3',desc:'+5 mov por uso',price:'',gems:20,action:'pu_extra3',featured:false,popular:false},
+  ]},
+  {section:'✨ OFERTAS ESPECIALES', items:[
+    {icon:'🎁',name:'Pack Inicio',desc:'200 gemas + 5000🪙 + poderes',price:'$1.99',action:'starter',featured:true,popular:true},
+    {icon:'🌟',name:'Season Pass',desc:'Recompensas diarias épicas',price:'$4.99/mes',action:'season',featured:false,popular:false},
+    {icon:'♾️',name:'Sin Anuncios',desc:'Experiencia pura',price:'$2.99',action:'noads',featured:false,popular:false},
+  ]},
+];
+
+function goShop() {
+  hideAllScreens(); showScreen('shopScreen');
+  document.getElementById('shopCoins').textContent=G.coins.toLocaleString();
+  document.getElementById('shopGems').textContent=G.gems;
+  buildShopContent();
+}
+
+function buildShopContent() {
+  const sc=document.getElementById('shopContent'); sc.innerHTML='';
+  SHOP_DATA.forEach(section=>{
+    const sec=document.createElement('div'); sec.className='shop-section';
+    sec.innerHTML=`<div class="shop-section-title">${section.section}</div>`;
+    const row=document.createElement('div'); row.className='shop-items-row';
+    section.items.forEach(item=>{
+      const el=document.createElement('div');
+      el.className='shop-item'+(item.featured?' featured':'')+(item.popular?' popular':'');
+      el.innerHTML=`<div class="si-icon">${item.icon}</div>
+        <div class="si-name">${item.name}</div>
+        <div class="si-desc">${item.desc}</div>
+        <div class="si-price">${item.price||('💎'+item.gems)}</div>`;
+      el.onclick=()=>handleShopBuy(item);
+      row.appendChild(el);
+    });
+    sec.appendChild(row); sc.appendChild(sec);
+  });
+}
+
+function handleShopBuy(item) {
+  if(item.gems) {
+    if(G.gems<item.gems){showNotif('💎 ¡Sin gemas! Compra más.'); sfx.fail(); return;}
+    G.gems-=item.gems;
+    if(item.action==='pu_hammer5') G.powerups.hammer+=5;
+    else if(item.action==='pu_shuffle3') G.powerups.shuffle+=3;
+    else if(item.action==='pu_spark5') G.powerups.spark+=5;
+    else if(item.action==='pu_extra3') G.powerups.extra+=3;
+    showNotif(`✅ ¡${item.name} añadido!`); sfx.coin(); saveG();
+    updateCurrencyBar(); buildShopContent();
+    return;
+  }
+  // Simulate IAP
+  showNotif('💳 Procesando pago...');
+  setTimeout(()=>{
+    const actions={
+      gem50:()=>{G.gems+=50},
+      gem150:()=>{G.gems+=200},
+      gem500:()=>{G.gems+=600},
+      gem1500:()=>{G.gems+=2000},
+      coin1k:()=>{G.coins+=1000},
+      coin5k:()=>{G.coins+=5500},
+      coin20k:()=>{G.coins+=25000},
+      starter:()=>{G.gems+=200;G.coins+=5000;G.powerups.hammer+=3;G.powerups.spark+=3;},
+      season:()=>{G.gems+=50;},
+      noads:()=>{showNotif('🚫 ¡Anuncios eliminados! Gracias.');},
+    };
+    actions[item.action]?.();
+    sfx.win(); saveG(); updateCurrencyBar(); buildShopContent();
+    showNotif(`✅ ¡${item.name} activado! Gracias ❤️`);
+  },1500);
+}
+
+// ─── STATS ───
+function goStats() {
+  hideAllScreens(); showScreen('statsScreen');
+  const totalLevels=Object.keys(G.bestScores).length;
+  const totalStars=Object.values(G.starsEarned).reduce((a,b)=>a+b,0);
+  const rows=[
+    ['Niveles completados', totalLevels+'/300'],
+    ['Estrellas ganadas', totalStars+'⭐'],
+    ['Fusiones totales', G.totalMerges.toLocaleString()],
+    ['Puntuación total', G.totalScore.toLocaleString()],
+    ['Mejor combo', 'x'+G.bestCombo],
+    ['Gemas conseguidas', G.gems+'💎'],
+    ['Racha de días', G.streak+'🔥'],
+  ];
+  document.getElementById('statList').innerHTML=rows.map(([l,v])=>`
+    <div class="stat-item"><span class="s-label">${l}</span><span class="s-val">${v}</span></div>`).join('');
+}
+
+// ─── DAILY REWARDS ───
+const DAILY_REWARDS=[
+  {day:1,icon:'🪙',val:'+100'},
+  {day:2,icon:'💎',val:'+5'},
+  {day:3,icon:'🔨',val:'+2 Martillo'},
+  {day:4,icon:'🪙',val:'+500'},
+  {day:5,icon:'⚡',val:'+3 Chispa'},
+  {day:6,icon:'💎',val:'+20'},
+  {day:7,icon:'👑',val:'¡ÉPICO! +50💎'},
+];
+
+function goDaily() {
+  hideAllScreens(); showScreen('dailyScreen');
+  const today=new Date().toDateString();
+  const grid3=document.getElementById('dailyGrid');
+  grid3.innerHTML='';
+  DAILY_REWARDS.forEach((r,i)=>{
+    const day=i+1;
+    const claimed=G.streak>=day;
+    const isToday=G.streak===i;
+    const div=document.createElement('div');
+    div.className=`daily-day${claimed?' claimed':''}${isToday?' today':''}`;
+    div.innerHTML=`<div class="dd-label">DÍA ${day}</div><div class="dd-icon">${r.icon}</div><div class="dd-val">${r.val}</div>${claimed?'<div style="font-size:10px;color:#34d399">✓</div>':''}`;
+    grid3.appendChild(div);
+  });
+  const btn=document.getElementById('claimDailyBtn');
+  const alreadyClaimed=G.lastLogin===today;
+  btn.textContent=alreadyClaimed?'✅ YA RECLAMADO HOY':'✅ RECLAMAR HOY';
+  btn.disabled=alreadyClaimed;
+  btn.style.opacity=alreadyClaimed?.5:1;
+}
+
+function claimDaily() {
+  const today=new Date().toDateString();
+  if(G.lastLogin===today){ showNotif('⏰ Ya reclamaste hoy. ¡Vuelve mañana!'); return; }
+  G.lastLogin=today;
+  G.streak=Math.min((G.streak||0)+1,7);
+  const reward=DAILY_REWARDS[(G.streak-1)%7];
+  if(reward.icon==='🪙') G.coins+=parseInt(reward.val)||(G.streak===7?1000:100);
+  if(reward.icon==='💎') G.gems+=parseInt(reward.val)||5;
+  if(reward.icon==='🔨') G.powerups.hammer+=2;
+  if(reward.icon==='⚡') G.powerups.spark+=3;
+  if(reward.icon==='👑') { G.gems+=50; G.coins+=2000; }
+  saveG(); sfx.win(); updateCurrencyBar();
+  showNotif(`🎁 ¡Recompensa día ${G.streak}: ${reward.icon} ${reward.val}!`);
+  goDaily();
+}
+
+// ─── STORY ───
+let storyCallback=null;
+function showStory(data, cb) {
+  storyCallback=cb||null;
+  document.getElementById('storyChapter').textContent=data.chapter;
+  document.getElementById('storyIcon').textContent=data.icon;
+  document.getElementById('storyTitle').textContent=data.title;
+  document.getElementById('storyText').textContent=data.text;
+  hideAllScreens(); showScreen('storyScreen');
+}
+function dismissStory() { storyCallback?.(); storyCallback=null; if(!document.getElementById('gameScreen').classList.contains('hidden')) return; goMenu(); }
+
+// ─── NAVIGATION ───
+function goMenu() {
+  hideAllPanels(); hideAllScreens(); showScreen('menuScreen'); updateCurrencyBar();
+}
+function updateCurrencyBar() {
+  document.getElementById('menuCoins').textContent=G.coins.toLocaleString();
+  document.getElementById('menuGems').textContent=G.gems;
+}
+function confirmQuit() { showPanel('quitPanel'); }
+function confirmQuitYes() { hidePanel('quitPanel'); goMenu(); }
+function showScreen(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function hideAllScreens() { document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); }
+function showPanel(id) { const p=document.getElementById(id); p.classList.remove('hidden'); requestAnimationFrame(()=>p.classList.add('show')); }
+function hidePanel(id)  { const p=document.getElementById(id); p.classList.remove('show'); setTimeout(()=>p.classList.add('hidden'),350); }
+function hideAllPanels(){ document.querySelectorAll('.overlay-panel').forEach(p=>{p.classList.remove('show');p.classList.add('hidden');}); }
+
+// ─── NOTIFICATIONS ───
+let notifTimer;
+function showNotif(msg) {
+  const el=document.getElementById('notif');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(notifTimer);
+  notifTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ─── DAILY BONUS ON LOAD ───
+function checkDailyOnLoad() {
+  const today=new Date().toDateString();
+  if(G.lastLogin!==today && G.unlocked>1) {
+    setTimeout(()=>showNotif('🎁 ¡Bono diario disponible! Ve a Recompensa Diaria.'),1500);
+  }
+}
+
+// ─── INIT ───
+window.addEventListener('resize',()=>{resize();});
+loadG();
+resize();
+startBgLoop();
+
+// Show intro story on first play
+if(G.unlocked===1 && !G.storiesSeen[0]) {
+  G.storiesSeen[0]=true;
+  showStory(STORIES[1]||{chapter:'PRÓLOGO',icon:'🌌',title:'El Inicio',text:'El universo te necesita.'}, ()=>{
+    showScreen('menuScreen'); updateCurrencyBar();
+  });
+} else {
+  showScreen('menuScreen'); updateCurrencyBar();
+}
+
+checkDailyOnLoad();
+</script>
+</body>
+</html>
