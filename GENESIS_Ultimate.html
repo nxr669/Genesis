@@ -693,11 +693,23 @@ function buildLvlDef(num){
     objective={type:'boss',target:boss.hp,text:`Derrota a ${boss.name}`,bossId:boss.id};
   } else {
     const ot=OBJ_TYPES[(num-1)%OBJ_TYPES.length];
-    if(ot==='score'){const t=400+num*350;objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};}
-    else if(ot==='reach'){const t=Math.min(Math.floor(num/9)+3,24);objective={type:'reach',target:t,text:`Crea ${EL[t].e} ${EL[t].n}`};}
-    else if(ot==='collect'){const t=Math.min(Math.floor(num/9)+2,22);const c=2+Math.floor(num/40);objective={type:'collect',tier:t,target:c,text:`Crea ×${c} ${EL[t].e}`};}
-    else if(ot==='chain'){const t=3+Math.floor(num/30);objective={type:'chain',target:t,text:`Combo de ${t} fusiones`};}
-    else{const t=300+num*250;objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};}
+    if(ot==='score'){
+      const t=Math.max(400,300+num*120);
+      objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};
+    } else if(ot==='reach'){
+      const t=Math.min(Math.floor(num/8)+1,maxTier+1,24);
+      objective={type:'reach',target:t,text:`Crea ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='collect'){
+      const t=Math.min(Math.floor(num/10)+1,20);
+      const c=Math.min(1+Math.floor(num/60),4);
+      objective={type:'collect',tier:t,target:c,text:`Crea ×${c} ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='chain'){
+      const t=2+Math.floor(num/50);
+      objective={type:'chain',target:t,text:`Consigue un combo de ${t} fusiones`};
+    } else {
+      const t=Math.max(400,250+num*110);
+      objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};
+    }
   }
   return{num,chap,isBoss,boss,maxTier,moves,availSpecials,objective};
 }
@@ -706,10 +718,14 @@ function buildLvlDef(num){
 function buildGrid(def){
   const{rows,cols}=GM,grid=[];
   for(let r=0;r<rows;r++){grid[r]=[];for(let c=0;c<cols;c++)grid[r][c]=randTile(def);}
-  // guarantee some matches
-  for(let k=0;k<3;k++){
+  // Guarantee at least 5-7 adjacent matching pairs so board is always playable
+  const pairCount=5+Math.floor(Math.random()*3);
+  for(let k=0;k<pairCount;k++){
     const r=Math.floor(Math.random()*(rows-1)),c=Math.floor(Math.random()*(cols-1));
-    grid[r+1][c]={...grid[r][c],special:null,frozen:false,catalyst:false,bombt:false,shield:false,cursed:false,mirror:false};
+    const base={...grid[r][c],special:null,frozen:false,catalyst:false,bombt:false,shield:false,cursed:false,mirror:false};
+    // Place matching tile horizontally or vertically
+    if(Math.random()<.5) grid[r+1][c]=base;
+    else grid[r][c+1]=base;
   }
   return grid;
 }
@@ -765,7 +781,7 @@ function tapTile(r,c){
   if(sel.tier===tile.tier&&!tile.frozen&&!sel.frozen&&!tile.shield&&!sel.shield){
     doMerge(sr,sc,r,c);
   } else {
-    if(sel.shield){sel.shield=false;showNotif('🛡️ ¡Escudo roto!');GM.selected=null;GM.moves--;updateHUD();renderGrid();}
+    if(sel.shield){sel.shield=false;GM.combo=0;showNotif('🛡️ ¡Escudo roto! Combo reseteado.');GM.selected=null;GM.moves--;updateHUD();renderGrid();}
     else{GM.selected={r,c};renderGrid();}
   }
 }
@@ -776,9 +792,9 @@ function doMerge(r1,c1,r2,c2){
   const mirror=t1.mirror||t2.mirror;
   let newTier=Math.min(t1.tier+1+(catalyst?1:0),EL.length-1);
   const elem=EL[newTier];
-  const comboMult=GM.comboAbsorbed?1:1+GM.combo*.4;
+  const comboMult=GM.comboAbsorbed?1:Math.max(1,1+(GM.combo-1)*0.3);
   const mirrorMult=mirror?2:1;
-  const pts=Math.round(elem.p*.0003*(1+newTier*.8)*comboMult*mirrorMult);
+  const pts=Math.max(50,(newTier+1)*120)*comboMult*mirrorMult|0;
   GM.score+=pts; GM.combo++;G.totalMerges++;
   if(GM.comboAbsorbed)GM.comboAbsorbed=false;
   if(GM.combo>G.bestCombo)G.bestCombo=GM.combo;
@@ -814,15 +830,17 @@ function doMerge(r1,c1,r2,c2){
   sfxMerge(newTier);
   if(newTier>=17)sfxBig();
   showMergePopup(px,py,elem,pts);
-  updateObjProgress(newTier);
   updateHUD();renderGrid();
 
-  // Boss damage
+  // Boss damage first, then check progress
   if(GM.isBoss&&GM.boss){
-    const dmg=1+Math.floor(newTier/6);
+    const dmg=Math.max(1,1+Math.floor(newTier/5));
     GM.bossHp=Math.max(0,GM.bossHp-dmg);
     updateBossHp();
+    updateObjProgress(newTier);
     if(GM.bossHp<=0){setTimeout(bossWin,400);return;}
+  } else {
+    updateObjProgress(newTier);
   }
 
   checkObj();
