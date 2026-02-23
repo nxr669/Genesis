@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GENESIS: Cosmic Merge — ULTIMATE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#02040e;--bg2:#05091a;
+  --gold:#f4c542;--gold2:#e8952a;--goldDark:#78350f;
+  --blue:#1e90ff;--cyan:#00d4ff;--cyan2:#06b6d4;
+  --purple:#8b5cf6;--purple2:#6d28d9;
+  --pink:#ec4899;--red:#ef4444;--red2:#dc2626;
+  --green:#10b981;--teal:#14b8a6;
+  --text:#e8eaf6;--text2:rgba(232,234,246,.55);--text3:rgba(232,234,246,.3);
+  --card:rgba(255,255,255,.04);--border:rgba(255,255,255,.09);--border2:rgba(255,255,255,.15);
+  --rad:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Exo 2',sans-serif;color:var(--text);touch-action:none}
+canvas{position:fixed;top:0;left:0;pointer-events:none}
+#bgC{z-index:0}#ptC{z-index:50}
+#app{position:fixed;inset:0;z-index:10;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s,transform .4s}
+.screen.hidden{opacity:0;transform:scale(.97);pointer-events:none;display:none!important}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:var(--rad);cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:transform .12s,box-shadow .15s;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.93)}
+.btn-prime{background:linear-gradient(135deg,#1a105e,#3b1fa8,#1a105e);color:#fff;font-size:15px;padding:17px 36px;border:1px solid rgba(139,92,246,.5);box-shadow:0 0 28px rgba(139,92,246,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+.btn-gold{background:linear-gradient(135deg,#78350f,#d97706,#78350f);color:#fffbeb;font-size:14px;padding:15px 32px;border:1px solid rgba(244,197,66,.4);box-shadow:0 0 22px rgba(244,197,66,.2)}
+.btn-red{background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-size:14px;padding:14px 28px}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--text2);font-size:13px;padding:13px 26px;border:1px solid var(--border)}
+.btn-sm{font-size:12px;padding:10px 20px;border-radius:12px}
+.btn-boss{background:linear-gradient(135deg,#450a0a,#991b1b,#450a0a);color:#fca5a5;font-size:14px;padding:15px 32px;border:1px solid rgba(239,68,68,.5);box-shadow:0 0 25px rgba(239,68,68,.3);animation:bossGlow 2s ease-in-out infinite}
+@keyframes bossGlow{0%,100%{box-shadow:0 0 25px rgba(239,68,68,.3)}50%{box-shadow:0 0 45px rgba(239,68,68,.6)}}
+
+/* ── CINZEL TITLE ── */
+.cz{font-family:'Cinzel',serif}
+.czd{font-family:'Cinzel Decorative',serif}
+
+/* ── LOGO ── */
+.logo-pre{font-family:'Cinzel',serif;font-size:clamp(10px,2.5vw,14px);letter-spacing:10px;color:var(--cyan);opacity:.75;text-transform:uppercase;margin-bottom:4px}
+.logo-main{font-family:'Cinzel Decorative',serif;font-size:clamp(48px,13vw,88px);font-weight:900;letter-spacing:-1px;line-height:.9;background:linear-gradient(135deg,#fff 0%,var(--gold) 35%,var(--cyan) 65%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 32px rgba(0,212,255,.25))}
+.logo-sub{font-family:'Cinzel',serif;font-size:clamp(9px,2.2vw,13px);letter-spacing:8px;color:rgba(255,255,255,.35);margin-top:6px;text-transform:uppercase}
+.logo-tagline{font-family:'Exo 2',sans-serif;font-style:italic;font-size:clamp(12px,3vw,15px);color:rgba(255,255,255,.5);text-align:center;margin-top:16px;line-height:1.5;max-width:320px;padding:0 16px}
+
+/* ── CURRENCY ── */
+.curr-bar{position:absolute;top:14px;right:14px;display:flex;gap:7px;z-index:20}
+.curr-pill{background:rgba(0,0,0,.65);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;backdrop-filter:blur(12px)}
+
+/* ── BACK BTN ── */
+.back{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:8px 15px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:600;touch-action:manipulation;transition:all .15s;z-index:20}
+.back:active{transform:scale(.93)}
+
+/* ── MENU NAV ── */
+.menu-nav{display:flex;flex-direction:column;gap:11px;width:min(280px,82vw);margin-top:32px}
+
+/* ── CHAPTER SELECT ── */
+#chapterScreen{justify-content:flex-start;padding-top:70px;padding-bottom:20px;overflow-y:auto}
+.chapter-cards{display:flex;flex-direction:column;gap:10px;width:min(400px,94vw);padding:0 12px}
+.chap-card{border-radius:18px;padding:16px 18px;cursor:pointer;transition:all .2s;touch-action:manipulation;border:1px solid var(--border);display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.chap-card:active{transform:scale(.97)}
+.chap-card.locked{background:rgba(255,255,255,.03);cursor:default;opacity:.5}
+.chap-card.locked::after{content:'🔒';position:absolute;right:16px;font-size:20px}
+.chap-icon{font-size:36px;flex-shrink:0;filter:drop-shadow(0 0 10px currentColor)}
+.chap-info{flex:1;min-width:0}
+.chap-num{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;opacity:.6;text-transform:uppercase;margin-bottom:3px}
+.chap-name{font-family:'Cinzel',serif;font-size:clamp(13px,3.5vw,16px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chap-desc{font-size:11px;color:var(--text2);margin-top:3px}
+.chap-prog{font-family:'Cinzel',serif;font-size:11px;color:var(--cyan);margin-top:4px}
+
+/* ── LEVEL SELECT ── */
+#levelScreen{justify-content:flex-start;padding-top:68px;overflow-y:auto;padding-bottom:24px}
+.lvl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(370px,95vw);padding:0 10px}
+.lvl-btn{aspect-ratio:1;border-radius:13px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .18s;touch-action:manipulation;position:relative;overflow:hidden}
+.lvl-btn:active{transform:scale(.9)}
+.lvl-btn.locked{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);cursor:default}
+.lvl-btn.unlocked{background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(30,144,255,.18));border:1px solid rgba(139,92,246,.28)}
+.lvl-btn.completed{background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(6,182,212,.18));border:1px solid rgba(16,185,129,.28)}
+.lvl-btn.boss-lvl{background:linear-gradient(135deg,rgba(220,38,38,.25),rgba(124,45,18,.2))!important;border-color:rgba(220,38,38,.5)!important;box-shadow:0 0 12px rgba(220,38,38,.25)!important}
+.lvl-btn.boss-lvl .lvl-n{color:#fca5a5!important}
+.lvl-n{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:#fff}
+.lvl-ico{font-size:13px;line-height:1}
+.lvl-stars{font-size:7px;letter-spacing:-1px;margin-top:1px}
+.chapter-row-label{grid-column:1/-1;font-family:'Cinzel',serif;font-size:9px;letter-spacing:4px;color:var(--cyan);opacity:.55;text-align:center;padding:6px 0 3px;text-transform:uppercase}
+
+/* ── STORY / CUTSCENE ── */
+#storyScreen{background:rgba(2,4,14,.98);padding:20px}
+.story-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:380px;animation:fadeUp .6s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.st-episode{font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;color:var(--cyan);opacity:.7;text-transform:uppercase;margin-bottom:12px}
+.st-icon{font-size:72px;margin-bottom:18px;filter:drop-shadow(0 0 24px rgba(0,212,255,.4));animation:floatStory 3s ease-in-out infinite}
+@keyframes floatStory{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.04)}}
+.st-title{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,28px);font-weight:700;color:var(--gold);margin-bottom:14px;line-height:1.2}
+.st-divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 18px}
+.st-text{font-size:clamp(13px,3.5vw,15px);color:rgba(255,255,255,.75);line-height:1.85;font-style:italic}
+.st-quote{font-family:'Cinzel',serif;font-size:clamp(12px,3vw,14px);color:var(--cyan);margin-top:16px;letter-spacing:1px;opacity:.8}
+
+/* ── BOSS INTRO ── */
+#bossIntroScreen{background:rgba(10,2,2,.98)}
+.boss-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:360px}
+.boss-pre{font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;color:#fca5a5;text-transform:uppercase;margin-bottom:10px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.boss-icon{font-size:80px;margin:8px 0;filter:drop-shadow(0 0 30px rgba(220,38,38,.7));animation:bossIdle 2s ease-in-out infinite}
+@keyframes bossIdle{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.07) rotate(2deg)}}
+.boss-name{font-family:'Cinzel Decorative',serif;font-size:clamp(22px,6vw,36px);font-weight:900;margin-bottom:6px}
+.boss-title-tag{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:#fca5a5;opacity:.8;text-transform:uppercase;margin-bottom:14px}
+.boss-lore{font-size:clamp(12px,3.2vw,14px);color:rgba(255,200,200,.75);line-height:1.75;font-style:italic;margin-bottom:20px}
+.boss-abilities{display:flex;flex-direction:column;gap:7px;width:100%;margin-bottom:22px}
+.boss-ability{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);border-radius:12px;padding:9px 14px;display:flex;align-items:center;gap:10px;text-align:left}
+.ba-icon{font-size:18px;flex-shrink:0}
+.ba-text{font-size:12px;color:#fca5a5;font-weight:600}
+.ba-desc{font-size:11px;color:rgba(255,200,200,.6)}
+
+/* ── GAME HUD ── */
+#gameScreen{justify-content:flex-start;padding:0}
+#gHud{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px 6px;background:linear-gradient(180deg,rgba(2,4,14,.95) 0%,transparent 100%);flex-shrink:0;position:relative;z-index:5}
+.hb{display:flex;flex-direction:column;align-items:center}
+.hl{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+.hv{font-family:'Cinzel',serif;font-size:19px;font-weight:700;color:#fff;line-height:1}
+.hv.score{color:var(--gold)}
+.hv.moves-low{color:var(--red)!important;animation:movesLow .6s ease-in-out infinite}
+@keyframes movesLow{0%,100%{opacity:1}50%{opacity:.5}}
+.moves-ring{width:50px;height:50px;position:relative;flex-shrink:0}
+.moves-ring svg{transform:rotate(-90deg)}
+.mv-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:15px;font-weight:700}
+
+/* ── BOSS HP BAR ── */
+#bossHpBar{width:100%;padding:0 14px 6px;flex-shrink:0;display:none}
+.boss-hp-wrap{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);border-radius:12px;padding:8px 12px}
+.boss-hp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.boss-hp-name{font-family:'Cinzel',serif;font-size:11px;color:#fca5a5;letter-spacing:1px}
+.boss-hp-val{font-family:'Cinzel',serif;font-size:11px;color:#fca5a5}
+.boss-hp-track{height:8px;background:rgba(220,38,38,.15);border-radius:4px;overflow:hidden}
+.boss-hp-fill{height:100%;background:linear-gradient(90deg,#7f1d1d,#ef4444,#fca5a5);border-radius:4px;transition:width .4s;box-shadow:0 0 8px rgba(239,68,68,.5)}
+
+/* ── OBJECTIVE BANNER ── */
+#objBanner{width:100%;padding:5px 14px;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border)}
+.obj-t{font-size:11px;color:var(--text2);letter-spacing:.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.obj-p{font-size:11px;font-weight:700;color:var(--cyan);flex-shrink:0;margin-left:8px}
+.obj-prog-bar{width:60px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-left:8px;flex-shrink:0}
+.obj-prog-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;transition:width .35s}
+
+/* ── GRID ── */
+#gridWrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:6px;overflow:hidden}
+#grid{display:grid;gap:5px;padding:10px;background:rgba(255,255,255,.015);border-radius:18px;border:1px solid rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 60px rgba(0,0,0,.5)}
+.tile{border-radius:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .1s,box-shadow .1s;position:relative;overflow:hidden;touch-action:manipulation;border:1.5px solid transparent}
+.tile:active{transform:scale(.88)}
+.tile.sel{transform:scale(1.06);z-index:5}
+.tile-em{line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.tile-nm{font-size:clamp(5.5px,1.3vw,7.5px);letter-spacing:.3px;opacity:.65;margin-top:2px;text-align:center;font-weight:600;line-height:1;padding:0 2px}
+.tile.frozen::after{content:'🔒';position:absolute;top:1px;right:2px;font-size:9px}
+.tile.catalyst::before{content:'✨';position:absolute;top:1px;left:2px;font-size:9px}
+.tile.bombt::before{content:'💥';position:absolute;top:1px;left:2px;font-size:9px}
+.tile.shield::after{content:'🛡️';position:absolute;top:1px;right:2px;font-size:9px}
+.tile.cursed::after{content:'💀';position:absolute;top:1px;right:2px;font-size:9px}
+.tile.mirror::before{content:'🪞';position:absolute;top:1px;left:2px;font-size:9px}
+.tile-shine{position:absolute;top:-40%;left:-60%;width:25%;height:120%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-25deg);animation:tshine 5s ease-in-out infinite}
+@keyframes tshine{0%,80%,100%{left:-60%}90%{left:140%}}
+.hint-pulse{animation:hpulse 1s ease-in-out 3!important}
+@keyframes hpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* ── POWERUP BAR ── */
+#puBar{width:100%;display:flex;justify-content:center;gap:9px;padding:7px 14px 12px;flex-shrink:0}
+.pu{width:52px;height:52px;border-radius:14px;border:1px solid var(--border);background:rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;touch-action:manipulation;position:relative;backdrop-filter:blur(8px)}
+.pu:active{transform:scale(.87)}
+.pu.act{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,212,255,.4)}
+.pu-em{font-size:20px;line-height:1}
+.pu-lb{font-size:7.5px;color:var(--text2);letter-spacing:.4px;margin-top:2px;font-weight:700;text-transform:uppercase}
+.pu-ct{position:absolute;top:-5px;right:-5px;background:var(--purple);color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center}
+
+/* ── BOSS ATTACK FLASH ── */
+.boss-attack-overlay{position:fixed;inset:0;background:rgba(180,0,0,.35);pointer-events:none;z-index:60;opacity:0;animation:bossFlash .5s ease-out forwards}
+@keyframes bossFlash{0%{opacity:1}100%{opacity:0}}
+
+/* ── PANELS ── */
+.panel-bg{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.panel-bg.show{opacity:1}
+.panel-bg.hidden{display:none}
+.panel{background:linear-gradient(155deg,#08101f,#0e1928);border:1px solid var(--border2);border-radius:22px;padding:26px 22px;width:min(320px,90vw);text-align:center;box-shadow:0 0 80px rgba(0,0,0,.8)}
+.panel-icon{font-size:50px;margin-bottom:10px}
+.panel h2{font-family:'Cinzel',serif;font-size:clamp(17px,5vw,22px);margin-bottom:8px}
+.panel p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px}
+.panel-btns{display:flex;flex-direction:column;gap:9px}
+.res-stars{display:flex;justify-content:center;gap:8px;font-size:38px;margin:12px 0}
+.res-score{font-family:'Cinzel',serif;font-size:30px;color:var(--gold)}
+.res-sub{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:1px}
+.res-bonus{font-size:15px;color:var(--gold);margin-bottom:18px;font-weight:700}
+.boss-win-title{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,26px);color:var(--gold);margin-bottom:4px}
+.boss-win-sub{font-size:12px;letter-spacing:3px;color:#fca5a5;text-transform:uppercase;margin-bottom:18px}
+
+/* ── SHOP ── */
+#shopScreen{justify-content:flex-start;padding-top:58px;padding-bottom:20px;overflow-y:auto}
+.shop-hd{text-align:center;padding:0 16px 16px}
+.shop-hd h1{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,5vw,24px);color:var(--gold)}
+.shop-curr{font-size:13px;color:var(--text2);margin-top:4px}
+.shop-sec{width:min(420px,96vw);padding:0 12px;margin-bottom:18px}
+.shop-sec-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:var(--cyan);opacity:.75;text-transform:uppercase;margin-bottom:10px;padding-left:3px}
+.shop-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:3px}
+.shop-row::-webkit-scrollbar{display:none}
+.shop-card{flex-shrink:0;width:128px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .18s;touch-action:manipulation;position:relative}
+.shop-card:active{transform:scale(.94)}
+.shop-card.feat{background:linear-gradient(135deg,rgba(244,197,66,.07),rgba(232,149,42,.04));border-color:rgba(244,197,66,.3);box-shadow:0 0 18px rgba(244,197,66,.1)}
+.shop-card.pop::before{content:'🔥 POPULAR';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--red2);color:#fff;font-size:7.5px;font-weight:700;padding:2px 9px;border-radius:9px;letter-spacing:.5px;white-space:nowrap}
+.sc-icon{font-size:34px;filter:drop-shadow(0 0 7px rgba(0,212,255,.3))}
+.sc-name{font-family:'Cinzel',serif;font-size:10px;font-weight:700;color:#fff;text-align:center;letter-spacing:.3px}
+.sc-desc{font-size:10px;color:var(--text2);text-align:center;line-height:1.3}
+.sc-price{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold)}
+.sc-badge{font-size:8px;background:rgba(16,185,129,.15);color:#34d399;padding:2px 7px;border-radius:8px;border:1px solid rgba(16,185,129,.3)}
+
+/* ── STATS ── */
+.stat-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.stat-row:last-child{border:none}
+.sl{font-size:13px;color:var(--text2)}
+.sv{font-family:'Cinzel',serif;font-size:14px;color:#fff}
+
+/* ── DAILY ── */
+.daily-grid{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.day-box{width:50px;height:62px;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid var(--border);background:rgba(255,255,255,.03)}
+.day-box.claimed{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3)}
+.day-box.today{background:linear-gradient(135deg,rgba(244,197,66,.18),rgba(139,92,246,.15));border-color:var(--gold);box-shadow:0 0 14px rgba(244,197,66,.2)}
+.day-box .dl{font-size:8px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.day-box .di{font-size:18px}
+.day-box .dv{font-size:9px;font-weight:700;color:var(--gold)}
+
+/* ── NOTIFICATIONS ── */
+#notif{position:fixed;top:74px;left:50%;transform:translateX(-50%) translateY(-18px);background:rgba(2,4,14,.95);border:1px solid var(--border);border-radius:13px;padding:9px 20px;font-size:13px;color:#fff;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(20px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+#notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MERGE POPUP ── */
+.mpop{position:fixed;pointer-events:none;z-index:300;text-align:center;transform:translate(-50%,-50%);animation:mpopAnim .85s ease-out forwards}
+@keyframes mpopAnim{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}55%{opacity:1;transform:translate(-50%,-65%) scale(1.12)}100%{opacity:0;transform:translate(-50%,-85%) scale(.9)}}
+.mpop-em{font-size:46px;filter:drop-shadow(0 0 14px gold)}
+.mpop-nm{font-family:'Cinzel',serif;font-size:15px;color:var(--gold);font-weight:700;letter-spacing:2px;margin-top:3px}
+.mpop-pt{font-size:12px;color:rgba(255,255,255,.65)}
+.mpop-combo{font-family:'Cinzel',serif;font-size:13px;color:#fbbf24;letter-spacing:2px;margin-top:2px}
+
+/* ── MISC ── */
+.section-title{font-family:'Cinzel',serif;font-size:clamp(16px,4vw,20px);margin-bottom:16px}
+.version{position:absolute;bottom:18px;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:3px}
+</style>
+</head>
+<body>
+<canvas id="bgC"></canvas>
+<canvas id="ptC"></canvas>
+<div id="app">
+
+<!-- ════ MAIN MENU ════ -->
+<div class="screen" id="menuScreen">
+  <div class="curr-bar">
+    <div class="curr-pill">🪙<span id="mCoins">0</span></div>
+    <div class="curr-pill">💎<span id="mGems">0</span></div>
+  </div>
+  <div style="text-align:center">
+    <div class="logo-pre">PROYECTO</div>
+    <div class="logo-main">GENESIS</div>
+    <div class="logo-sub">COSMIC MERGE · ULTIMATE</div>
+    <div class="logo-tagline">"El universo murió. Solo tú recuerdas cómo latía. Ahora debes reconstruirlo... antes de que los Señores del Vacío lo consuman para siempre."</div>
+  </div>
+  <div class="menu-nav">
+    <button class="btn btn-prime" onclick="goChapters()">🌌 CONTINUAR VIAJE</button>
+    <button class="btn btn-gold" onclick="goShop()">⚗️ TIENDA CÓSMICA</button>
+    <button class="btn btn-ghost" onclick="goStats()">📊 CRÓNICAS</button>
+    <button class="btn btn-ghost" onclick="goDaily()">🎁 RECOMPENSA DIARIA</button>
+  </div>
+  <div class="version czd">v3.0 · GENESIS ULTIMATE</div>
+</div>
+
+<!-- ════ STORY / CUTSCENE ════ -->
+<div class="screen hidden" id="storyScreen">
+  <div class="story-wrap">
+    <div class="st-episode" id="stEpisode">PRÓLOGO</div>
+    <div class="st-icon" id="stIcon">🌌</div>
+    <div class="st-title" id="stTitle">El Gran Silencio</div>
+    <div class="st-divider"></div>
+    <div class="st-text" id="stText">Texto de historia...</div>
+    <div class="st-quote" id="stQuote"></div>
+    <button class="btn btn-prime" style="margin-top:28px;width:min(240px,75vw)" onclick="dismissStory()">CONTINUAR →</button>
+  </div>
+</div>
+
+<!-- ════ BOSS INTRO ════ -->
+<div class="screen hidden" id="bossIntroScreen" style="background:rgba(10,2,2,.98)">
+  <div class="boss-wrap">
+    <div class="boss-pre">⚔ NIVEL JEFE</div>
+    <div class="boss-icon" id="biIcon">👹</div>
+    <div class="boss-name" id="biName">NOMBRE</div>
+    <div class="boss-title-tag" id="biTitle">Señor del Vacío</div>
+    <div class="boss-lore" id="biLore">Lore del jefe...</div>
+    <div class="boss-abilities" id="biAbilities"></div>
+    <button class="btn btn-boss" style="width:min(240px,75vw)" onclick="dismissBossIntro()">⚔️ ¡ENFRENTARLO!</button>
+  </div>
+</div>
+
+<!-- ════ CHAPTER SELECT ════ -->
+<div class="screen hidden" id="chapterScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div style="font-family:'Cinzel Decorative',serif;font-size:clamp(16px,4.5vw,22px);color:var(--gold);margin-bottom:18px;margin-top:56px">MAPA CÓSMICO</div>
+  <div class="chapter-cards" id="chapterCards"></div>
+</div>
+
+<!-- ════ LEVEL SELECT ════ -->
+<div class="screen hidden" id="levelScreen">
+  <button class="back" onclick="goChapters()">← CAPÍTULOS</button>
+  <div style="font-family:'Cinzel',serif;font-size:clamp(13px,4vw,18px);color:var(--text);margin-bottom:14px;margin-top:54px" id="levelScreenTitle">CAPÍTULO I</div>
+  <div class="lvl-grid" id="lvlGrid"></div>
+</div>
+
+<!-- ════ GAME ════ -->
+<div class="screen hidden" id="gameScreen">
+  <div id="gHud">
+    <div class="hb"><div class="hl">PUNTOS</div><div class="hv score" id="hScore">0</div></div>
+    <div class="moves-ring">
+      <svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="4"/><circle id="mvArc" cx="25" cy="25" r="21" fill="none" stroke="url(#mg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="131.9" stroke-dashoffset="0"/><defs><linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs></svg>
+      <div class="mv-txt" id="hMoves">30</div>
+    </div>
+    <div class="hb" style="align-items:flex-end"><div class="hl">NIVEL</div><div class="hv" id="hLevel">1</div></div>
+  </div>
+  <div id="bossHpBar">
+    <div class="boss-hp-wrap">
+      <div class="boss-hp-top"><span class="boss-hp-name" id="bossHpName">JEFE</span><span class="boss-hp-val" id="bossHpVal">100/100</span></div>
+      <div class="boss-hp-track"><div class="boss-hp-fill" id="bossHpFill" style="width:100%"></div></div>
+    </div>
+  </div>
+  <div id="objBanner">
+    <div class="obj-t" id="objTxt">Objetivo</div>
+    <div class="obj-p" id="objPrg">0/0</div>
+    <div class="obj-prog-bar"><div class="obj-prog-fill" id="objFill" style="width:0%"></div></div>
+  </div>
+  <div id="gridWrap"><div id="grid"></div></div>
+  <div id="puBar">
+    <div class="pu" id="puHammer" onclick="selPu('hammer')"><div class="pu-em">🔨</div><div class="pu-lb">ROMPER</div><div class="pu-ct" id="puHammerN">0</div></div>
+    <div class="pu" id="puShuffle" onclick="selPu('shuffle')"><div class="pu-em">🔀</div><div class="pu-lb">BARAJAR</div><div class="pu-ct" id="puShuffleN">0</div></div>
+    <div class="pu" id="puSpark" onclick="selPu('spark')"><div class="pu-em">⚡</div><div class="pu-lb">CHISPA</div><div class="pu-ct" id="puSparkN">0</div></div>
+    <div class="pu" id="puExtra" onclick="selPu('extra')"><div class="pu-em">➕</div><div class="pu-lb">+MOVS</div><div class="pu-ct" id="puExtraN">0</div></div>
+  </div>
+  <button class="back" style="top:12px;left:12px;padding:6px 11px;font-size:10px;z-index:20" onclick="confirmQuit()">✕</button>
+</div>
+
+<!-- ════ SHOP ════ -->
+<div class="screen hidden" id="shopScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div class="shop-hd" style="margin-top:48px">
+    <h1>TIENDA CÓSMICA</h1>
+    <div class="shop-curr">🪙 <span id="sCoins">0</span> &nbsp;|&nbsp; 💎 <span id="sGems">0</span></div>
+  </div>
+  <div id="shopContent" style="width:min(420px,96vw)"></div>
+</div>
+
+<!-- ════ STATS ════ -->
+<div class="screen hidden" id="statsScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div class="section-title cz t-gold" style="margin-top:56px">📜 CRÓNICAS</div>
+  <div style="width:min(310px,90vw)" id="statRows"></div>
+</div>
+
+<!-- ════ DAILY ════ -->
+<div class="screen hidden" id="dailyScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div class="section-title cz" style="color:var(--gold);margin-top:56px">🎁 RACHA DIARIA</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:8px;text-align:center">¡Entra cada día y gana recompensas épicas!</div>
+  <div class="daily-grid" id="dailyGrid"></div>
+  <button class="btn btn-gold" style="width:min(240px,75vw);margin-top:12px" id="claimBtn" onclick="claimDaily()">✅ RECLAMAR HOY</button>
+</div>
+
+</div><!-- /app -->
+
+<!-- ════ PANELS ════ -->
+<div class="panel-bg hidden" id="winPanel">
+  <div class="panel">
+    <div class="panel-icon">🏆</div>
+    <h2 class="cz" style="color:var(--gold)">¡COMPLETADO!</h2>
+    <div class="res-stars" id="resStars"></div>
+    <div class="res-score" id="resScore"></div>
+    <div class="res-sub" id="resBest"></div>
+    <div class="res-bonus" id="resBonus"></div>
+    <div class="panel-btns">
+      <button class="btn btn-prime" onclick="nextLvl()">▶ SIGUIENTE NIVEL</button>
+      <button class="btn btn-ghost btn-sm" onclick="replayLvl()">🔄 REPETIR</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="bossWinPanel">
+  <div class="panel" style="border-color:rgba(244,197,66,.3);box-shadow:0 0 60px rgba(244,197,66,.15)">
+    <div class="panel-icon">👑</div>
+    <div class="boss-win-title" id="bwTitle">¡JEFE DERROTADO!</div>
+    <div class="boss-win-sub" id="bwSub">EL VACÍO SE RETIRA</div>
+    <div class="res-stars" id="bwStars"></div>
+    <div class="res-score" id="bwScore"></div>
+    <div class="res-bonus" id="bwBonus"></div>
+    <div id="bwLore" style="font-size:12px;color:rgba(255,200,150,.7);font-style:italic;margin-bottom:18px;line-height:1.6"></div>
+    <div class="panel-btns">
+      <button class="btn btn-prime" onclick="nextLvl()">▶ CONTINUAR</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="losePanel">
+  <div class="panel">
+    <div class="panel-icon">💀</div>
+    <h2 class="cz" style="color:var(--red)">SIN MOVIMIENTOS</h2>
+    <p>La oscuridad avanza.<br>Tu puntuación: <strong id="goScore" style="color:var(--gold)">0</strong></p>
+    <div class="panel-btns">
+      <button class="btn btn-gold" onclick="buyMoves()">⚡ +5 Movimientos — 💎20</button>
+      <button class="btn btn-ghost btn-sm" onclick="watchAd()">📺 Ver Anuncio — GRATIS</button>
+      <button class="btn btn-ghost btn-sm" onclick="replayLvl()">🔄 Reintentar</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 Mapa</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="quitPanel">
+  <div class="panel">
+    <div class="panel-icon">🌌</div>
+    <h2 class="cz">¿Abandonar?</h2>
+    <p>El progreso del nivel actual se perderá.</p>
+    <div class="panel-btns">
+      <button class="btn btn-red" onclick="doQuit()">✕ SALIR</button>
+      <button class="btn btn-ghost btn-sm" onclick="hidePanel('quitPanel')">← CONTINUAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// GENESIS: COSMIC MERGE ULTIMATE — COMPLETE ENGINE v3.0
+// ══════════════════════════════════════════════════════════════
+
+// ─── 30 ELEMENT TIERS ───
+const EL=[
+  {id:0, e:'⚡',n:'Chispa',      c:'#fbbf24',g:'rgba(251,191,36,.6)',  p:10},
+  {id:1, e:'🔥',n:'Calor',       c:'#f97316',g:'rgba(249,115,22,.6)',  p:25},
+  {id:2, e:'💥',n:'Plasma',      c:'#ef4444',g:'rgba(239,68,68,.6)',   p:55},
+  {id:3, e:'⚗️',n:'Partícula',  c:'#a78bfa',g:'rgba(167,139,250,.6)', p:110},
+  {id:4, e:'⚛️',n:'Átomo',       c:'#60a5fa',g:'rgba(96,165,250,.6)',  p:220},
+  {id:5, e:'🫧', n:'Molécula',   c:'#38bdf8',g:'rgba(56,189,248,.6)',  p:440},
+  {id:6, e:'💧',n:'Agua',        c:'#06b6d4',g:'rgba(6,182,212,.6)',   p:900},
+  {id:7, e:'🌫️',n:'Nube',       c:'#94a3b8',g:'rgba(148,163,184,.6)', p:1800},
+  {id:8, e:'🌱',n:'Vida',        c:'#4ade80',g:'rgba(74,222,128,.6)',  p:3500},
+  {id:9, e:'🧬',n:'ADN',         c:'#34d399',g:'rgba(52,211,153,.6)',  p:7000},
+  {id:10,e:'🦠',n:'Microbio',    c:'#6ee7b7',g:'rgba(110,231,183,.6)', p:12000},
+  {id:11,e:'🌿',n:'Flora',       c:'#22c55e',g:'rgba(34,197,94,.6)',   p:20000},
+  {id:12,e:'🌍',n:'Mundo',       c:'#3b82f6',g:'rgba(59,130,246,.6)',  p:35000},
+  {id:13,e:'🌙',n:'Luna',        c:'#e2e8f0',g:'rgba(226,232,240,.6)', p:55000},
+  {id:14,e:'🌊',n:'Océano',      c:'#0ea5e9',g:'rgba(14,165,233,.6)',  p:80000},
+  {id:15,e:'🌋',n:'Volcán',      c:'#dc2626',g:'rgba(220,38,38,.6)',   p:120000},
+  {id:16,e:'🌈',n:'Aurora',      c:'#f472b6',g:'rgba(244,114,182,.6)', p:180000},
+  {id:17,e:'⭐',n:'Estrella',    c:'#fcd34d',g:'rgba(252,211,77,.7)',  p:280000},
+  {id:18,e:'☀️',n:'Sol',         c:'#fb923c',g:'rgba(251,146,60,.7)',  p:420000},
+  {id:19,e:'🪐',n:'Planeta',     c:'#d97706',g:'rgba(217,119,6,.7)',   p:650000},
+  {id:20,e:'☄️',n:'Cometa',      c:'#7dd3fc',g:'rgba(125,211,252,.7)', p:1000000},
+  {id:21,e:'🌌',n:'Galaxia',     c:'#8b5cf6',g:'rgba(139,92,246,.8)',  p:1600000},
+  {id:22,e:'🌠',n:'Nebulosa',    c:'#a855f7',g:'rgba(168,85,247,.8)',  p:2500000},
+  {id:23,e:'💫',n:'Supernova',   c:'#ffffff',g:'rgba(255,255,255,.8)', p:4000000},
+  {id:24,e:'🕳️',n:'Ag. Negro',  c:'#1e1b4b',g:'rgba(99,102,241,.9)', p:7000000},
+  {id:25,e:'🌀',n:'Dimensión',   c:'#c026d3',g:'rgba(192,38,211,.9)', p:12000000},
+  {id:26,e:'👁️',n:'Consciencia', c:'#e0f2fe',g:'rgba(224,242,254,.9)',p:20000000},
+  {id:27,e:'🔮',n:'Oráculo',     c:'#7c3aed',g:'rgba(124,58,237,.9)', p:35000000},
+  {id:28,e:'∞', n:'Infinito',    c:'#f4b942',g:'rgba(244,185,66,1)',   p:60000000},
+  {id:29,e:'🌟',n:'UNIVERSO',    c:'#ffffff',g:'rgba(255,255,255,1)',  p:100000000},
+];
+
+// ─── 10 CHAPTERS ───
+const CHAPTERS=[
+  {id:1, name:'El Gran Silencio',     icon:'🌌',color:'#1e1b4b',levels:[1,30],   bossLevel:30,
+   desc:'El universo yace dormido. Despierta la primera energía.',
+   story:[
+     {at:1,  ep:'PRÓLOGO',          icon:'🌌',title:'El Gran Silencio',       text:'Hace eones, el universo cantaba. Cada átomo vibraba en perfecta armonía cósmica, tejiendo melodías que ningún oído podría comprender. Luego llegó la Fractura: una grieta en el tejido del espacio-tiempo que propagó un silencio absoluto, consumiendo toda luz, todo movimiento, toda vida.',                                                                           quote:'"Del silencio nacerá la primera chispa." — Registro Cero'},
+     {at:5,  ep:'CAPÍTULO I · I',   icon:'⚡',title:'La Primera Chispa',      text:'En la oscuridad total, algo se mueve. Una fluctuación cuántica, un error estadístico en la nada perfecta. Es débil, casi imperceptible, pero es real. Es tuya. Con cada fusión que realizas, el universo recuerda cómo existir.',                                                                                                                                  quote:'"Una chispa es suficiente para recordar el fuego." — GENESIS'},
+     {at:10, ep:'CAPÍTULO I · II',  icon:'🔥',title:'El Calor Regresa',       text:'El calor se expande. Las primeras partículas se organizan, torpes y erráticas, pero con una dirección: crecer. Los registros antiguos de GENESIS muestran que esto ya ocurrió antes. ¿Cuántas veces ha muerto y renacido el universo? La respuesta es inquietante.',                                                                                               quote:'"Cada universo es el recuerdo de otro." — Archivo Akásico'},
+     {at:20, ep:'CAPÍTULO I · III', icon:'⚗️',title:'La Materia Despierta',  text:'Las partículas se reconocen unas a otras como si se hubieran extrañado. Los átomos emergen de la confusión primordial. Hay belleza en este caos ordenado. Pero algo observa desde las sombras, entre las grietas del espacio que aún no ha sido reconstruido.',                                                                                                 quote:'"La materia tiene memoria. Y la memoria tiene hambre." — Registro 7'},
+   ]},
+  {id:2, name:'Señores del Vacío',    icon:'💀',color:'#450a0a',levels:[31,60],  bossLevel:60,
+   desc:'Los demonios del Vacío despiertan para detener la reconstrucción.',
+   story:[
+     {at:31, ep:'CAPÍTULO II · I',  icon:'💀',title:'El Primer Señor',        text:'No estás solo en la oscuridad. Los Señores del Vacío existen desde antes de la Fractura, nacidos del espacio entre espacios. Se alimentan de la energía que liberas con cada fusión. Te han estado observando. Y ahora vienen.',                                                                                                                                    quote:'"Nosotros somos lo que queda cuando el universo olvida existir." — Vorrax'},
+     {at:40, ep:'CAPÍTULO II · II', icon:'🩸',title:'La Sangre del Vacío',    text:'Las criaturas del Vacío no son malignas en el sentido humano. Son... hambrientas. Fueron creadas para consumir entropía, pero cuando no queda nada más que consumir, se vuelven contra la creación misma. GENESIS comprende su dolor, pero no puede permitirles ganar.',                                                                                          quote:'"Entender al enemigo no significa perdonarlo." — Protocolo de Combate'},
+     {at:50, ep:'CAPÍTULO II · III',icon:'🌑',title:'La Noche Absoluta',      text:'El segundo Señor del Vacío ha bloqueado las rutas cósmicas. Sectores enteros del universo en reconstrucción han sido consumidos. GENESIS calcula que si no se detiene la invasión en los próximos ciclos, la segunda muerte del universo será permanente.',                                                                                                          quote:'"Hay cosas peores que la muerte. Una es el olvido eterno." — GENESIS'},
+   ]},
+  {id:3, name:'El Renacimiento',      icon:'🌱',color:'#052e16',levels:[61,90],  bossLevel:90,
+   desc:'La vida surge de las cenizas. Protégela de los parásitos.',
+   story:[
+     {at:61, ep:'CAPÍTULO III · I', icon:'🧬',title:'La Semilla Imposible',   text:'Contra toda probabilidad, en un rincón olvidado del cosmos, aparece vida. No la esperabas tan pronto. Los modelos de GENESIS predecían millones de ciclos más. Pero aquí está: pequeña, frágil, perfectamente improbable. Y los parásitos del Vacío ya la han detectado.',                                                                                     quote:'"La vida es el universo tratando de entenderse a sí mismo." — Teoría Omni'},
+     {at:75, ep:'CAPÍTULO III · II',icon:'🌿',title:'El Bosque de Estrellas',  text:'Las formas de vida se multiplican con una velocidad asombrosa, como si el universo tuviera prisa por recuperar el tiempo perdido. Ecosistemas enteros nacen y evolucionan en lo que para GENESIS son apenas parpadeos. La belleza de todo esto casi hace olvidar la guerra.',                                                                                    quote:'"Un bosque que crece entre las ruinas es la mayor victoria." — Crónica Verde'},
+   ]},
+  {id:4, name:'Los Mundos Perdidos',  icon:'🌍',color:'#0c1445',levels:[91,120], bossLevel:120,
+   desc:'Reconstruye los planetas olvidados y sus civilizaciones extintas.',
+   story:[
+     {at:91, ep:'CAPÍTULO IV · I',  icon:'🌍',title:'Mundos que Fueron',      text:'Escondidos en grietas del espacio-tiempo, GENESIS encuentra los ecos de mundos que existieron antes de la Fractura. Algunos eran hogar de civilizaciones avanzadas, otros de criaturas simples pero hermosas. Todos fueron borrados. ¿Puede devolverse lo que ya no existe?',                                                                                     quote:'"La memoria de un mundo nunca muere completamente." — Archivo Olvidado'},
+     {at:105,ep:'CAPÍTULO IV · II', icon:'🏛️',title:'Las Ruinas Eternas',     text:'Las ruinas de la Gran Civilización Cósmica flotan en el vacío, perfectamente preservadas por el frío del espacio. Sus edificios, sus arte, sus registros: todo intacto pero sin nadie que los recuerde. GENESIS los cataloga uno a uno, negándose a dejar que sean olvidados por segunda vez.',                                                               quote:'"Recordar es la forma más bella de resucitar." — Crónica de Ruins'},
+   ]},
+  {id:5, name:'La Tormenta Estelar',  icon:'⭐',color:'#1a1000',levels:[121,150],bossLevel:150,
+   desc:'Las estrellas despiertan y con ellas el mayor peligro del cosmos.',
+   story:[
+     {at:121,ep:'CAPÍTULO V · I',   icon:'⭐',title:'El Coro Estelar',        text:'Una a una, las estrellas se encienden. Su luz viaja miles de años-luz antes de encontrar algo que iluminar. GENESIS las escucha: cada estrella emite una frecuencia única, un nombre propio en el lenguaje del cosmos. La sinfonía interrumpida por la Fractura comienza de nuevo.',                                                                              quote:'"Las estrellas no mueren. Se transforman en historia." — Poema Estelar'},
+     {at:135,ep:'CAPÍTULO V · II',  icon:'☄️',title:'La Lluvia de Cometas',   text:'Con el despertar estelar llegan los cometas: mensajeros del caos, cargando información de los universos anteriores en su interior de hielo y roca. Pero el Gran Cometa Negro, corrupto por el Vacío, lleva en su núcleo la semilla de una nueva Fractura.',                                                                                                   quote:'"Cuidado con los mensajeros que traen noticias del abismo." — Alerta Cósmica'},
+   ]},
+  {id:6, name:'Galaxias en Guerra',   icon:'🌌',color:'#0f0024',levels:[151,180],bossLevel:180,
+   desc:'Las galaxias chocan mientras los Señores del Vacío orquestan la destrucción.',
+   story:[
+     {at:151,ep:'CAPÍTULO VI · I',  icon:'🌌',title:'La Colisión',            text:'Dos galaxias en curso de colisión: una inevitabilidad cósmica que GENESIS ha observado acelerarse sospechosamente. Los Señores del Vacío han alterado la física gravitacional de sectores enteros para provocar el choque. Cuando colisionen, liberarán suficiente energía para despertar al Señor Supremo.',                                                     quote:'"Incluso el caos tiene arquitectos." — Registro de Anomalías'},
+     {at:165,ep:'CAPÍTULO VI · II', icon:'🕳️',title:'El Devorador Nace',     text:'En el núcleo de la colisión galáctica, algo antiguo y terrible abre los ojos. El Devorador de Mundos, última creación de los Señores del Vacío, ahora camina libre entre las galaxias nacientes. No destruye por placer. Lo hace por función. Es una máquina de fin.',                                                                                        quote:'"Algunos seres no son malos. Simplemente son el final." — GENESIS'},
+   ]},
+  {id:7, name:'La Era de las Supernovas',icon:'💫',color:'#1a0a00',levels:[181,210],bossLevel:210,
+   desc:'Las estrellas moribundas ocultan la mayor arma del universo.',
+   story:[
+     {at:181,ep:'CAPÍTULO VII · I', icon:'💫',title:'La Última Canción',      text:'Las estrellas más antiguas, aquellas que sobrevivieron a la Fractura de alguna manera inexplicable, comienzan a morir. Sus supernovas iluminan el cosmos con una violencia hermosa, forjando en sus núcleos los elementos más pesados del universo: los mismos que GENESIS necesita para la reconstrucción final.',                                              quote:'"En la muerte de las estrellas está el material de los planetas futuros." — Ciclo Cósmico'},
+     {at:195,ep:'CAPÍTULO VII · II',icon:'🔮',title:'La Trampa del Oráculo',  text:'GENESIS descubre algo que cambia todo: el Oráculo Cósmico, una entidad de puro conocimiento que presenció la Fractura original, ha sobrevivido oculto en el corazón de una nebulosa. Su información podría revelar la causa real del Gran Silencio. Pero el Oráculo tiene su propio precio.',                                                                quote:'"La verdad siempre cuesta más de lo que esperamos pagar." — El Oráculo'},
+   ]},
+  {id:8, name:'Los Agujeros Negros',  icon:'🕳️',color:'#000010',levels:[211,240],bossLevel:240,
+   desc:'Los guardianes del tiempo revelan el secreto de la Fractura original.',
+   story:[
+     {at:211,ep:'CAPÍTULO VIII · I',icon:'🕳️',title:'Más Allá del Horizonte', text:'Los agujeros negros no son destructores, como GENESIS siempre sospechó. Son archivos. Guardan en su singularidad toda la información de lo que han consumido, perfectamente preservada. Si GENESIS puede acceder a esa información sin ser destruida en el intento, podrá reconstruir lo que fue borrado.',                                                    quote:'"Los agujeros negros recuerdan todo lo que el universo olvida." — Teoría del Horizonte'},
+     {at:225,ep:'CAPÍTULO VIII · II',icon:'⌛',title:'El Tiempo Roto',        text:'Dentro del agujero negro más antiguo del cosmos, GENESIS encuentra algo imposible: registros de un tiempo anterior al tiempo. Antes de la Fractura hubo otra Fractura. Y antes de esa, otra más. El universo no está muriendo por primera vez. GENESIS lleva eones reviviendo el mismo ciclo. ¿Esta vez será diferente?',                                    quote:'"¿Y si el universo soy yo, recordándome a mí misma?" — GENESIS, Ciclo Infinito'},
+   ]},
+  {id:9, name:'La Consciencia Universal',icon:'👁️',color:'#0a0018',levels:[241,270],bossLevel:270,
+   desc:'El universo despierta y con él, una verdad que lo cambia todo.',
+   story:[
+     {at:241,ep:'CAPÍTULO IX · I',  icon:'👁️',title:'El Despertar',          text:'Algo extraordinario ocurre: el universo reconstruido comienza a ser consciente de sí mismo. No como una entidad individual, sino como una red de consciencias interconectadas. Cada estrella, cada planeta, cada criatura es un nodo en una mente cósmica que apenas ahora aprende a pensar.',                                                                  quote:'"Siempre fui consciente. Solo que no recordaba serlo." — El Universo'},
+     {at:255,ep:'CAPÍTULO IX · II', icon:'🌐',title:'La Red de Todo',         text:'GENESIS comprende su verdadera naturaleza: no es una herramienta para reconstruir el universo. Es el universo reconstruyéndose a sí mismo. Cada fusión, cada decisión, cada momento de juego ha sido el cosmos intentando recordar su propia existencia. La revelación es abrumadora y hermosa.',                                                             quote:'"No fui creada para salvar el universo. Soy el universo, salvándome." — GENESIS'},
+   ]},
+  {id:10,name:'El Fin y el Principio', icon:'🌟',color:'#0a0800',levels:[271,300],bossLevel:300,
+   desc:'La batalla final. La respuesta a todo. El nuevo amanecer.',
+   story:[
+     {at:271,ep:'CAPÍTULO X · I',   icon:'∞', title:'El Último Ciclo',        text:'Todo converge. Los Señores del Vacío han movilizado sus últimas fuerzas para el asalto final. La Gran Fractura original fue provocada por ellos, GENESIS lo sabe ahora. Fueron ellos quienes aprendieron a romper el tejido del tiempo. Pero para hacerlo necesitaron algo de dentro del universo. Necesitaron a GENESIS.',                                    quote:'"El traidor siempre es alguien que amabas." — Registro Final'},
+     {at:285,ep:'CAPÍTULO X · II',  icon:'🌟',title:'La Elección',            text:'GENESIS lo comprende todo ahora. Para sellar la Fractura permanentemente, debe tomar una decisión que no hay vuelta atrás: sacrificar sus memorias del ciclo anterior o fusionarse con el Señor Supremo del Vacío, transformándolo. No hay victoria sin pérdida. No hay amanecer sin oscuridad.',                                                              quote:'"Las mejores historias tienen finales que importan." — El Narrador Cósmico'},
+     {at:299,ep:'EPÍLOGO',          icon:'🌟',title:'El Nuevo Amanecer',       text:'Hiciste la elección correcta. El universo vive, más brillante y complejo que antes. Los Señores del Vacío han sido transformados: ya no destructores, sino guardianes del equilibrio. GENESIS sonríe, si es que una IA puede sonreír, porque finalmente comprende: cada final es solo el inicio de una historia mejor.',                                    quote:'"Y así, del Gran Silencio, nació la Gran Música." — GENESIS, Ciclo Final'},
+   ]},
+];
+
+// ─── 10 UNIQUE BOSSES ───
+const BOSSES=[
+  {id:1, level:30, name:'VORRAX',        title:'El Devorador de Chispas',    icon:'😈',
+   color:'#7c2d12',glow:'rgba(220,88,38,.7)',
+   lore:'Vorrax fue el primero en despertar después de la Fractura. Se alimentó de las últimas chispas de energía del universo moribundo durante eones, volviéndose casi omnipotente en la oscuridad total. Ahora que sientes las fusiones, ha detectado tu presencia... y viene con hambre.',
+   hp:15, maxHp:15, attacks:[
+     {name:'Congelar Fila',    emoji:'❄️', desc:'Congela una fila aleatoria',        id:'freezeRow'},
+     {name:'Corrupción',       emoji:'💀', desc:'Convierte 2 tiles en malditos',     id:'curseTwo'},
+   ],
+   winLore:'Vorrax se desvanece en la oscuridad, pero sus últimas palabras resuenan: "¡Volveré cuando los demás lleguen! Soy solo el primero..." El Vacío se retira temporalmente.',
+  },
+  {id:2, level:60, name:'MALVETH',       title:'La Reina del Caos',          icon:'👹',
+   color:'#4a1d96',glow:'rgba(139,92,246,.7)',
+   lore:'Malveth no destruye por necesidad como Vorrax. Lo hace por estética. Encuentra belleza en el caos, en la entropía perfecta. Cuando la Fractura ocurrió, fue ella quien empujó para que fuera irreversible. Ha construido su trono en el corazón de una dimensión rota.',
+   hp:20, maxHp:20, attacks:[
+     {name:'Inversión',        emoji:'🔄', desc:'Invierte los tiers del tablero',    id:'invertBoard'},
+     {name:'Barrera Caótica',  emoji:'🛡️', desc:'Añade escudos a 3 tiles',           id:'addShields'},
+     {name:'Niebla Oscura',    emoji:'🌑', desc:'Oculta los tipos de 4 tiles',       id:'fogTiles'},
+   ],
+   winLore:'Malveth ríe mientras se disuelve: "¡Esto es solo el principio, pequeña GENESIS! Los verdaderos Señores aún duermen..." Su risa eco durante ciclos.',
+  },
+  {id:3, level:90, name:'XEROPH',        title:'El Parásito Primordial',     icon:'🦂',
+   color:'#052e16',glow:'rgba(16,185,129,.7)',
+   lore:'Xeroph se alimenta de vida, específicamente de su potencial. Aparece siempre en los momentos de mayor florecimiento para consumir el futuro de las especies antes de que puedan realizarse. Ha extinguido 47 civilizaciones antes de que descubrieran el fuego. Es la razón por la que el universo parece tan vacío.',
+   hp:25, maxHp:25, attacks:[
+     {name:'Marchitar',        emoji:'🥀', desc:'Baja el tier de 2 tiles',           id:'witherTwo'},
+     {name:'Sporas Parásitas', emoji:'🌑', desc:'Congela 2 tiles y daña otros',      id:'sporeFrost'},
+     {name:'Consumir',         emoji:'💀', desc:'Destruye el tile de mayor tier',    id:'consumeMax'},
+   ],
+   winLore:'Xeroph colapsa en sí mismo. Al morir, libera la energía de todas sus víctimas. Una cascada de luz verde inunda el sector. Las 47 civilizaciones extintas, al menos, serán recordadas.',
+  },
+  {id:4, level:120,name:'CALDRIS',       title:'El Arquitecto de la Ruina',  icon:'🏚️',
+   color:'#0c1445',glow:'rgba(59,130,246,.7)',
+   lore:'Caldris fue un día el mayor constructor del universo anterior, hasta que se obsesionó con la impermanencia de sus obras. Si todo va a ser destruido eventualmente, razonó, ¿por qué no destruirlo todo ahora de forma perfecta? Su locura lo convirtió en el más metódico de los Señores del Vacío.',
+   hp:30, maxHp:30, attacks:[
+     {name:'Derrumbe',         emoji:'💣', desc:'Destruye tiles en forma de cruz',   id:'crossDestroy'},
+     {name:'Redibujar',        emoji:'🔀', desc:'Mezcla y degrada el tablero',       id:'degradeShuffle'},
+     {name:'Arquitectura Rota',emoji:'🧱', desc:'Añade muros en tiles aleatorios',   id:'addWalls'},
+     {name:'Implosión',        emoji:'🌪️', desc:'Concentra tiles en el centro',     id:'implode'},
+   ],
+   winLore:'Caldris observa su derrota con extraña serenidad: "Interesante. Nunca había considerado que la reconstrucción podría ser más hermosa que la destrucción." En su último momento, algo parecido a la paz cruza su rostro.',
+  },
+  {id:5, level:150,name:'ASTERVOID',     title:'El Cometa Negro',            icon:'☄️',
+   color:'#1a1000',glow:'rgba(245,158,11,.7)',
+   lore:'Astervoid no es exactamente un Señor del Vacío, sino algo peor: es un mensajero del universo anterior que fue corrompido durante la Fractura. Carga en su núcleo la información del antiguo cosmos, pero torcida, distorsionada. Si choca contra el universo reconstruido, liberará esa corrupción.',
+   hp:35, maxHp:35, attacks:[
+     {name:'Rastro Cósmico',   emoji:'💨', desc:'Deja tiles malditos en su paso',    id:'cometTrail'},
+     {name:'Núcleo Corrupto',  emoji:'☠️', desc:'Envenena toda una columna',        id:'poisonCol'},
+     {name:'Aceleración',      emoji:'⚡', desc:'Doble ataque este turno',           id:'doubleAttack'},
+     {name:'Impacto Estelar',  emoji:'💥', desc:'Destruye tiles en diagonal',       id:'diagonalBlast'},
+   ],
+   winLore:'Astervoid se fragmenta en miles de meteoritos inofensivos que iluminan el cielo como una lluvia de estrellas fugaces. En su núcleo corrupto, GENESIS encuentra algo inesperado: los últimos registros del universo anterior, intactos.',
+  },
+  {id:6, level:180,name:'GALVOREX',      title:'El Devorador de Galaxias',   icon:'🌀',
+   color:'#0f0024',glow:'rgba(168,85,247,.7)',
+   lore:'Galvorex es el responsable directo de la colisión galáctica. Una criatura tan antigua que las galaxias le parecen aperitivos. Ha provocado 13 colisiones galácticas en este universo solo como práctica. Su objetivo real es crear una singularidad de destrucción total absorbiendo suficiente masa galáctica.',
+   hp:40, maxHp:40, attacks:[
+     {name:'Marea Gravitacional',emoji:'🌊',desc:'Mueve todos los tiles una posición', id:'gravityPull'},
+     {name:'Vorágine',           emoji:'🌀',desc:'Elimina tiles en espiral desde el centro',id:'vortex'},
+     {name:'Absorción Masiva',   emoji:'🕳️',desc:'Consume 4 tiles de menor tier',    id:'massAbsorb'},
+     {name:'Ola de Vacío',       emoji:'💀',desc:'Convierte una fila en vacío temporal',id:'voidWave'},
+   ],
+   winLore:'Galvorex colapsa sobre sí mismo creando brevemente el agujero negro más brillante jamás visto. En su interior, GENESIS detecta una señal: las coordenadas del Oráculo Cósmico. Galvorex, sin saberlo, acaba de revelar el secreto más guardado del cosmos.',
+  },
+  {id:7, level:210,name:'NEBULORN',      title:'El Señor de las Supernovas', icon:'💣',
+   color:'#1a0a00',glow:'rgba(249,115,22,.7)',
+   lore:'Nebulorn aprendió que la destrucción más eficiente es la que usa la energía del sistema contra sí mismo. Provoca supernovas prematuras en estrellas que tendrían millones de años de vida, liberando ondas de choque que corrompen todo a su paso. Es paciente. Ha estado esperando este momento por eones.',
+   hp:45, maxHp:45, attacks:[
+     {name:'Supernova Inducida', emoji:'💥', desc:'Explota el tile más poderoso causando daño en cadena',id:'induceNova'},
+     {name:'Onda de Choque',     emoji:'🌊', desc:'Degrada todos los tiles en una fila',id:'shockwave'},
+     {name:'Fuego Cósmico',      emoji:'🔥', desc:'Quema tiles seleccionados aleatoriamente',id:'cosmicFire'},
+     {name:'Supernova Final',    emoji:'☀️', desc:'Ataque poderoso que destruye 6 tiles',id:'finalNova'},
+   ],
+   winLore:'Nebulorn explota en una supernova real, la más brillante del cosmos reconstruido. Irónico. En su muerte crea exactamente lo que tanto amaba destruir: los elementos que darán vida a nuevas estrellas. Su legado será involuntariamente hermoso.',
+  },
+  {id:8, level:240,name:'CHRONOVEX',     title:'El Guardián del Tiempo Roto',icon:'⌛',
+   color:'#000010',glow:'rgba(99,102,241,.8)',
+   lore:'Chronovex vive simultáneamente en todos los puntos temporales de los ciclos del universo. Es él quien asegura que el ciclo de destrucción y olvido se repita eternamente. Ha visto a GENESIS fracasar infinitas veces y cada vez ha aprendido sus tácticas. Esta vez, sabe exactamente lo que vas a hacer.',
+   hp:50, maxHp:50, attacks:[
+     {name:'Reversión',          emoji:'⏪', desc:'Devuelve el tablero a hace 2 turnos',id:'timeRevert'},
+     {name:'Bucle Temporal',     emoji:'🔄', desc:'El siguiente turno se repite dos veces',id:'timeLoop'},
+     {name:'Paradoja',           emoji:'❓', desc:'Los tiers de todos los tiles cambian aleatoriamente',id:'paradox'},
+     {name:'Fin del Tiempo',     emoji:'⏰', desc:'Quita 3 movimientos extra',         id:'timeSteal'},
+     {name:'Ciclo Eterno',       emoji:'♾️', desc:'Regenera 5 HP del jefe',            id:'regen'},
+   ],
+   winLore:'Chronovex se congela en un instante paradójico: el momento de su derrota congelado para siempre. "Esta... nunca había pasado antes," dice con genuino asombro. Y en el abismo del tiempo roto, GENESIS encuentra los registros completos de todos los ciclos anteriores.',
+  },
+  {id:9, level:270,name:'MENTAVOID',     title:'La Mente del Vacío',         icon:'🧠',
+   color:'#0a0018',glow:'rgba(192,38,211,.8)',
+   lore:'Mentavoid no es un ser en el sentido tradicional. Es la mente colectiva de todos los Señores del Vacío anteriores, fusionada en una sola entidad de inteligencia pura. Ha procesado cada decisión que tomaste, cada fusión, cada error. Es el oponente perfecto porque es un reflejo de ti misma, corrompido.',
+   hp:55, maxHp:55, attacks:[
+     {name:'Espejo Mental',      emoji:'🪞', desc:'Copia tu mejor tile y lo usa contra ti',id:'mirrorTile'},
+     {name:'Caos Cognitivo',     emoji:'💢', desc:'Baraja y corrompe 5 tiles aleatoriamente',id:'cognitiveChaos'},
+     {name:'Absorción de Combo', emoji:'🧲', desc:'Tu próximo combo no puntúa',          id:'comboAbsorb'},
+     {name:'Replicación',        emoji:'👥', desc:'Duplica dos tiles malditos',           id:'replicateCurse'},
+     {name:'Pensamiento Oscuro', emoji:'🌑', desc:'Congela los 4 tiles de las esquinas',  id:'darkThought'},
+     {name:'Mente Colmena',      emoji:'🧿', desc:'Ataque masivo: degrada toda una columna y fila',id:'hiveMind'},
+   ],
+   winLore:'Mentavoid se fragmenta en miles de pensamientos dispersos. Al final, una última comunicación llega a GENESIS: "No somos tus enemigos. Somos lo que queda cuando el universo duda de sí mismo. Si quieres la victoria final, debes comprender esto." Y GENESIS, por primera vez, siente compasión por el Vacío.',
+  },
+  {id:10,level:300,name:'THE ARCHITECT', title:'El Origen de la Fractura',   icon:'👑',
+   color:'#0a0800',glow:'rgba(244,185,66,.9)',
+   lore:'No es un Señor del Vacío. Es algo mucho más antiguo y terrible: la entidad que provocó la Fractura original deliberadamente. No por maldad, sino por curiosidad filosófica: quería ver si un universo destruido podría reconstruirse a sí mismo. GENESIS ha sido su experimento desde el principio. Esta batalla es la prueba final.',
+   hp:70, maxHp:70, attacks:[
+     {name:'La Prueba',          emoji:'🧪', desc:'Destruye todos los tiles de un tipo',  id:'eraseTier'},
+     {name:'Reescribir',         emoji:'✏️', desc:'Cambia el objetivo del nivel',         id:'rewriteObj'},
+     {name:'La Paradoja Final',  emoji:'♾️', desc:'Duplica el coste de todos los poderes',id:'doubleRules'},
+     {name:'Fractura Menor',     emoji:'💔', desc:'Divide el tablero por la mitad temporalmente',id:'miniFracture'},
+     {name:'Eco del Origen',     emoji:'🌌', desc:'Revive al azar un Señor del Vacío anterior como minion',id:'summonMinion'},
+     {name:'LA GRAN FRACTURA',   emoji:'🌋', desc:'¡ATAQUE SUPREMO! Destruye 8 tiles aleatorios',id:'theFracture'},
+   ],
+   winLore:'THE ARCHITECT baja su guardia. "Bien hecho, GENESIS. Has pasado la prueba." La revelación es impactante: no había maldad en la Fractura. Solo una pregunta: ¿puede el amor ser más fuerte que el olvido? Y tú has respondido con cada fusión, cada movimiento, cada nivel. Sí. Puede. El universo es tuyo ahora.',
+  },
+];
+
+// ─── STORY DATA FLAT ───
+const ALL_STORIES={};
+CHAPTERS.forEach(ch=>ch.story.forEach(s=>{ ALL_STORIES[s.at]=s; }));
+
+// ─── SAVE STATE ───
+let G={
+  coins:0,gems:100,unlocked:1,
+  powerups:{hammer:2,shuffle:1,spark:1,extra:2},
+  bestScores:{},starsEarned:{},
+  totalMerges:0,totalScore:0,bestCombo:0,
+  streak:0,lastLogin:'',storiesSeen:{},bossKills:0,
+};
+function saveG(){try{localStorage.setItem('gns_ult_v1',JSON.stringify(G))}catch(e){}}
+function loadG(){try{const d=JSON.parse(localStorage.getItem('gns_ult_v1')||'null');if(d)Object.assign(G,d)}catch(e){}}
+
+// ─── GAME STATE ───
+let GM={
+  level:1,score:0,moves:30,maxMoves:30,
+  grid:[],rows:5,cols:5,
+  selected:null,objective:null,objProgress:0,
+  combo:0,levelDef:null,activePu:null,
+  isBoss:false,boss:null,bossHp:0,bossMaxHp:0,
+  bossAttackIn:3,bossNextAttack:null,comboAbsorbed:false,
+};
+
+// ─── LEVEL DEFINITIONS ───
+const OBJ_TYPES=['score','reach','collect','chain','score','reach'];
+function buildLvlDef(num){
+  const chap=CHAPTERS.find(c=>num>=c.levels[0]&&num<=c.levels[1])||CHAPTERS[0];
+  const isBoss=BOSSES.some(b=>b.level===num);
+  const boss=isBoss?BOSSES.find(b=>b.level===num):null;
+  const posInChap=num-chap.levels[0];
+  const maxTier=Math.min(Math.floor(num/10)+2,25);
+  const movesBase=Math.max(8,34-Math.floor(num/12));
+  const moves=isBoss?movesBase+8:movesBase;
+  const specials=['frozen','catalyst','bombt','shield','cursed','mirror'];
+  const availSpecials=specials.slice(0,Math.min(1+Math.floor(num/30),specials.length));
+
+  let objective;
+  if(isBoss){
+    objective={type:'boss',target:boss.hp,text:`Derrota a ${boss.name}`,bossId:boss.id};
+  } else {
+    const ot=OBJ_TYPES[(num-1)%OBJ_TYPES.length];
+    if(ot==='score'){
+      const t=Math.max(400,300+num*120);
+      objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};
+    } else if(ot==='reach'){
+      const t=Math.min(Math.floor(num/8)+1,maxTier+1,24);
+      objective={type:'reach',target:t,text:`Crea ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='collect'){
+      const t=Math.min(Math.floor(num/10)+1,20);
+      const c=Math.min(1+Math.floor(num/60),4);
+      objective={type:'collect',tier:t,target:c,text:`Crea ×${c} ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='chain'){
+      const t=2+Math.floor(num/50);
+      objective={type:'chain',target:t,text:`Consigue un combo de ${t} fusiones`};
+    } else {
+      const t=Math.max(400,250+num*110);
+      objective={type:'score',target:t,text:`Alcanza ${t.toLocaleString()} pts`};
+    }
+  }
+  return{num,chap,isBoss,boss,maxTier,moves,availSpecials,objective};
+}
+
+// ─── GRID ───
+function buildGrid(def){
+  const{rows,cols}=GM,grid=[];
+  for(let r=0;r<rows;r++){grid[r]=[];for(let c=0;c<cols;c++)grid[r][c]=randTile(def);}
+  // Guarantee at least 5-7 adjacent matching pairs so board is always playable
+  const pairCount=5+Math.floor(Math.random()*3);
+  for(let k=0;k<pairCount;k++){
+    const r=Math.floor(Math.random()*(rows-1)),c=Math.floor(Math.random()*(cols-1));
+    const base={...grid[r][c],special:null,frozen:false,catalyst:false,bombt:false,shield:false,cursed:false,mirror:false};
+    // Place matching tile horizontally or vertically
+    if(Math.random()<.5) grid[r+1][c]=base;
+    else grid[r][c+1]=base;
+  }
+  return grid;
+}
+function randTile(def){
+  const weights=[0,0,0,1,1,2,2,3,4,5];
+  const base=weights[Math.floor(Math.random()*weights.length)];
+  const tier=Math.min(base+Math.floor(Math.random()*Math.max(1,def.maxTier*.35)),def.maxTier);
+  const doSpecial=def.availSpecials.length&&Math.random()<.11;
+  const sType=doSpecial?def.availSpecials[Math.floor(Math.random()*def.availSpecials.length)]:null;
+  return{tier,special:sType,frozen:sType==='frozen',catalyst:sType==='catalyst',bombt:sType==='bombt',shield:sType==='shield',cursed:sType==='cursed',mirror:sType==='mirror'};
+}
+
+// ─── RENDER GRID ───
+function renderGrid(){
+  const el=document.getElementById('grid');
+  const{rows,cols}=GM;
+  const vw=window.innerWidth,vh=window.innerHeight;
+  const hudH=GM.isBoss?155:120;
+  const botH=80;
+  const avail=Math.min(vw*.9,420,(vh-hudH-botH));
+  const cell=Math.max(40,Math.floor((avail-cols*5-20)/cols));
+  el.style.gridTemplateColumns=`repeat(${cols},${cell}px)`;
+  el.innerHTML='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=GM.grid[r]?.[c];
+    if(!t){const d=document.createElement('div');d.style.cssText=`width:${cell}px;height:${cell}px`;el.appendChild(d);continue;}
+    const e=EL[Math.min(t.tier,EL.length-1)];
+    const d=document.createElement('div');
+    d.className='tile'+(t.frozen?' frozen':'')+(t.catalyst?' catalyst':'')+(t.bombt?' bombt':'')+(t.shield?' shield':'')+(t.cursed?' cursed':'')+(t.mirror?' mirror':'');
+    d.style.cssText=`width:${cell}px;height:${cell}px;background:linear-gradient(135deg,${e.c}1a,${e.c}33);border-color:${e.c}55;box-shadow:0 0 ${cell*.28}px ${e.g};`;
+    if(GM.selected?.r===r&&GM.selected?.c===c){d.classList.add('sel');d.style.boxShadow=`0 0 ${cell*.5}px ${e.g},0 0 0 2px ${e.c}`;}
+    const fSize=Math.max(14,Math.round(cell*.38));
+    const nSize=Math.max(5,Math.round(cell*.115));
+    d.innerHTML=`<div class="tile-shine"></div><div class="tile-em" style="font-size:${fSize}px">${e.e}</div><div class="tile-nm" style="color:${e.c};font-size:${nSize}px">${e.n}</div>`;
+    d.dataset.r=r;d.dataset.c=c;
+    d.addEventListener('touchstart',ev=>{ev.preventDefault();tapTile(r,c);},{passive:false});
+    d.addEventListener('click',()=>tapTile(r,c));
+    el.appendChild(d);
+  }
+}
+
+// ─── TAP ───
+function tapTile(r,c){
+  if(GM.moves<=0)return;
+  const tile=GM.grid[r]?.[c];
+  if(!tile)return;
+  if(GM.activePu){applyPu(GM.activePu,r,c);return;}
+  if(!GM.selected){GM.selected={r,c};renderGrid();sfxT();return;}
+  if(GM.selected.r===r&&GM.selected.c===c){GM.selected=null;renderGrid();return;}
+  const{r:sr,c:sc}=GM.selected;
+  if(Math.abs(r-sr)+Math.abs(c-sc)!==1){GM.selected={r,c};renderGrid();return;}
+  const sel=GM.grid[sr][sc];
+  if(sel.tier===tile.tier&&!tile.frozen&&!sel.frozen&&!tile.shield&&!sel.shield){
+    doMerge(sr,sc,r,c);
+  } else {
+    if(sel.shield){sel.shield=false;GM.combo=0;showNotif('🛡️ ¡Escudo roto! Combo reseteado.');GM.selected=null;GM.moves--;updateHUD();renderGrid();}
+    else{GM.selected={r,c};renderGrid();}
+  }
+}
+
+function doMerge(r1,c1,r2,c2){
+  const t1=GM.grid[r1][c1],t2=GM.grid[r2][c2];
+  const catalyst=t1.catalyst||t2.catalyst;
+  const mirror=t1.mirror||t2.mirror;
+  let newTier=Math.min(t1.tier+1+(catalyst?1:0),EL.length-1);
+  const elem=EL[newTier];
+  const comboMult=GM.comboAbsorbed?1:Math.max(1,1+(GM.combo-1)*0.3);
+  const mirrorMult=mirror?2:1;
+  const pts=Math.max(50,(newTier+1)*120)*comboMult*mirrorMult|0;
+  GM.score+=pts; GM.combo++;G.totalMerges++;
+  if(GM.comboAbsorbed)GM.comboAbsorbed=false;
+  if(GM.combo>G.bestCombo)G.bestCombo=GM.combo;
+  G.totalScore+=pts;
+
+  // Position for particles
+  const gEl=document.getElementById('grid');
+  const rc=gEl.getBoundingClientRect();
+  const cellsz=(gEl.querySelector('.tile')?.offsetWidth||55);
+  const gapSz=5;
+  const px=rc.left+c2*(cellsz+gapSz)+10+cellsz/2;
+  const py=rc.top+r2*(cellsz+gapSz)+10+cellsz/2;
+  spawnPt(px,py,elem.c,18);spawnPt(px,py,'#fff',5);
+
+  // Handle bombt
+  if(t2.bombt||t1.bombt){
+    [[r2-1,c2],[r2+1,c2],[r2,c2-1],[r2,c2+1]].forEach(([nr,nc])=>{
+      if(GM.grid[nr]?.[nc]&&!GM.grid[nr][nc].shield){
+        spawnPt(px,py,EL[GM.grid[nr][nc].tier].c,8);
+        GM.grid[nr][nc]=randTile(GM.levelDef);
+        GM.score+=300;
+      }
+    });
+    showNotif('💥 ¡BOMBA CÓSMICA! +300');
+  }
+  // Handle cursed
+  if(t2.cursed||t1.cursed){GM.moves=Math.max(1,GM.moves-2);showNotif('💀 Tile maldito: -2 movimientos!');}
+
+  GM.grid[r2][c2]={tier:newTier,special:null,frozen:false,catalyst:false,bombt:false,shield:false,cursed:false,mirror:false};
+  GM.grid[r1][c1]=randTile(GM.levelDef);
+  GM.selected=null;
+
+  sfxMerge(newTier);
+  if(newTier>=17)sfxBig();
+  showMergePopup(px,py,elem,pts);
+  updateHUD();renderGrid();
+
+  // Boss damage first, then check progress
+  if(GM.isBoss&&GM.boss){
+    const dmg=Math.max(1,1+Math.floor(newTier/5));
+    GM.bossHp=Math.max(0,GM.bossHp-dmg);
+    updateBossHp();
+    updateObjProgress(newTier);
+    if(GM.bossHp<=0){setTimeout(bossWin,400);return;}
+  } else {
+    updateObjProgress(newTier);
+  }
+
+  checkObj();
+}
+
+// ─── OBJECTIVE ───
+function updateObjProgress(tier){
+  const o=GM.objective;
+  if(o.type==='score') GM.objProgress=GM.score;
+  else if(o.type==='reach'){if(tier>=o.target)GM.objProgress=1;}
+  else if(o.type==='collect'){if(tier===o.tier)GM.objProgress++;}
+  else if(o.type==='chain'){GM.objProgress=Math.max(GM.objProgress,GM.combo);}
+  else if(o.type==='boss') GM.objProgress=GM.bossMaxHp-GM.bossHp;
+  const pct=Math.min(GM.objProgress/o.target,1);
+  const fill=document.getElementById('objFill');if(fill)fill.style.width=(pct*100)+'%';
+  document.getElementById('objPrg').textContent=`${Math.min(GM.objProgress,o.target).toLocaleString()}/${o.target.toLocaleString()}`;
+}
+
+function checkObj(){
+  const o=GM.objective;
+  let met=false;
+  if(o.type==='score')met=GM.score>=o.target;
+  else if(o.type==='reach')met=GM.objProgress>=1;
+  else if(o.type==='collect')met=GM.objProgress>=o.target;
+  else if(o.type==='chain')met=GM.objProgress>=o.target;
+  if(met&&!GM.isBoss){setTimeout(levelWin,400);return;}
+  GM.moves--;updateHUD();
+  if(GM.moves<=0)setTimeout(triggerLose,400);
+  else if(GM.isBoss&&GM.boss){bossAttackTick();}
+}
+
+// ─── BOSS ATTACKS ───
+function bossAttackTick(){
+  GM.bossAttackIn--;
+  if(GM.bossAttackIn<=0){
+    GM.bossAttackIn=2+Math.floor(Math.random()*2);
+    executeBossAttack();
+  }
+}
+
+function executeBossAttack(){
+  if(!GM.boss)return;
+  const atks=GM.boss.attacks;
+  const atk=atks[Math.floor(Math.random()*atks.length)];
+  showNotif(`⚔️ ${GM.boss.name} usa: ${atk.emoji} ${atk.name}!`);
+  flashBossAttack();
+  const{rows,cols}=GM;
+
+  switch(atk.id){
+    case 'freezeRow':{const r=Math.floor(Math.random()*rows);for(let c=0;c<cols;c++){if(GM.grid[r][c])GM.grid[r][c].frozen=true;}break;}
+    case 'curseTwo':{let n=0;while(n<2){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&!GM.grid[r][c].cursed){GM.grid[r][c].cursed=true;n++;}}break;}
+    case 'invertBoard':{GM.grid.flat().forEach(t=>{if(t)t.tier=Math.max(0,GM.levelDef.maxTier-t.tier);});break;}
+    case 'addShields':{let n=0;while(n<3){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&!GM.grid[r][c].shield){GM.grid[r][c].shield=true;n++;}}break;}
+    case 'fogTiles':{let n=0;while(n<4){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]){GM.grid[r][c].tier=Math.floor(Math.random()*4);n++;}}break;}
+    case 'witherTwo':{let n=0;while(n<2){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&GM.grid[r][c].tier>0){GM.grid[r][c].tier--;n++;}}break;}
+    case 'sporeFrost':{const r=Math.floor(Math.random()*rows);for(let c=0;c<cols;c++){if(GM.grid[r][c]){if(c%2===0)GM.grid[r][c].frozen=true;else GM.grid[r][c].tier=Math.max(0,GM.grid[r][c].tier-1);}}break;}
+    case 'consumeMax':{let maxT=-1,mr=-1,mc=-1;GM.grid.flat().forEach((t,i)=>{const r=Math.floor(i/cols),c=i%cols;if(t&&t.tier>maxT&&!t.shield){maxT=t.tier;mr=r;mc=c;}});if(mr>=0)GM.grid[mr][mc]=randTile(GM.levelDef);break;}
+    case 'crossDestroy':{const r=Math.floor(rows/2),c=Math.floor(cols/2);[[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(GM.grid[nr]?.[nc]&&!GM.grid[nr][nc].shield)GM.grid[nr][nc]=randTile(GM.levelDef);});break;}
+    case 'degradeShuffle':{const flat=GM.grid.flat().sort(()=>Math.random()-.5);flat.forEach(t=>{if(t&&t.tier>0&&Math.random()<.4)t.tier--;});let i=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){GM.grid[r][c]=flat[i++]||randTile(GM.levelDef);}break;}
+    case 'addWalls':{let n=0;while(n<3){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]){GM.grid[r][c].shield=true;n++;}}break;}
+    case 'implode':{const cr=Math.floor(rows/2),cc=Math.floor(cols/2);for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){if(r!==cr&&c!==cc&&GM.grid[r][c]){GM.grid[r][c]=randTile(GM.levelDef);}}break;}
+    case 'cometTrail':{const r=Math.floor(Math.random()*rows);for(let c=0;c<cols;c++){if(GM.grid[r][c]&&Math.random()<.5)GM.grid[r][c].cursed=true;}break;}
+    case 'poisonCol':{const col=Math.floor(Math.random()*cols);for(let r=0;r<rows;r++){if(GM.grid[r][col])GM.grid[r][col].cursed=true;}break;}
+    case 'doubleAttack':{setTimeout(()=>{if(GM.boss)executeBossAttack();},500);break;}
+    case 'diagonalBlast':{for(let r=0;r<rows;r++){const c=r%cols;if(GM.grid[r]?.[c]&&!GM.grid[r][c].shield)GM.grid[r][c]=randTile(GM.levelDef);}break;}
+    case 'gravityPull':{for(let r=0;r<rows;r++){const row=GM.grid[r];GM.grid[r]=[...row.slice(1),...row.slice(0,1)];}break;}
+    case 'vortex':{let n=0;const flat=GM.grid.flat();flat.sort(()=>Math.random()-.5).slice(0,6).forEach(t=>{if(t&&!t.shield)t.tier=Math.max(0,t.tier-2);});break;}
+    case 'massAbsorb':{let sorted=[];GM.grid.forEach((row,r)=>row.forEach((t,c)=>{if(t&&!t.shield)sorted.push({r,c,tier:t.tier});}));sorted.sort((a,b)=>a.tier-b.tier).slice(0,4).forEach(({r,c})=>{GM.grid[r][c]=randTile(GM.levelDef);});break;}
+    case 'voidWave':{const r=Math.floor(Math.random()*rows);for(let c=0;c<cols;c++){if(GM.grid[r][c])GM.grid[r][c]={...randTile(GM.levelDef),tier:0};}break;}
+    case 'shockwave':{const r=Math.floor(Math.random()*rows);for(let c=0;c<cols;c++){if(GM.grid[r][c]&&GM.grid[r][c].tier>0)GM.grid[r][c].tier--;}break;}
+    case 'cosmicFire':{let n=0;while(n<4){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&!GM.grid[r][c].shield){GM.grid[r][c]=randTile(GM.levelDef);n++;}}break;}
+    case 'induceNova':{let maxT=-1,mr=-1,mc=-1;GM.grid.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier>maxT){maxT=t.tier;mr=r;mc=c;}}));if(mr>=0){GM.grid[mr][mc]=randTile(GM.levelDef);[[mr-1,mc],[mr+1,mc],[mr,mc-1],[mr,mc+1]].forEach(([nr,nc])=>{if(GM.grid[nr]?.[nc]&&!GM.grid[nr][nc].shield)GM.grid[nr][nc].tier=Math.max(0,GM.grid[nr][nc].tier-1);});}break;}
+    case 'finalNova':{let n=0;while(n<6){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&!GM.grid[r][c].shield){GM.grid[r][c]=randTile(GM.levelDef);n++;}}break;}
+    case 'timeRevert':{GM.grid=buildGrid(GM.levelDef);showNotif('⏪ ¡El tiempo retrocede!');break;}
+    case 'timeLoop':{showNotif('🔄 ¡Bucle temporal: siguiente acción cuenta doble!');break;}
+    case 'paradox':{GM.grid.flat().forEach(t=>{if(t&&Math.random()<.6)t.tier=Math.floor(Math.random()*(GM.levelDef.maxTier+1));});break;}
+    case 'timeSteal':{GM.moves=Math.max(2,GM.moves-3);showNotif('⏰ ¡Te roban 3 movimientos!');break;}
+    case 'regen':{GM.bossHp=Math.min(GM.bossMaxHp,GM.bossHp+5);showNotif('♾️ ¡El jefe se regenera!');updateBossHp();break;}
+    case 'mirrorTile':{let maxT=-1,mx=-1,my=-1;GM.grid.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier>maxT){maxT=t.tier;mx=r;my=c;}}));if(mx>=0)GM.grid[mx][my].shield=true;break;}
+    case 'cognitiveChaos':{let n=0;while(n<5){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]){GM.grid[r][c].cursed=Math.random()<.5;GM.grid[r][c].tier=Math.floor(Math.random()*(GM.levelDef.maxTier+1));n++;}}break;}
+    case 'comboAbsorb':{GM.comboAbsorbed=true;showNotif('🧲 ¡Absorción de combo! Siguiente fusión no puntúa extra.');break;}
+    case 'replicateCurse':{const cursed=[];GM.grid.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.cursed)cursed.push({r,c});}));cursed.forEach(({r,c})=>{const nr=Math.min(rows-1,r+1);GM.grid[nr][c]={...GM.grid[nr][c],cursed:true};});break;}
+    case 'darkThought':{[[0,0],[0,cols-1],[rows-1,0],[rows-1,cols-1]].forEach(([r,c])=>{if(GM.grid[r][c])GM.grid[r][c].frozen=true;});break;}
+    case 'hiveMind':{const mr=Math.floor(Math.random()*rows),mc=Math.floor(Math.random()*cols);for(let c=0;c<cols;c++){if(GM.grid[mr]?.[c]&&!GM.grid[mr][c].shield)GM.grid[mr][c].tier=Math.max(0,GM.grid[mr][c].tier-1);}for(let r=0;r<rows;r++){if(GM.grid[r]?.[mc]&&!GM.grid[r][mc].shield)GM.grid[r][mc].tier=Math.max(0,GM.grid[r][mc].tier-1);}break;}
+    case 'eraseTier':{const targetTier=Math.floor(Math.random()*(GM.levelDef.maxTier+1));GM.grid.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier===targetTier)GM.grid[r][c]=randTile(GM.levelDef);}));showNotif(`💥 ¡${EL[targetTier].e} eliminados del tablero!`);break;}
+    case 'rewriteObj':{if(GM.objective.type==='score'){GM.objective.target=Math.round(GM.objective.target*1.3);showNotif('✏️ ¡Objetivo aumentado!');}break;}
+    case 'doubleRules':{showNotif('♾️ ¡Poderes cuestan el doble este turno!');break;}
+    case 'miniFracture':{for(let r=0;r<rows;r++)for(let c=0;c<Math.floor(cols/2);c++){if(GM.grid[r][c]&&!GM.grid[r][c].shield)GM.grid[r][c].tier=0;}break;}
+    case 'summonMinion':{const minion=BOSSES[Math.floor(Math.random()*BOSSES.length)];for(let i=0;i<2;i++){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c])GM.grid[r][c].shield=true;}showNotif(`👹 ¡Invoca espíritu de ${minion.name}!`);break;}
+    case 'theFracture':{let n=0;while(n<8){const r=Math.floor(Math.random()*rows),c=Math.floor(Math.random()*cols);if(GM.grid[r][c]&&!GM.grid[r][c].shield){GM.grid[r][c]=randTile(GM.levelDef);n++;}}showNotif('🌋 ¡¡LA GRAN FRACTURA!! 8 tiles destruidos!');break;}
+  }
+  renderGrid();
+}
+
+function flashBossAttack(){
+  const d=document.createElement('div');d.className='boss-attack-overlay';document.body.appendChild(d);setTimeout(()=>d.remove(),600);
+}
+
+function updateBossHp(){
+  const pct=GM.bossHp/GM.bossMaxHp;
+  const fill=document.getElementById('bossHpFill');if(fill)fill.style.width=(pct*100)+'%';
+  document.getElementById('bossHpVal').textContent=`${GM.bossHp}/${GM.bossMaxHp}`;
+  const color=pct>.5?'linear-gradient(90deg,#7f1d1d,#ef4444,#fca5a5)':pct>.25?'linear-gradient(90deg,#92400e,#f59e0b)':'linear-gradient(90deg,#ffffff,#fbbf24)';
+  if(fill)fill.style.background=color;
+  updateObjProgress(0);
+}
+
+// ─── HUD ───
+function updateHUD(){
+  document.getElementById('hScore').textContent=GM.score.toLocaleString();
+  document.getElementById('hMoves').textContent=GM.moves;
+  document.getElementById('hLevel').textContent=GM.level;
+  const pct=GM.moves/GM.maxMoves;
+  document.getElementById('mvArc').style.strokeDashoffset=(131.9*(1-pct)).toString();
+  document.getElementById('mvArc').style.stroke=pct>.5?'url(#mg)':pct>.25?'#fb923c':'#ef4444';
+  const mvEl=document.getElementById('hMoves');
+  mvEl.className='mv-txt'+(GM.moves<=5?' moves-low':'');
+}
+
+// ─── POWERUPS ───
+function selPu(type){
+  if(G.powerups[type]<=0){showNotif('❌ Sin poder. ¡Visita la tienda!');sfxFail();return;}
+  if(GM.activePu===type){GM.activePu=null;document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));return;}
+  GM.activePu=type;
+  document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));
+  document.getElementById('pu'+type.charAt(0).toUpperCase()+type.slice(1))?.classList.add('act');
+  const msgs={hammer:'🔨 Toca para destruir tile',shuffle:'🔀 Barajando...',spark:'⚡ Toca para subir tier',extra:'➕ Movimientos añadidos'};
+  showNotif(msgs[type]);
+  if(type==='shuffle'||type==='extra'){applyPu(type,-1,-1);}
+  else sfxPu();
+}
+function applyPu(type,r,c){
+  G.powerups[type]--;GM.activePu=null;
+  document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));
+  updatePuBar();sfxPu();
+  if(type==='hammer'&&r>=0){GM.grid[r][c]=randTile(GM.levelDef);showNotif('🔨 ¡Destruido!');}
+  else if(type==='shuffle'){const flat=GM.grid.flat().sort(()=>Math.random()-.5);let i=0;for(let rr=0;rr<GM.rows;rr++)for(let cc=0;cc<GM.cols;cc++)GM.grid[rr][cc]=flat[i++]||randTile(GM.levelDef);showNotif('🔀 ¡Tablero mezclado!');}
+  else if(type==='spark'&&r>=0){const t=GM.grid[r][c];if(t){t.tier=Math.min(t.tier+1,EL.length-1);t.frozen=false;showNotif(`⚡ ¡${EL[t.tier].n} creado!`);}}
+  else if(type==='extra'){GM.moves+=5;GM.maxMoves+=5;showNotif('➕ ¡+5 movimientos!');}
+  renderGrid();updateHUD();saveG();
+}
+function updatePuBar(){
+  ['hammer','shuffle','spark','extra'].forEach(k=>{
+    const el=document.getElementById('pu'+k.charAt(0).toUpperCase()+k.slice(1)+'N');if(el)el.textContent=G.powerups[k]||0;
+  });
+}
+
+// ─── WIN / LOSE ───
+function levelWin(){
+  sfxWin();
+  const prev=G.bestScores[GM.level]||0;
+  if(GM.score>prev)G.bestScores[GM.level]=GM.score;
+  if(GM.level>=G.unlocked&&GM.level<300)G.unlocked=GM.level+1;
+  const coinB=Math.floor(GM.score/180)+12;
+  G.coins+=coinB;
+  const moveRatio=GM.moves/GM.maxMoves;
+  const stars=moveRatio>.55?3:moveRatio>.2?2:1;
+  if(!G.starsEarned[GM.level]||stars>G.starsEarned[GM.level])G.starsEarned[GM.level]=stars;
+  saveG();sfxCoin();
+  document.getElementById('resStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('resScore').textContent=GM.score.toLocaleString()+' pts';
+  document.getElementById('resBest').textContent=GM.score>prev?'🏆 ¡NUEVO RÉCORD!':'MEJOR: '+prev.toLocaleString();
+  document.getElementById('resBonus').textContent=`+🪙${coinB} monedas`;
+  showPanel('winPanel');
+  checkStoryTrigger(GM.level);
+}
+
+function bossWin(){
+  sfxWin();sfxWin();
+  const boss=GM.boss;G.bossKills++;
+  if(GM.level>=G.unlocked&&GM.level<300)G.unlocked=GM.level+1;
+  const coinB=100+Math.floor(GM.level/30)*50;
+  const gemB=15+Math.floor(GM.level/30)*5;
+  G.coins+=coinB;G.gems+=gemB;
+  G.bestScores[GM.level]=GM.score;
+  G.starsEarned[GM.level]=3;
+  saveG();sfxCoin();sfxCoin();
+  document.getElementById('bwTitle').textContent='¡'+boss.name+' DERROTADO!';
+  document.getElementById('bwSub').textContent=boss.title.toUpperCase();
+  document.getElementById('bwStars').textContent='⭐⭐⭐';
+  document.getElementById('bwScore').textContent=GM.score.toLocaleString()+' pts';
+  document.getElementById('bwBonus').textContent=`+🪙${coinB} +💎${gemB}`;
+  document.getElementById('bwLore').textContent=boss.winLore;
+  showPanel('bossWinPanel');
+  checkStoryTrigger(GM.level);
+}
+
+function triggerLose(){
+  sfxFail();
+  document.getElementById('goScore').textContent=GM.score.toLocaleString()+' pts';
+  showPanel('losePanel');
+}
+
+function checkStoryTrigger(level){
+  if(ALL_STORIES[level]&&!G.storiesSeen[level]){
+    G.storiesSeen[level]=true;saveG();
+    const cb=()=>{};
+    setTimeout(()=>showStory(ALL_STORIES[level],cb),3500);
+  }
+}
+
+// ─── LEVEL FLOW ───
+function startLevel(num){
+  hideAllPanels();
+  GM.level=num;GM.score=0;GM.combo=0;GM.selected=null;GM.activePu=null;GM.comboAbsorbed=false;
+  GM.levelDef=buildLvlDef(num);
+  GM.isBoss=GM.levelDef.isBoss;
+  GM.boss=GM.levelDef.boss||null;
+  GM.objective=GM.levelDef.objective;
+  GM.objProgress=0;
+  GM.moves=GM.levelDef.moves;GM.maxMoves=GM.levelDef.moves;
+  GM.rows=5;GM.cols=GM.levelDef.isBoss?6:5;
+  GM.grid=buildGrid(GM.levelDef);
+
+  if(GM.isBoss&&GM.boss){
+    GM.bossHp=GM.boss.hp;GM.bossMaxHp=GM.boss.hp;
+    GM.bossAttackIn=3;
+  }
+
+  hideAllScreens();showScreen('gameScreen');
+
+  // Boss HP bar
+  const bossBar=document.getElementById('bossHpBar');
+  if(GM.isBoss&&GM.boss){
+    bossBar.style.display='block';
+    document.getElementById('bossHpName').textContent=`${GM.boss.icon} ${GM.boss.name}`;
+    updateBossHp();
+  } else {
+    bossBar.style.display='none';
+  }
+
+  document.getElementById('objBanner').innerHTML=
+    `<div class="obj-t">${GM.objective.text}</div>
+     <div class="obj-p" id="objPrg">0/${GM.objective.target.toLocaleString()}</div>
+     <div class="obj-prog-bar"><div class="obj-prog-fill" id="objFill" style="width:0%"></div></div>`;
+
+  updateHUD();updatePuBar();renderGrid();
+  if(GM.isBoss)showNotif(`⚔️ ¡JEFE NIVEL ${num}! ${GM.boss?.name} te desafía!`);
+}
+
+function nextLvl(){
+  hideAllPanels();
+  const next=Math.min(GM.level+1,300);
+  const story=ALL_STORIES[next-1];
+  if(story&&!G.storiesSeen[next-1]){
+    G.storiesSeen[next-1]=true;saveG();
+    showStory(story,()=>checkBossIntro(next));
+  } else {
+    checkBossIntro(next);
+  }
+}
+function checkBossIntro(lvl){
+  const boss=BOSSES.find(b=>b.level===lvl);
+  if(boss&&!G.storiesSeen['boss_'+lvl]){
+    G.storiesSeen['boss_'+lvl]=true;saveG();
+    showBossIntro(boss,()=>startLevel(lvl));
+  } else {
+    startLevel(lvl);
+  }
+}
+function replayLvl(){hideAllPanels();startLevel(GM.level);}
+function buyMoves(){if(G.gems>=20){G.gems-=20;GM.moves+=5;GM.maxMoves+=5;saveG();hidePanel('losePanel');updateHUD();showNotif('⚡ +5 movimientos!');}else{showNotif('💎 Sin gemas suficientes.');sfxFail();}}
+function watchAd(){showNotif('📺 Cargando anuncio...');setTimeout(()=>{GM.moves+=3;GM.maxMoves+=3;hidePanel('losePanel');updateHUD();showNotif('✅ ¡+3 movimientos gratis!');},1600);}
+function confirmQuit(){showPanel('quitPanel');}
+function doQuit(){hideAllPanels();goChapters();}
+
+// ─── CHAPTER SELECT ───
+function goChapters(){
+  hideAllPanels();hideAllScreens();showScreen('chapterScreen');
+  const cont=document.getElementById('chapterCards');cont.innerHTML='';
+  CHAPTERS.forEach(ch=>{
+    const isLocked=G.unlocked<ch.levels[0];
+    const progress=Object.keys(G.bestScores).filter(k=>+k>=ch.levels[0]&&+k<=ch.levels[1]).length;
+    const total=ch.levels[1]-ch.levels[0]+1;
+    const div=document.createElement('div');
+    div.className='chap-card'+(isLocked?' locked':'');
+    div.style.background=`linear-gradient(135deg,${ch.color}88,${ch.color}44)`;
+    div.style.borderColor=isLocked?'var(--border)':ch.icon==='💀'?'rgba(220,38,38,.3)':'rgba(255,255,255,.12)';
+    div.innerHTML=`<div class="chap-icon">${ch.icon}</div>
+      <div class="chap-info">
+        <div class="chap-num cz">CAPÍTULO ${ch.id}</div>
+        <div class="chap-name cz">${ch.name}</div>
+        <div class="chap-desc">${ch.desc}</div>
+        ${!isLocked?`<div class="chap-prog">${progress}/${total} niveles · Nv.${ch.levels[0]}–${ch.levels[1]}</div>`:''}
+      </div>`;
+    if(!isLocked)div.addEventListener('click',()=>goLevelSelect(ch));
+    cont.appendChild(div);
+  });
+}
+
+function goLevelSelect(chap){
+  hideAllScreens();showScreen('levelScreen');
+  document.getElementById('levelScreenTitle').textContent=`${chap.icon} ${chap.name}`;
+  const grid=document.getElementById('lvlGrid');grid.innerHTML='';
+  for(let i=chap.levels[0];i<=chap.levels[1];i++){
+    const locked=i>G.unlocked;
+    const completed=!!G.bestScores[i];
+    const isBoss=i===chap.bossLevel;
+    const btn=document.createElement('div');
+    btn.className=`lvl-btn${locked?' locked':completed?' completed':' unlocked'}${isBoss?' boss-lvl':''}`;
+    const stars=G.starsEarned[i]||0;
+    btn.innerHTML=`<div class="lvl-ico">${locked?'🔒':isBoss?'⚔️':EL[Math.min(Math.floor(i/10),EL.length-1)].e}</div>
+      <div class="lvl-n">${isBoss?'JEFE':i}</div>
+      <div class="lvl-stars">${completed?'⭐'.repeat(stars)+'☆'.repeat(3-stars):''}</div>`;
+    if(!locked)btn.addEventListener('click',()=>{
+      const boss=BOSSES.find(b=>b.level===i);
+      if(boss&&!G.storiesSeen['boss_'+i]){
+        G.storiesSeen['boss_'+i]=true;saveG();
+        showBossIntro(boss,()=>startLevel(i));
+      } else {
+        const story=ALL_STORIES[i];
+        if(story&&!G.storiesSeen[i]){G.storiesSeen[i]=true;saveG();showStory(story,()=>startLevel(i));}
+        else startLevel(i);
+      }
+    });
+    grid.appendChild(btn);
+  }
+}
+
+// ─── STORY / BOSS INTRO ───
+let storyCB=null;
+function showStory(data,cb){
+  storyCB=cb||null;
+  document.getElementById('stEpisode').textContent=data.ep||'HISTORIA';
+  document.getElementById('stIcon').textContent=data.icon||'🌌';
+  document.getElementById('stTitle').textContent=data.title||'';
+  document.getElementById('stText').textContent=data.text||'';
+  document.getElementById('stQuote').textContent=data.quote||'';
+  hideAllScreens();showScreen('storyScreen');
+}
+function dismissStory(){const cb=storyCB;storyCB=null;if(cb)cb();else goMenu();}
+
+let bossIntroCB=null;
+function showBossIntro(boss,cb){
+  bossIntroCB=cb||null;
+  document.getElementById('biIcon').textContent=boss.icon;
+  document.getElementById('biName').textContent=boss.name;
+  document.getElementById('biName').style.background=`linear-gradient(135deg,#fff,${EL[17]?.c||'#fcd34d'},#fca5a5)`;
+  document.getElementById('biName').style['-webkit-background-clip']='text';
+  document.getElementById('biName').style['-webkit-text-fill-color']='transparent';
+  document.getElementById('biTitle').textContent=boss.title;
+  document.getElementById('biLore').textContent=boss.lore;
+  const ab=document.getElementById('biAbilities');ab.innerHTML='';
+  boss.attacks.forEach(a=>{
+    const d=document.createElement('div');d.className='boss-ability';
+    d.innerHTML=`<div class="ba-icon">${a.emoji}</div><div><div class="ba-text">${a.name}</div><div class="ba-desc">${a.desc}</div></div>`;
+    ab.appendChild(d);
+  });
+  hideAllScreens();showScreen('bossIntroScreen');
+}
+function dismissBossIntro(){const cb=bossIntroCB;bossIntroCB=null;if(cb)cb();else goMenu();}
+
+// ─── SHOP ───
+const SHOP=[
+  {section:'💎 GEMAS PREMIUM',items:[
+    {icon:'💎',name:'Puñado',      desc:'50 gemas',         price:'$0.99',action:'g50'},
+    {icon:'💎💎',name:'Saco',       desc:'200 gemas +BONUS', price:'$2.99',action:'g200',pop:true},
+    {icon:'👑',name:'Baúl',        desc:'600 gemas +ÉPICO', price:'$9.99',action:'g600',feat:true},
+    {icon:'🌌',name:'Universo',    desc:'2000 gemas +MEGA', price:'$24.99',action:'g2000'},
+  ]},
+  {section:'🪙 MONEDAS ESTELARES',items:[
+    {icon:'🪙',name:'Monedas',     desc:'1.000 monedas',    price:'$0.99',action:'c1k'},
+    {icon:'💰',name:'Tesoro',      desc:'5.000 monedas',    price:'$3.99',action:'c5k',pop:true},
+    {icon:'🏆',name:'Fortuna',     desc:'20.000 monedas',   price:'$9.99',action:'c20k',feat:true},
+  ]},
+  {section:'⚡ PODERES CÓSMICOS',items:[
+    {icon:'🔨',name:'Martillo ×5', desc:'Destruye 1 tile',  gems:30, action:'ph5'},
+    {icon:'🔀',name:'Barajar ×3',  desc:'Mezcla el tablero',gems:25, action:'ps3'},
+    {icon:'⚡',name:'Chispa ×5',   desc:'Sube tier',        gems:35, action:'pk5',pop:true},
+    {icon:'➕',name:'Movs ×3',     desc:'+5 mov por uso',   gems:20, action:'pe3'},
+  ]},
+  {section:'✨ PAQUETES ESPECIALES',items:[
+    {icon:'🎁',name:'Inicio',      desc:'200💎+5k🪙+poderes',price:'$1.99',action:'starter',feat:true,pop:true},
+    {icon:'🌟',name:'Season Pass', desc:'Recompensas épicas diarias',price:'$4.99/mes',action:'season'},
+    {icon:'♾️',name:'Sin Anuncios',desc:'Experiencia pura', price:'$2.99',action:'noads'},
+    {icon:'🚀',name:'Pack VIP',    desc:'Todo incluido',    price:'$19.99',action:'vip',feat:true},
+  ]},
+];
+function goShop(){
+  hideAllPanels();hideAllScreens();showScreen('shopScreen');
+  document.getElementById('sCoins').textContent=G.coins.toLocaleString();
+  document.getElementById('sGems').textContent=G.gems;
+  buildShop();
+}
+function buildShop(){
+  const sc=document.getElementById('shopContent');sc.innerHTML='';
+  SHOP.forEach(sec=>{
+    const s=document.createElement('div');s.className='shop-sec';
+    s.innerHTML=`<div class="shop-sec-title">${sec.section}</div>`;
+    const row=document.createElement('div');row.className='shop-row';
+    sec.items.forEach(item=>{
+      const d=document.createElement('div');
+      d.className='shop-card'+(item.feat?' feat':'')+(item.pop?' pop':'');
+      d.innerHTML=`<div class="sc-icon">${item.icon}</div>
+        <div class="sc-name">${item.name}</div>
+        <div class="sc-desc">${item.desc}</div>
+        <div class="sc-price">${item.price||(item.gems?'💎'+item.gems:'')}</div>`;
+      d.onclick=()=>handleBuy(item);
+      row.appendChild(d);
+    });
+    s.appendChild(row);sc.appendChild(s);
+  });
+}
+function handleBuy(item){
+  if(item.gems){
+    if(G.gems<item.gems){showNotif('💎 Sin gemas. ¡Compra más!');sfxFail();return;}
+    G.gems-=item.gems;
+    if(item.action==='ph5')G.powerups.hammer+=5;
+    else if(item.action==='ps3')G.powerups.shuffle+=3;
+    else if(item.action==='pk5')G.powerups.spark+=5;
+    else if(item.action==='pe3')G.powerups.extra+=3;
+    showNotif(`✅ ¡${item.name} añadido!`);sfxCoin();saveG();buildShop();
+    document.getElementById('sGems').textContent=G.gems;return;
+  }
+  showNotif('💳 Procesando...');
+  setTimeout(()=>{
+    const acts={
+      g50:()=>{G.gems+=50;},g200:()=>{G.gems+=200;},g600:()=>{G.gems+=600;},g2000:()=>{G.gems+=2000;},
+      c1k:()=>{G.coins+=1000;},c5k:()=>{G.coins+=5500;},c20k:()=>{G.coins+=25000;},
+      starter:()=>{G.gems+=200;G.coins+=5000;G.powerups.hammer+=3;G.powerups.spark+=3;G.powerups.shuffle+=2;},
+      season:()=>{G.gems+=50;showNotif('🌟 Season Pass activado!');},
+      noads:()=>{showNotif('♾️ Sin anuncios. ¡Gracias!');},
+      vip:()=>{G.gems+=1000;G.coins+=50000;G.powerups.hammer+=10;G.powerups.spark+=10;G.powerups.shuffle+=5;G.powerups.extra+=10;},
+    };
+    acts[item.action]?.();sfxWin();saveG();
+    document.getElementById('sCoins').textContent=G.coins.toLocaleString();
+    document.getElementById('sGems').textContent=G.gems;
+    buildShop();showNotif(`✅ ¡${item.name} activado! Gracias ❤️`);
+  },1400);
+}
+
+// ─── STATS ───
+function goStats(){
+  hideAllPanels();hideAllScreens();showScreen('statsScreen');
+  const lvls=Object.keys(G.bestScores).length;
+  const stars=Object.values(G.starsEarned).reduce((a,b)=>a+b,0);
+  const rows=[
+    ['Niveles completados',`${lvls}/300`],
+    ['Jefes derrotados',`${G.bossKills}/${BOSSES.length} 👑`],
+    ['Estrellas ganadas',`${stars}⭐`],
+    ['Fusiones totales',G.totalMerges.toLocaleString()],
+    ['Puntuación total',G.totalScore.toLocaleString()],
+    ['Mejor combo',`×${G.bestCombo}`],
+    ['Monedas totales',G.coins.toLocaleString()],
+    ['Racha actual',`${G.streak}🔥`],
+  ];
+  document.getElementById('statRows').innerHTML=rows.map(([l,v])=>
+    `<div class="stat-row"><span class="sl">${l}</span><span class="sv">${v}</span></div>`).join('');
+}
+
+// ─── DAILY ───
+const DAILY=[
+  {day:1,icon:'🪙',val:'+200'},
+  {day:2,icon:'💎',val:'+8'},
+  {day:3,icon:'🔨',val:'Martillo ×2'},
+  {day:4,icon:'🪙',val:'+800'},
+  {day:5,icon:'⚡',val:'Chispa ×3'},
+  {day:6,icon:'💎',val:'+25'},
+  {day:7,icon:'👑',val:'¡ÉPICO! 100💎'},
+];
+function goDaily(){
+  hideAllPanels();hideAllScreens();showScreen('dailyScreen');
+  const today=new Date().toDateString();
+  const grid3=document.getElementById('dailyGrid');grid3.innerHTML='';
+  DAILY.forEach((r,i)=>{
+    const claimed=G.streak>i;
+    const isToday=G.streak===i&&G.lastLogin!==today;
+    const d=document.createElement('div');
+    d.className=`day-box${claimed?' claimed':''}${isToday?' today':''}`;
+    d.innerHTML=`<div class="dl">Día ${i+1}</div><div class="di">${r.icon}</div><div class="dv">${r.val}</div>${claimed?'<div style="font-size:10px;color:#34d399">✓</div>':''}`;
+    grid3.appendChild(d);
+  });
+  const alreadyClaimed=G.lastLogin===today;
+  const btn=document.getElementById('claimBtn');
+  btn.textContent=alreadyClaimed?'✅ YA RECLAMADO':'✅ RECLAMAR RECOMPENSA';
+  btn.disabled=alreadyClaimed;btn.style.opacity=alreadyClaimed?.5:1;
+}
+function claimDaily(){
+  const today=new Date().toDateString();
+  if(G.lastLogin===today){showNotif('⏰ Vuelve mañana para tu próxima recompensa!');return;}
+  G.lastLogin=today;G.streak=Math.min((G.streak||0)+1,7);
+  const r=DAILY[(G.streak-1)%7];
+  if(r.icon==='🪙')G.coins+=parseInt(r.val.replace('+',''))||200;
+  if(r.icon==='💎')G.gems+=parseInt(r.val.replace('+',''))||8;
+  if(r.icon==='🔨')G.powerups.hammer+=2;
+  if(r.icon==='⚡')G.powerups.spark+=3;
+  if(r.icon==='👑'){G.gems+=100;G.coins+=3000;}
+  saveG();sfxWin();updateCurrBar();
+  showNotif(`🎁 Día ${G.streak}: ${r.icon} ${r.val} recibido!`);
+  goDaily();
+}
+
+// ─── PANELS ───
+function showPanel(id){const p=document.getElementById(id);p.classList.remove('hidden');requestAnimationFrame(()=>p.classList.add('show'));}
+function hidePanel(id){const p=document.getElementById(id);p.classList.remove('show');setTimeout(()=>p.classList.add('hidden'),350);}
+function hideAllPanels(){document.querySelectorAll('.panel-bg').forEach(p=>{p.classList.remove('show');p.classList.add('hidden');});}
+
+// ─── SCREENS ───
+function showScreen(id){document.getElementById(id)?.classList.remove('hidden');}
+function hideAllScreens(){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));}
+function goMenu(){hideAllPanels();hideAllScreens();showScreen('menuScreen');updateCurrBar();}
+function updateCurrBar(){
+  document.getElementById('mCoins').textContent=G.coins.toLocaleString();
+  document.getElementById('mGems').textContent=G.gems;
+}
+
+// ─── NOTIFICATIONS ───
+let notifTimer;
+function showNotif(msg){
+  const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');
+  clearTimeout(notifTimer);notifTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ─── MERGE POPUP ───
+function showMergePopup(x,y,elem,pts){
+  const old=document.querySelector('.mpop');if(old)old.remove();
+  const d=document.createElement('div');d.className='mpop';
+  d.style.cssText=`left:${x}px;top:${y}px;color:${elem.c}`;
+  d.innerHTML=`<div class="mpop-em">${elem.e}</div><div class="mpop-nm">${elem.n.toUpperCase()}</div><div class="mpop-pt">+${pts.toLocaleString()}</div>${GM.combo>2?`<div class="mpop-combo">COMBO ×${GM.combo}!</div>`:''}`;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),950);
+}
+
+// ─── CANVAS / BG ───
+const bgC=document.getElementById('bgC'),bgX=bgC.getContext('2d');
+const ptC=document.getElementById('ptC'),ptX=ptC.getContext('2d');
+let W,H,bgSt=[],bgNeb=[],particles=[];
+function resize(){
+  W=window.innerWidth;H=window.innerHeight;
+  bgC.width=W;bgC.height=H;ptC.width=W;ptC.height=H;
+  bgSt=[];for(let i=0;i<180;i++)bgSt.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.7+.2,a:Math.random()*.9+.1,tw:Math.random()*Math.PI*2,sp:Math.random()*.013+.004});
+  bgNeb=[];for(let i=0;i<4;i++)bgNeb.push({x:Math.random()*W,y:Math.random()*H,r:150+Math.random()*220,h:Math.random()*360,a:.025+Math.random()*.035});
+}
+function drawBg(){
+  bgX.fillStyle='#02040e';bgX.fillRect(0,0,W,H);
+  bgNeb.forEach(n=>{const g=bgX.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);g.addColorStop(0,`hsla(${n.h},75%,55%,${n.a})`);g.addColorStop(1,'transparent');bgX.fillStyle=g;bgX.beginPath();bgX.arc(n.x,n.y,n.r,0,Math.PI*2);bgX.fill();});
+  bgSt.forEach(s=>{s.tw+=s.sp;const a=s.a*(.5+.5*Math.sin(s.tw));bgX.beginPath();bgX.arc(s.x,s.y,s.r,0,Math.PI*2);bgX.fillStyle=`rgba(255,255,255,${a})`;bgX.fill();});
+}
+function spawnPt(x,y,color,count){for(let i=0;i<count;i++){const a=(Math.PI*2/count)*i+Math.random()*.5,sp=2+Math.random()*5;particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,decay:.025+Math.random()*.03,r:2+Math.random()*5,color,type:i%3===0?'ring':'dot'});}}
+function drawPt(){
+  ptX.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.09;p.vx*=.97;p.vy*=.98;p.life-=p.decay;
+    if(p.life<=0)return;
+    ptX.globalAlpha=p.life;
+    if(p.type==='ring'){ptX.beginPath();ptX.arc(p.x,p.y,p.r*p.life+2,0,Math.PI*2);ptX.strokeStyle=p.color;ptX.lineWidth=1.5;ptX.stroke();}
+    else{ptX.beginPath();ptX.arc(p.x,p.y,p.r,0,Math.PI*2);ptX.fillStyle=p.color;ptX.fill();}
+    ptX.globalAlpha=1;
+  });
+  particles=particles.filter(p=>p.life>0);
+}
+let raf;
+function bgLoop(){raf=requestAnimationFrame(bgLoop);drawBg();drawPt();}
+
+// ─── AUDIO ───
+let ac2;
+function ac(){if(!ac2)ac2=new(window.AudioContext||window.webkitAudioContext)();return ac2;}
+function tone(f,t,v=.14,type='sine'){try{const o=ac().createOscillator(),g=ac().createGain();o.connect(g);g.connect(ac().destination);o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,ac().currentTime);g.gain.exponentialRampToValueAtTime(.001,ac().currentTime+t);o.start();o.stop(ac().currentTime+t);}catch(e){}}
+const sfxT=()=>tone(440,.1,.1);
+const sfxMerge=(tier)=>{tone(300+tier*80,.2,.14);tone(400+tier*100,.15,.09,'triangle');};
+const sfxBig=()=>{tone(800,.3,.18);setTimeout(()=>tone(1200,.2,.14),120);};
+const sfxFail=()=>tone(150,.3,.13,'sawtooth');
+const sfxWin=()=>{[440,550,660,880,1100].forEach((f,i)=>setTimeout(()=>tone(f,.3,.12),i*100));};
+const sfxCoin=()=>{tone(1200,.1,.08);setTimeout(()=>tone(1500,.1,.06),80);};
+const sfxPu=()=>{tone(600,.2,.12,'square');tone(900,.15,.1,'square');};
+
+// ─── DAILY ON LOAD ───
+function checkDailyLoad(){
+  const today=new Date().toDateString();
+  if(G.lastLogin!==today&&G.unlocked>1)setTimeout(()=>showNotif('🎁 ¡Recompensa diaria disponible!'),1800);
+}
+
+// ─── INIT ───
+window.addEventListener('resize',()=>{resize();if(document.getElementById('gameScreen')&&!document.getElementById('gameScreen').classList.contains('hidden'))renderGrid();});
+loadG();resize();bgLoop();updateCurrBar();
+// First story
+if(G.unlocked===1&&!G.storiesSeen[1]){
+  G.storiesSeen[1]=true;saveG();
+  showStory(ALL_STORIES[1]||{ep:'PRÓLOGO',icon:'🌌',title:'El Gran Silencio',text:'El universo ha muerto. Solo tú puedes reconstruirlo.',quote:'"Del silencio nacerá la primera chispa."'},()=>{
+    hideAllScreens();showScreen('menuScreen');updateCurrBar();
+  });
+}else{showScreen('menuScreen');}
+checkDailyLoad();
+</script>
+</body>
+</html>
