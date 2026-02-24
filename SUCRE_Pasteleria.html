@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SUCRÉ · La Pastelería Mágica</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#fff8f0;--cream2:#fef3e2;--crema:#fde68a;
+  --rosa:#f9a8d4;--rosa2:#ec4899;--rosaDark:#9d174d;
+  --menta:#6ee7b7;--menta2:#10b981;
+  --choco:#92400e;--choco2:#78350f;--chocoLight:#d97706;
+  --vainilla:#fbbf24;--vainillaLight:#fef9c3;
+  --fresa:#fb7185;--azul:#60a5fa;--lila:#a78bfa;--verde:#34d399;
+  --bg:#3d1308;--bg2:#5c1c0d;
+  --text:#fff8f0;--text2:rgba(255,248,240,.65);--text3:rgba(255,248,240,.35);
+  --card:rgba(255,255,255,.07);--border:rgba(255,248,240,.15);--border2:rgba(255,248,240,.25);
+  --rad:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);touch-action:none}
+canvas{position:fixed;top:0;left:0;pointer-events:none}
+#bgC{z-index:0}#ptC{z-index:50}
+#app{position:fixed;inset:0;z-index:10;overflow:hidden}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s,transform .4s}
+.screen.hidden{opacity:0;transform:scale(.97);pointer-events:none;display:none!important}
+
+/* ─── FONTS ─── */
+.pac{font-family:'Pacifico',cursive}
+.nun{font-family:'Nunito',sans-serif}
+
+/* ─── BUTTONS ─── */
+.btn{border:none;border-radius:var(--rad);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:.5px;transition:transform .12s,box-shadow .15s;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.93)}
+.btn-prime{background:linear-gradient(135deg,#be185d,#ec4899,#f9a8d4);color:#fff;font-size:15px;padding:17px 36px;border:1px solid rgba(249,168,212,.4);box-shadow:0 6px 24px rgba(236,72,153,.35),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn-choco{background:linear-gradient(135deg,#78350f,#b45309,#d97706);color:#fff;font-size:14px;padding:15px 32px;border:1px solid rgba(217,119,6,.4);box-shadow:0 6px 20px rgba(180,83,9,.3)}
+.btn-menta{background:linear-gradient(135deg,#065f46,#10b981,#6ee7b7);color:#fff;font-size:14px;padding:15px 32px;border:1px solid rgba(110,231,183,.3)}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--text2);font-size:13px;padding:13px 26px;border:1px solid var(--border)}
+.btn-red{background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-size:14px;padding:14px 28px}
+.btn-sm{font-size:12px;padding:10px 20px;border-radius:12px}
+.btn-rival{background:linear-gradient(135deg,#4c1d95,#7c3aed,#a78bfa);color:#fff;font-size:14px;padding:15px 32px;border:1px solid rgba(167,139,250,.5);box-shadow:0 0 25px rgba(124,58,237,.4);animation:rivalGlow 2s ease-in-out infinite}
+@keyframes rivalGlow{0%,100%{box-shadow:0 0 25px rgba(124,58,237,.4)}50%{box-shadow:0 0 45px rgba(124,58,237,.7)}}
+
+/* ─── MAIN MENU ─── */
+#menuScreen{overflow:hidden}
+.menu-bg-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.deco-circle{position:absolute;border-radius:50%;opacity:.12}
+.logo-wrap{text-align:center;margin-bottom:8px;position:relative;z-index:2}
+.logo-eyebrow{font-family:'Nunito',sans-serif;font-size:clamp(10px,2.5vw,13px);letter-spacing:6px;color:var(--rosa);opacity:.9;text-transform:uppercase;margin-bottom:6px}
+.logo-main{font-family:'Pacifico',cursive;font-size:clamp(52px,14vw,92px);background:linear-gradient(135deg,#fef9c3 0%,#fbbf24 30%,#f9a8d4 60%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 4px 20px rgba(249,168,212,.5));line-height:1}
+.logo-sub{font-family:'Nunito',sans-serif;font-size:clamp(9px,2.2vw,12px);letter-spacing:6px;color:rgba(255,248,240,.4);margin-top:4px;text-transform:uppercase;font-weight:700}
+.logo-tagline{font-size:clamp(12px,3vw,14px);color:var(--text2);text-align:center;margin-top:10px;line-height:1.55;max-width:300px;padding:0 16px;font-style:italic;position:relative;z-index:2}
+.menu-nav{display:flex;flex-direction:column;gap:11px;width:min(280px,82vw);margin-top:28px;position:relative;z-index:2}
+.version-tag{position:absolute;bottom:16px;font-size:10px;color:rgba(255,248,240,.2);letter-spacing:3px;font-weight:700}
+.curr-bar{position:absolute;top:14px;right:14px;display:flex;gap:7px;z-index:20}
+.curr-pill{background:rgba(61,19,8,.75);border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:5px;backdrop-filter:blur(12px)}
+.back{position:absolute;top:14px;left:14px;background:rgba(61,19,8,.6);border:1px solid var(--border);border-radius:12px;padding:8px 15px;font-size:12px;color:var(--text2);cursor:pointer;font-weight:700;touch-action:manipulation;transition:all .15s;z-index:20}
+.back:active{transform:scale(.93)}
+
+/* ─── BAKERY EVOLUTION DISPLAY ─── */
+.bakery-display{width:min(340px,88vw);background:rgba(255,248,240,.06);border:1px solid var(--border);border-radius:20px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px;position:relative;z-index:2}
+.bakery-icon{font-size:44px;flex-shrink:0;filter:drop-shadow(0 0 12px rgba(251,191,36,.4))}
+.bakery-info{flex:1}
+.bakery-name{font-family:'Pacifico',cursive;font-size:clamp(13px,3.5vw,16px);color:var(--crema)}
+.bakery-level{font-size:11px;color:var(--text2);margin-top:2px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.bakery-prog-bar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;margin-top:6px;overflow:hidden}
+.bakery-prog-fill{height:100%;background:linear-gradient(90deg,var(--rosa2),var(--vainilla));border-radius:3px;transition:width .4s}
+
+/* ─── STORY ─── */
+#storyScreen{padding:20px;overflow-y:auto}
+.story-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:380px;animation:fadeUp .5s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.st-ep{font-size:10px;letter-spacing:5px;color:var(--rosa);text-transform:uppercase;margin-bottom:10px;font-weight:800}
+.st-icon{font-size:72px;margin-bottom:14px;animation:floatStory 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(249,168,212,.5))}
+@keyframes floatStory{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.st-title{font-family:'Pacifico',cursive;font-size:clamp(18px,5vw,28px);color:var(--crema);margin-bottom:12px;line-height:1.2}
+.st-divider{width:70px;height:2px;background:linear-gradient(90deg,transparent,var(--rosa2),transparent);margin:0 auto 16px}
+.st-text{font-size:clamp(13px,3.5vw,15px);color:rgba(255,248,240,.8);line-height:1.85;font-style:italic}
+.st-quote{font-size:clamp(11px,2.8vw,13px);color:var(--crema);margin-top:14px;letter-spacing:.5px;opacity:.75;font-weight:700}
+.st-bakery{font-size:13px;color:var(--menta2);margin-top:10px;font-weight:800}
+
+/* ─── RIVAL INTRO ─── */
+#rivalIntroScreen{overflow-y:auto;padding:20px}
+.rival-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:360px}
+.rival-pre{font-size:10px;letter-spacing:5px;color:var(--lila);text-transform:uppercase;margin-bottom:8px;font-weight:800;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.rival-icon{font-size:80px;margin:8px 0;filter:drop-shadow(0 0 28px rgba(167,139,250,.7));animation:rivalIdle 2s ease-in-out infinite}
+@keyframes rivalIdle{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.07) rotate(2deg)}}
+.rival-name{font-family:'Pacifico',cursive;font-size:clamp(20px,6vw,32px);margin-bottom:4px;color:var(--crema)}
+.rival-title-tag{font-size:11px;letter-spacing:3px;color:var(--lila);text-transform:uppercase;margin-bottom:12px;font-weight:700}
+.rival-lore{font-size:clamp(12px,3.2vw,14px);color:rgba(255,248,240,.75);line-height:1.75;font-style:italic;margin-bottom:18px}
+.rival-abilities{display:flex;flex-direction:column;gap:7px;width:100%;margin-bottom:20px}
+.rival-ability{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:10px;text-align:left}
+.ra-icon{font-size:18px;flex-shrink:0}
+.ra-text{font-size:12px;color:#e9d5ff;font-weight:700}
+.ra-desc{font-size:11px;color:rgba(233,213,255,.6)}
+
+/* ─── CHAPTER SELECT ─── */
+#chapterScreen{justify-content:flex-start;padding-top:70px;padding-bottom:20px;overflow-y:auto}
+.chapter-cards{display:flex;flex-direction:column;gap:10px;width:min(400px,94vw);padding:0 12px}
+.chap-card{border-radius:18px;padding:15px 18px;cursor:pointer;transition:all .2s;touch-action:manipulation;border:1px solid var(--border);display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.chap-card:active{transform:scale(.97)}
+.chap-card.locked{background:rgba(255,255,255,.02);cursor:default;opacity:.45}
+.chap-card.locked::after{content:'🔒';position:absolute;right:16px;font-size:20px}
+.chap-icon{font-size:34px;flex-shrink:0}
+.chap-info{flex:1;min-width:0}
+.chap-num{font-size:10px;letter-spacing:3px;opacity:.6;text-transform:uppercase;margin-bottom:3px;font-weight:800}
+.chap-name{font-family:'Pacifico',cursive;font-size:clamp(12px,3.5vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--crema)}
+.chap-desc{font-size:11px;color:var(--text2);margin-top:3px}
+.chap-prog{font-size:11px;color:var(--menta2);margin-top:4px;font-weight:700}
+
+/* ─── LEVEL SELECT ─── */
+#levelScreen{justify-content:flex-start;padding-top:68px;overflow-y:auto;padding-bottom:24px}
+.lvl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;width:min(370px,95vw);padding:0 10px}
+.lvl-btn{aspect-ratio:1;border-radius:13px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .18s;touch-action:manipulation;position:relative;overflow:hidden}
+.lvl-btn:active{transform:scale(.9)}
+.lvl-btn.locked{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);cursor:default}
+.lvl-btn.unlocked{background:linear-gradient(135deg,rgba(236,72,153,.2),rgba(251,191,36,.15));border:1px solid rgba(236,72,153,.3)}
+.lvl-btn.completed{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(52,211,153,.15));border:1px solid rgba(16,185,129,.3)}
+.lvl-btn.rival-lvl{background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(167,139,250,.2))!important;border-color:rgba(167,139,250,.5)!important;box-shadow:0 0 14px rgba(124,58,237,.3)!important}
+.lvl-btn.rival-lvl .lvl-n{color:#e9d5ff!important}
+.lvl-n{font-family:'Pacifico',cursive;font-size:12px;color:var(--text)}
+.lvl-ico{font-size:13px;line-height:1}
+.lvl-stars{font-size:7px;letter-spacing:-1px;margin-top:1px}
+.chap-row-label{grid-column:1/-1;font-size:9px;letter-spacing:3px;color:var(--rosa);opacity:.65;text-align:center;padding:6px 0 3px;text-transform:uppercase;font-weight:800}
+
+/* ─── GAME HUD ─── */
+#gameScreen{justify-content:flex-start;padding:0}
+#gHud{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px 6px;background:linear-gradient(180deg,rgba(61,19,8,.95) 0%,transparent 100%);flex-shrink:0}
+.hb{display:flex;flex-direction:column;align-items:center}
+.hl{font-size:8px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;font-weight:800}
+.hv{font-family:'Pacifico',cursive;font-size:18px;color:var(--crema);line-height:1}
+.hv.score{color:var(--vainilla)}
+.moves-ring{width:50px;height:50px;position:relative;flex-shrink:0}
+.moves-ring svg{transform:rotate(-90deg)}
+.mv-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Pacifico',cursive;font-size:15px;color:var(--crema)}
+.mv-txt.low{color:var(--fresa)!important;animation:movLow .6s ease-in-out infinite}
+@keyframes movLow{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ─── RIVAL HP BAR ─── */
+#rivalHpBar{width:100%;padding:0 14px 6px;flex-shrink:0;display:none}
+.rival-hp-wrap{background:rgba(124,58,237,.08);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:8px 12px}
+.rival-hp-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.rival-hp-name{font-size:11px;color:#e9d5ff;font-weight:800;letter-spacing:.5px}
+.rival-hp-val{font-size:11px;color:#e9d5ff;font-weight:700}
+.rival-hp-track{height:8px;background:rgba(124,58,237,.15);border-radius:4px;overflow:hidden}
+.rival-hp-fill{height:100%;background:linear-gradient(90deg,#4c1d95,#7c3aed,#c4b5fd);border-radius:4px;transition:width .4s;box-shadow:0 0 8px rgba(167,139,250,.5)}
+
+/* ─── OBJECTIVE BANNER ─── */
+#objBanner{width:100%;padding:5px 14px;background:rgba(61,19,8,.5);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,248,240,.08)}
+.obj-t{font-size:11px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.obj-p{font-size:11px;font-weight:800;color:var(--menta2);flex-shrink:0;margin-left:8px}
+.obj-prog-bar{width:60px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-left:8px;flex-shrink:0}
+.obj-prog-fill{height:100%;background:linear-gradient(90deg,var(--rosa2),var(--vainilla));border-radius:2px;transition:width .35s}
+
+/* ─── GRID ─── */
+#gridWrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:6px;overflow:hidden}
+#grid{display:grid;gap:5px;padding:10px;background:rgba(255,248,240,.03);border-radius:20px;border:1px solid rgba(255,248,240,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 50px rgba(0,0,0,.4)}
+.tile{border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .1s,box-shadow .1s;position:relative;overflow:hidden;touch-action:manipulation;border:1.5px solid transparent}
+.tile:active{transform:scale(.88)}
+.tile.sel{transform:scale(1.07);z-index:5}
+.tile-em{line-height:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.tile-nm{font-size:clamp(5px,1.2vw,7px);opacity:.7;margin-top:2px;text-align:center;font-weight:800;line-height:1;padding:0 2px}
+.tile.quemado::after{content:'🔥';position:absolute;top:1px;right:2px;font-size:9px}
+.tile.glaseado::before{content:'✨';position:absolute;top:1px;left:2px;font-size:9px}
+.tile.bomba::before{content:'💣';position:absolute;top:1px;left:2px;font-size:9px}
+.tile.mohoso::after{content:'🍄';position:absolute;top:1px;right:2px;font-size:9px}
+.tile.doble::before{content:'×2';position:absolute;top:1px;left:2px;font-size:8px;color:#fff;font-weight:900;background:rgba(0,0,0,.4);border-radius:4px;padding:0 2px}
+.tile.duro::after{content:'💎';position:absolute;top:1px;right:2px;font-size:9px}
+.tile-shine{position:absolute;top:-40%;left:-60%;width:25%;height:120%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.15),transparent);transform:skewX(-25deg);animation:tshine 5s ease-in-out infinite}
+@keyframes tshine{0%,75%,100%{left:-60%}87%{left:140%}}
+
+/* ─── POWERUP BAR ─── */
+#puBar{width:100%;display:flex;justify-content:center;gap:9px;padding:7px 14px 12px;flex-shrink:0}
+.pu{width:52px;height:52px;border-radius:14px;border:1px solid var(--border);background:rgba(61,19,8,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;touch-action:manipulation;position:relative;backdrop-filter:blur(8px)}
+.pu:active{transform:scale(.87)}
+.pu.act{border-color:var(--rosa);box-shadow:0 0 14px rgba(236,72,153,.5)}
+.pu-em{font-size:20px;line-height:1}
+.pu-lb{font-size:7px;color:var(--text2);letter-spacing:.3px;margin-top:2px;font-weight:800;text-transform:uppercase}
+.pu-ct{position:absolute;top:-5px;right:-5px;background:var(--rosa2);color:#fff;font-size:9px;font-weight:900;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center}
+
+/* ─── RIVAL ATTACK FLASH ─── */
+.rival-flash{position:fixed;inset:0;background:rgba(124,58,237,.28);pointer-events:none;z-index:60;opacity:0;animation:rflash .5s ease-out forwards}
+@keyframes rflash{0%{opacity:1}100%{opacity:0}}
+
+/* ─── PANELS ─── */
+.panel-bg{position:fixed;inset:0;background:rgba(30,8,2,.9);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.panel-bg.show{opacity:1}
+.panel-bg.hidden{display:none}
+.panel{background:linear-gradient(155deg,#3d1308,#5c1c0d);border:1px solid var(--border2);border-radius:24px;padding:26px 22px;width:min(320px,90vw);text-align:center;box-shadow:0 0 80px rgba(0,0,0,.7)}
+.panel-icon{font-size:52px;margin-bottom:10px}
+.panel h2{font-family:'Pacifico',cursive;font-size:clamp(16px,5vw,22px);margin-bottom:8px;color:var(--crema)}
+.panel p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:18px}
+.panel-btns{display:flex;flex-direction:column;gap:9px}
+.res-stars{display:flex;justify-content:center;gap:8px;font-size:38px;margin:12px 0}
+.res-score{font-family:'Pacifico',cursive;font-size:28px;color:var(--vainilla)}
+.res-sub{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:1px}
+.res-bonus{font-size:15px;color:var(--crema);margin-bottom:16px;font-weight:800}
+.rival-win-title{font-family:'Pacifico',cursive;font-size:clamp(17px,5vw,24px);color:var(--vainilla);margin-bottom:4px}
+.rival-win-sub{font-size:11px;letter-spacing:3px;color:#e9d5ff;text-transform:uppercase;margin-bottom:16px;font-weight:700}
+
+/* ─── SHOP ─── */
+#shopScreen{justify-content:flex-start;padding-top:58px;padding-bottom:20px;overflow-y:auto}
+.shop-hd{text-align:center;padding:0 16px 14px}
+.shop-hd h1{font-family:'Pacifico',cursive;font-size:clamp(18px,5vw,24px);color:var(--vainilla)}
+.shop-curr{font-size:13px;color:var(--text2);margin-top:4px;font-weight:700}
+.shop-sec{width:min(420px,96vw);padding:0 12px;margin-bottom:18px}
+.shop-sec-title{font-size:11px;letter-spacing:3px;color:var(--rosa);opacity:.85;text-transform:uppercase;margin-bottom:10px;padding-left:3px;font-weight:800}
+.shop-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:3px}
+.shop-row::-webkit-scrollbar{display:none}
+.shop-card{flex-shrink:0;width:128px;background:rgba(255,248,240,.05);border:1px solid var(--border);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .18s;touch-action:manipulation;position:relative}
+.shop-card:active{transform:scale(.94)}
+.shop-card.feat{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(245,158,11,.05));border-color:rgba(251,191,36,.35);box-shadow:0 0 16px rgba(251,191,36,.1)}
+.shop-card.pop::before{content:'🔥 POPULAR';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--rosa2);color:#fff;font-size:7.5px;font-weight:800;padding:2px 9px;border-radius:9px;white-space:nowrap}
+.sc-icon{font-size:34px}
+.sc-name{font-size:11px;font-weight:800;color:var(--crema);text-align:center}
+.sc-desc{font-size:10px;color:var(--text2);text-align:center;line-height:1.3}
+.sc-price{font-family:'Pacifico',cursive;font-size:12px;color:var(--vainilla)}
+
+/* ─── STATS ─── */
+.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,248,240,.07)}
+.stat-row:last-child{border:none}
+.sl{font-size:13px;color:var(--text2);font-weight:600}
+.sv{font-family:'Pacifico',cursive;font-size:14px;color:var(--crema)}
+
+/* ─── DAILY ─── */
+.daily-grid{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.day-box{width:50px;height:62px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
+.day-box.claimed{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.35)}
+.day-box.today{background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(236,72,153,.15));border-color:var(--vainilla);box-shadow:0 0 14px rgba(251,191,36,.2)}
+.day-box .dl{font-size:8px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.day-box .di{font-size:18px}
+.day-box .dv{font-size:9px;font-weight:800;color:var(--crema)}
+
+/* ─── MERGE POPUP ─── */
+.mpop{position:fixed;pointer-events:none;z-index:300;text-align:center;transform:translate(-50%,-50%);animation:mpopAnim .85s ease-out forwards}
+@keyframes mpopAnim{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}55%{opacity:1;transform:translate(-50%,-65%) scale(1.12)}100%{opacity:0;transform:translate(-50%,-85%) scale(.9)}}
+.mpop-em{font-size:44px;filter:drop-shadow(0 0 12px gold)}
+.mpop-nm{font-family:'Pacifico',cursive;font-size:14px;color:var(--crema);margin-top:3px}
+.mpop-pt{font-size:13px;color:rgba(255,248,240,.7);font-weight:800}
+.mpop-combo{font-family:'Pacifico',cursive;font-size:13px;color:var(--rosa);margin-top:2px}
+
+/* ─── NOTIFICATIONS ─── */
+#notif{position:fixed;top:74px;left:50%;transform:translateX(-50%) translateY(-18px);background:rgba(61,19,8,.96);border:1px solid var(--border);border-radius:14px;padding:9px 20px;font-size:13px;color:var(--cream);z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(20px);font-weight:700}
+#notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="bgC"></canvas>
+<canvas id="ptC"></canvas>
+<div id="app">
+
+<!-- ═══ MAIN MENU ═══ -->
+<div class="screen" id="menuScreen">
+  <div class="menu-bg-deco" id="menuDeco"></div>
+  <div class="curr-bar">
+    <div class="curr-pill">🍪<span id="mCoins">0</span></div>
+    <div class="curr-pill">💎<span id="mGems">0</span></div>
+  </div>
+  <div class="logo-wrap">
+    <div class="logo-eyebrow">La Pastelería Mágica</div>
+    <div class="logo-main">Sucré</div>
+    <div class="logo-sub">Merge & Bake</div>
+    <div class="logo-tagline">"Una pequeña tienda, un gran sueño... y la receta más dulce del mundo."</div>
+  </div>
+  <div class="bakery-display" id="bakeryDisplay">
+    <div class="bakery-icon" id="bakeryIcon">🏠</div>
+    <div class="bakery-info">
+      <div class="bakery-name" id="bakeryName">Mi Primera Cocina</div>
+      <div class="bakery-level" id="bakeryLevelTxt">Capítulo 1 · La Cocina Pequeña</div>
+      <div class="bakery-prog-bar"><div class="bakery-prog-fill" id="bakeryProgFill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="menu-nav">
+    <button class="btn btn-prime" onclick="goChapters()">🧁 HORNEAR</button>
+    <button class="btn btn-choco" onclick="goShop()">🛒 TIENDA</button>
+    <button class="btn btn-ghost" onclick="goStats()">📖 RECETARIO</button>
+    <button class="btn btn-ghost" onclick="goDaily()">🎁 REGALO DIARIO</button>
+  </div>
+  <div class="version-tag pac">v1.0 · Sucré Studios</div>
+</div>
+
+<!-- ═══ STORY ═══ -->
+<div class="screen hidden" id="storyScreen">
+  <div class="story-wrap">
+    <div class="st-ep" id="stEp">CAPÍTULO I</div>
+    <div class="st-icon" id="stIcon">🧁</div>
+    <div class="st-title" id="stTitle">La Cocina Pequeña</div>
+    <div class="st-divider"></div>
+    <div class="st-text" id="stText">Historia...</div>
+    <div class="st-quote" id="stQuote"></div>
+    <div class="st-bakery" id="stBakery"></div>
+    <button class="btn btn-prime" style="margin-top:26px;width:min(240px,75vw)" onclick="dismissStory()">¡A hornear! →</button>
+  </div>
+</div>
+
+<!-- ═══ RIVAL INTRO ═══ -->
+<div class="screen hidden" id="rivalIntroScreen" style="background:rgba(20,5,40,.97);overflow-y:auto;padding:20px">
+  <div class="rival-wrap">
+    <div class="rival-pre">⚠ RIVAL FINAL DE CAPÍTULO</div>
+    <div class="rival-icon" id="riIcon">👨‍🍳</div>
+    <div class="rival-name" id="riName">RIVAL</div>
+    <div class="rival-title-tag" id="riTitle">Pastelero Rival</div>
+    <div class="rival-lore" id="riLore">Lore...</div>
+    <div class="rival-abilities" id="riAbilities"></div>
+    <button class="btn btn-rival" style="width:min(240px,75vw)" onclick="dismissRivalIntro()">🍰 ¡ACEPTAR DUELO!</button>
+  </div>
+</div>
+
+<!-- ═══ CHAPTER SELECT ═══ -->
+<div class="screen hidden" id="chapterScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div style="font-family:'Pacifico',cursive;font-size:clamp(16px,4.5vw,22px);color:var(--crema);margin-bottom:18px;margin-top:56px">Mapa de Recetas</div>
+  <div class="chapter-cards" id="chapterCards"></div>
+</div>
+
+<!-- ═══ LEVEL SELECT ═══ -->
+<div class="screen hidden" id="levelScreen">
+  <button class="back" onclick="goChapters()">← CAPÍTULOS</button>
+  <div style="font-family:'Pacifico',cursive;font-size:clamp(13px,4vw,18px);color:var(--crema);margin-bottom:14px;margin-top:54px" id="levelScreenTitle">Capítulo I</div>
+  <div class="lvl-grid" id="lvlGrid"></div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div class="screen hidden" id="gameScreen">
+  <div id="gHud">
+    <div class="hb"><div class="hl">PUNTOS</div><div class="hv score" id="hScore">0</div></div>
+    <div class="moves-ring">
+      <svg width="50" height="50" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="21" fill="none" stroke="rgba(255,248,240,.08)" stroke-width="4"/>
+        <circle id="mvArc" cx="25" cy="25" r="21" fill="none" stroke="url(#mg)" stroke-width="4" stroke-linecap="round" stroke-dasharray="131.9" stroke-dashoffset="0"/>
+        <defs><linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient></defs>
+      </svg>
+      <div class="mv-txt" id="hMoves">30</div>
+    </div>
+    <div class="hb" style="align-items:flex-end"><div class="hl">NIVEL</div><div class="hv" id="hLevel">1</div></div>
+  </div>
+  <div id="rivalHpBar">
+    <div class="rival-hp-wrap">
+      <div class="rival-hp-top"><span class="rival-hp-name" id="rivalHpName">RIVAL</span><span class="rival-hp-val" id="rivalHpVal">10/10</span></div>
+      <div class="rival-hp-track"><div class="rival-hp-fill" id="rivalHpFill" style="width:100%"></div></div>
+    </div>
+  </div>
+  <div id="objBanner">
+    <div class="obj-t" id="objTxt">Objetivo</div>
+    <div class="obj-p" id="objPrg">0/0</div>
+    <div class="obj-prog-bar"><div class="obj-prog-fill" id="objFill" style="width:0%"></div></div>
+  </div>
+  <div id="gridWrap"><div id="grid"></div></div>
+  <div id="puBar">
+    <div class="pu" id="puRodillo" onclick="selPu('rodillo')"><div class="pu-em">🫙</div><div class="pu-lb">APLASTAR</div><div class="pu-ct" id="puRodilloN">0</div></div>
+    <div class="pu" id="puMezcla" onclick="selPu('mezcla')"><div class="pu-em">🔀</div><div class="pu-lb">MEZCLAR</div><div class="pu-ct" id="puMezclaNN">0</div></div>
+    <div class="pu" id="puHorno" onclick="selPu('horno')"><div class="pu-em">🔥</div><div class="pu-lb">HORNEAR</div><div class="pu-ct" id="puHornoN">0</div></div>
+    <div class="pu" id="puTiempo" onclick="selPu('tiempo')"><div class="pu-em">⏰</div><div class="pu-lb">+TIEMPO</div><div class="pu-ct" id="puTiempoN">0</div></div>
+  </div>
+  <button class="back" style="top:12px;left:12px;padding:6px 11px;font-size:10px;z-index:20" onclick="confirmQuit()">✕</button>
+</div>
+
+<!-- ═══ SHOP ═══ -->
+<div class="screen hidden" id="shopScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div class="shop-hd" style="margin-top:48px">
+    <h1>🛒 La Despensa</h1>
+    <div class="shop-curr">🍪<span id="sCoins">0</span> &nbsp;|&nbsp; 💎<span id="sGems">0</span></div>
+  </div>
+  <div id="shopContent" style="width:min(420px,96vw)"></div>
+</div>
+
+<!-- ═══ STATS ═══ -->
+<div class="screen hidden" id="statsScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div style="font-family:'Pacifico',cursive;font-size:clamp(16px,4.5vw,22px);color:var(--crema);margin-top:56px;margin-bottom:18px">📖 Recetario</div>
+  <div style="width:min(310px,90vw)" id="statRows"></div>
+</div>
+
+<!-- ═══ DAILY ═══ -->
+<div class="screen hidden" id="dailyScreen">
+  <button class="back" onclick="goMenu()">← MENÚ</button>
+  <div style="font-family:'Pacifico',cursive;font-size:clamp(16px,4.5vw,22px);color:var(--vainilla);margin-top:56px;text-align:center">🎁 Caja Diaria</div>
+  <div style="font-size:13px;color:var(--text2);margin:8px 0 4px;text-align:center;font-weight:600">¡Hornea cada día para mejores premios!</div>
+  <div class="daily-grid" id="dailyGrid"></div>
+  <button class="btn btn-prime" style="width:min(240px,75vw);margin-top:12px" id="claimBtn" onclick="claimDaily()">✅ RECOGER PREMIO</button>
+</div>
+
+</div><!-- /app -->
+
+<!-- ═══ PANELS ═══ -->
+<div class="panel-bg hidden" id="winPanel">
+  <div class="panel">
+    <div class="panel-icon">🏆</div>
+    <h2>¡Receta Completada!</h2>
+    <div class="res-stars" id="resStars"></div>
+    <div class="res-score" id="resScore"></div>
+    <div class="res-sub" id="resBest"></div>
+    <div class="res-bonus" id="resBonus"></div>
+    <div class="panel-btns">
+      <button class="btn btn-prime" onclick="nextLvl()">▶ SIGUIENTE NIVEL</button>
+      <button class="btn btn-ghost btn-sm" onclick="replayLvl()">🔄 REPETIR</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="rivalWinPanel">
+  <div class="panel" style="border-color:rgba(251,191,36,.35);box-shadow:0 0 60px rgba(251,191,36,.15)">
+    <div class="panel-icon">🏅</div>
+    <div class="rival-win-title" id="rwTitle">¡RIVAL VENCIDO!</div>
+    <div class="rival-win-sub" id="rwSub">¡TU PASTELERÍA EVOLUCIONA!</div>
+    <div class="res-stars">⭐⭐⭐</div>
+    <div class="res-score" id="rwScore"></div>
+    <div class="res-bonus" id="rwBonus"></div>
+    <div id="rwLore" style="font-size:12px;color:rgba(255,248,240,.65);font-style:italic;margin-bottom:16px;line-height:1.6"></div>
+    <div id="rwBakeryEvolution" style="font-size:14px;color:var(--menta2);font-weight:800;margin-bottom:16px"></div>
+    <div class="panel-btns">
+      <button class="btn btn-prime" onclick="nextLvl()">▶ CONTINUAR</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 MAPA</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="losePanel">
+  <div class="panel">
+    <div class="panel-icon">😭</div>
+    <h2 style="color:var(--fresa)">¡Se quemó!</h2>
+    <p>El horno se apagó antes de tiempo.<br>Puntuación: <strong id="goScore" style="color:var(--vainilla)">0</strong></p>
+    <div class="panel-btns">
+      <button class="btn btn-choco" onclick="buyMoves()">⏰ +5 Minutos — 💎20</button>
+      <button class="btn btn-ghost btn-sm" onclick="watchAd()">📺 Ver Anuncio — GRATIS</button>
+      <button class="btn btn-ghost btn-sm" onclick="replayLvl()">🔄 Reintentar</button>
+      <button class="btn btn-ghost btn-sm" onclick="goChapters()">🗺 Mapa</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-bg hidden" id="quitPanel">
+  <div class="panel">
+    <div class="panel-icon">🍰</div>
+    <h2>¿Salir de la receta?</h2>
+    <p>Tu masa sin hornear se perderá.</p>
+    <div class="panel-btns">
+      <button class="btn btn-red" onclick="doQuit()">✕ SALIR</button>
+      <button class="btn btn-ghost btn-sm" onclick="hidePanel('quitPanel')">← CONTINUAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  SUCRÉ · La Pastelería Mágica — ENGINE COMPLETO v1.0
+// ═══════════════════════════════════════════════════════
+
+// ── 30 INGREDIENTES / CREACIONES ──
+const EL=[
+  {id:0, e:'🌾',n:'Harina',        c:'#fef3c7',g:'rgba(254,243,199,.6)',  pts:80},
+  {id:1, e:'🍬',n:'Azúcar',        c:'#fde68a',g:'rgba(253,230,138,.6)',  pts:160},
+  {id:2, e:'🧈',n:'Mantequilla',   c:'#fbbf24',g:'rgba(251,191,36,.6)',   pts:280},
+  {id:3, e:'🥚',n:'Huevo',         c:'#f59e0b',g:'rgba(245,158,11,.6)',   pts:450},
+  {id:4, e:'🥛',n:'Leche',         c:'#e0f2fe',g:'rgba(224,242,254,.6)',  pts:700},
+  {id:5, e:'🍫',n:'Chocolate',     c:'#92400e',g:'rgba(146,64,14,.7)',    pts:1100},
+  {id:6, e:'🍓',n:'Fresa',         c:'#fb7185',g:'rgba(251,113,133,.7)',  pts:1700},
+  {id:7, e:'🫧',n:'Nata',          c:'#f0fdf4',g:'rgba(240,253,244,.6)',  pts:2600},
+  {id:8, e:'🍮',n:'Caramelo',      c:'#d97706',g:'rgba(217,119,6,.7)',    pts:4000},
+  {id:9, e:'🫙',n:'Mermelada',     c:'#e11d48',g:'rgba(225,29,72,.7)',    pts:6000},
+  {id:10,e:'🥐',n:'Croissant',     c:'#f59e0b',g:'rgba(245,158,11,.7)',   pts:9000},
+  {id:11,e:'🍩',n:'Donut',         c:'#f472b6',g:'rgba(244,114,182,.7)',  pts:13000},
+  {id:12,e:'🧁',n:'Muffin',        c:'#a78bfa',g:'rgba(167,139,250,.7)',  pts:19000},
+  {id:13,e:'🍰',n:'Tarta',         c:'#ec4899',g:'rgba(236,72,153,.7)',   pts:28000},
+  {id:14,e:'🎂',n:'Pastel',        c:'#8b5cf6',g:'rgba(139,92,246,.75)', pts:40000},
+  {id:15,e:'🍭',n:'Piruleta Gig.', c:'#06b6d4',g:'rgba(6,182,212,.75)',  pts:58000},
+  {id:16,e:'🍪',n:'Cookie Mega',   c:'#b45309',g:'rgba(180,83,9,.75)',   pts:80000},
+  {id:17,e:'🍑',n:'Melocotón Real',c:'#fb923c',g:'rgba(251,146,60,.8)',  pts:110000},
+  {id:18,e:'🎠',n:'Croquembouche', c:'#fbbf24',g:'rgba(251,191,36,.8)',  pts:155000},
+  {id:19,e:'🌈',n:'Rainbow Cake',  c:'#f9a8d4',g:'rgba(249,168,212,.8)', pts:210000},
+  {id:20,e:'🏰',n:'Castillo Dulce',c:'#60a5fa',g:'rgba(96,165,250,.8)',  pts:290000},
+  {id:21,e:'🦋',n:'Tarta Mariposa',c:'#c084fc',g:'rgba(192,132,252,.8)', pts:400000},
+  {id:22,e:'🌺',n:'Flor de Azúcar',c:'#fb7185',g:'rgba(251,113,133,.85)',pts:560000},
+  {id:23,e:'✨',n:'Éclair Eterno', c:'#fef9c3',g:'rgba(254,249,195,.9)', pts:780000},
+  {id:24,e:'🌙',n:'Tarta de Luna', c:'#c7d2fe',g:'rgba(199,210,254,.9)', pts:1100000},
+  {id:25,e:'⭐',n:'Pastel Estrella',c:'#fde68a',g:'rgba(253,230,138,.9)',pts:1600000},
+  {id:26,e:'👑',n:'Tarta Real',    c:'#f4c542',g:'rgba(244,197,66,.95)', pts:2400000},
+  {id:27,e:'🔮',n:'Postre Mágico', c:'#a78bfa',g:'rgba(167,139,250,.95)',pts:3600000},
+  {id:28,e:'💫',n:'Nube de Azúcar',c:'#ffffff',g:'rgba(255,255,255,.95)',pts:5500000},
+  {id:29,e:'🌟',n:'¡OBRA MAESTRA!',c:'#fbbf24',g:'rgba(251,191,36,1)',   pts:9999999},
+];
+
+// ── BAKERY EVOLUTION (por capítulo completado) ──
+const BAKERIES=[
+  {icon:'🏠',name:'Mi Primera Cocina',     desc:'Una cocina pequeña pero llena de ilusión'},
+  {icon:'🏪',name:'Sucré · Rincón Dulce', desc:'¡Tu primera pastelería tiene cartel!'},
+  {icon:'🎪',name:'Sucré · Escaparate',    desc:'Un bonito escaparate lleno de pasteles'},
+  {icon:'🏬',name:'Sucré · Tienda',        desc:'Ya tienes mesas y sillas para los clientes'},
+  {icon:'🌟',name:'Sucré · Famosa',        desc:'¡Los clientes hacen cola para entrar!'},
+  {icon:'🏆',name:'Sucré · Premiada',      desc:'Ganaste tu primer galardón culinario'},
+  {icon:'🌍',name:'Sucré · Internacional', desc:'Clientes de todo el mundo te visitan'},
+  {icon:'🎓',name:'Sucré · Academia',      desc:'Enseñas tu arte a nuevos pasteleros'},
+  {icon:'🏰',name:'Sucré · Palacio',       desc:'Tu pastelería es un palacio del sabor'},
+  {icon:'✨',name:'Sucré · LEGENDARIA',    desc:'La pastelería más famosa del universo'},
+];
+
+// ── 10 CAPÍTULOS ──
+const CHAPTERS=[
+  {id:1, name:'La Cocina Pequeña',    icon:'🏠',color:'#78350f',levels:[1,30],   rivalLevel:30,
+   desc:'Aprende lo básico y abre tu primera pastelería.',
+   story:[
+     {at:1,  ep:'CAPÍTULO I',      icon:'🌾',title:'El Sueño de Mía',          text:'Mía siempre supo que algún día abriría su propia pastelería. Desde pequeña, sus vecinos se asomaban a la ventana atraídos por el aroma de sus bizcochos caseros. Hoy, con un delantal raído y un horno heredado de su abuela, ese sueño comienza a ser realidad.',                         quote:'"El mejor ingrediente siempre es el amor." — Abuela Rosa', bakery:'🏠 Tu cocina está lista. ¡A hornear!'},
+     {at:8,  ep:'CAP. I · II',     icon:'🥚',title:'Las Primeras Recetas',      text:'Las primeras recetas de Mía son sencillas pero perfectas. Un croissant tostado a la temperatura exacta, una magdalena que sube sin deformarse. Cada fusión de ingredientes es un pequeño milagro. El barrio empieza a notar el aroma que sale de su ventana.',                           quote:'"La paciencia es la levadura de todo gran pastelero." — Dicho francés', bakery:''},
+     {at:18, ep:'CAP. I · III',    icon:'🍫',title:'El Chocolate Prohibido',    text:'Mía descubre que mezclando chocolate con caramelo puede crear algo nunca visto en el barrio. Pero el señor Merluci, el pastelero del local de enfrente, espía sus recetas con malos ojos. Pronto llegará el primer desafío.',                                                              quote:'"El chocolate arregla todo... casi todo." — Mía', bakery:''},
+   ]},
+  {id:2, name:'El Primer Escaparate',  icon:'🏪',color:'#9d174d',levels:[31,60],  rivalLevel:60,
+   desc:'Tu pastelería cobra vida. ¡Los clientes llegan!',
+   story:[
+     {at:31, ep:'CAPÍTULO II',     icon:'🏪',title:'Un Cartel en la Puerta',    text:'Con los ahorros de las primeras semanas, Mía pone un cartel pintado a mano: "SUCRÉ — Pasteles con alma". El primer día abre con tres clientes. El segundo, con doce. El tercero, hay cola. Algo mágico está ocurriendo en este rincón de la ciudad.',                                   quote:'"Una pequeña tienda puede cambiar un barrio entero." — Vecino feliz', bakery:'🏪 ¡Sucré tiene escaparate!'},
+     {at:45, ep:'CAP. II · II',    icon:'🍰',title:'La Tarta de Cumpleaños',    text:'Una niña llamada Lucía encarga la tarta de su cumpleaños. Mía trabaja toda la noche para hacerla perfecta. Cuando Lucía la ve, su cara se ilumina. Ese momento vale más que cualquier premio. Pero la Inspectora Rígida ya tiene puestos los ojos en Sucré...',                           quote:'"La felicidad tiene forma de tarta." — Lucía, 7 años', bakery:''},
+   ]},
+  {id:3, name:'Recetas Secretas',      icon:'🎪',color:'#065f46',levels:[61,90],  rivalLevel:90,
+   desc:'Descubres ingredientes mágicos de todo el mundo.',
+   story:[
+     {at:61, ep:'CAPÍTULO III',    icon:'🫙',title:'El Libro de Recetas',       text:'Entre los objetos de su abuela, Mía encuentra un cuaderno de recetas secretas escrito en varios idiomas. Hay una receta de macarons parisinos, un brownie belga, un mochi japonés. Con cada receta que descifra, Sucré da un salto cualitativo. Pero alguien quiere ese cuaderno.',      quote:'"Las mejores recetas nunca se escriben. Se heredan." — Abuela Rosa', bakery:'🎪 ¡Escaparate renovado con colores nuevos!'},
+     {at:75, ep:'CAP. III · II',   icon:'🌺',title:'El Ingrediente Perdido',    text:'Una de las recetas del cuaderno menciona "la flor de azafrán dorada" que solo crece en los mercados de Marrakech. Mía encarga un paquete por correo. Cuando llega, el aroma que llena la cocina es indescriptible. Los pasteles que hace ese día son los mejores de su vida.',            quote:'"Los mejores sabores vienen de los lugares más inesperados." — Dicho marroquí', bakery:''},
+   ]},
+  {id:4, name:'El Gran Concurso',      icon:'🏬',color:'#1e3a5f',levels:[91,120], rivalLevel:120,
+   desc:'¡Te presentas al Concurso Nacional de Pastelería!',
+   story:[
+     {at:91, ep:'CAPÍTULO IV',     icon:'🏅',title:'La Invitación Dorada',      text:'Llega una carta con el logo oficial: "Concurso Nacional de Pastelería — Categoría Revelación." Mía la lee tres veces antes de creerla. Participarán los mejores pasteleros del país. Ella es la más joven y la menos conocida. Pero tiene algo que los demás no tienen: pasión pura.',     quote:'"La competición no te hace mejor. Tu amor por el oficio sí." — Mía', bakery:'🏬 ¡Sucré tiene mesas y sillas para los clientes!'},
+     {at:105,ep:'CAP. IV · II',    icon:'🎂',title:'La Prueba Eliminatoria',    text:'La primera prueba: crear un pastel usando solo cinco ingredientes en veinte minutos. Mía observa a sus rivales: pasteleros con trajes blancos impecables y herramientas profesionales. Ella solo tiene sus manos y su instinto. Pero cuando el jurado prueba su creation, el silencio lo dice todo.',quote:'"La sencillez bien ejecutada siempre gana." — Jurado del Concurso', bakery:''},
+   ]},
+  {id:5, name:'La Crisis del Azúcar',  icon:'🌟',color:'#7c2d12',levels:[121,150],rivalLevel:150,
+   desc:'Una escasez amenaza tu pastelería. ¡Hay que innovar!',
+   story:[
+     {at:121,ep:'CAPÍTULO V',      icon:'⚠️',title:'Sin Azúcar',               text:'La noticia sacude al gremio: una plaga ha destruido los cañaverales del sur. El azúcar escasea y su precio se dispara. Las grandes pastelerías cierran o reducen su oferta. Mía piensa diferente: esto es una oportunidad para crear sabores sin azúcar refinado... pero igual de deliciosos.',quote:'"La necesidad es la madre de las mejores recetas." — Mía', bakery:'🌟 ¡Sucré es famosa en toda la ciudad!'},
+     {at:135,ep:'CAP. V · II',     icon:'🍯',title:'La Miel Salvaje',           text:'Un apicultor de montaña, el abuelo Beni, llega a Sucré con un tarro de miel silvestre de flores de lavanda. "Para una pastelera con corazón," dice. Ese sabor, combinado con la creatividad de Mía, produce una línea de pasteles que se agota en minutos. La crisis se convierte en revolución.',quote:'"La naturaleza siempre tiene la solución más dulce." — Abuelo Beni', bakery:''},
+   ]},
+  {id:6, name:'Fama y Fortuna',        icon:'🏆',color:'#1c1917',levels:[151,180],rivalLevel:180,
+   desc:'Sucré se convierte en un fenómeno nacional.',
+   story:[
+     {at:151,ep:'CAPÍTULO VI',     icon:'📺',title:'La Tele Llama',             text:'Un famoso programa de televisión quiere visitar Sucré. Mía acepta nerviosa. El día de la grabación, todo sale al revés: se le cae la harina, el caramelo se quema, el merengue no sube. Pero la honestidad de Mía ante la cámara, riéndose de sí misma, enamora a millones de espectadores.',quote:'"La perfección aburrida. La autenticidad conecta." — Directora del programa', bakery:'🏆 ¡Sucré ha ganado su primer galardón nacional!'},
+     {at:165,ep:'CAP. VI · II',    icon:'🌍',title:'El Pedido Imposible',       text:'Tras el programa, llega un encargo de un hotel de lujo en Dubái: mil petit-fours para una boda real. Mía tiene una semana. Contrata a dos ayudantes, trabaja sin dormir, y envía los dulces en cajas refrigeradas en avión. Cuando el jeque los prueba, llama personalmente para felicitarla.',quote:'"La excelencia no conoce distancias." — Jeque Al-Rashid', bakery:''},
+   ]},
+  {id:7, name:'El Maestro Pastelero',  icon:'🌍',color:'#0c4a6e',levels:[181,210],rivalLevel:210,
+   desc:'El legendario Maestro Bernard te enseña sus secretos.',
+   story:[
+     {at:181,ep:'CAPÍTULO VII',    icon:'👨‍🍳',title:'La Carta del Maestro',   text:'Bernard Leclerc, el pastelero más condecorado de Europa, escribe a Mía: "He probado tu trabajo. Necesitas aprender lo que los libros no enseñan." Mía vuela a Lyon. La academia de Bernard es severa, exigente, casi cruel. Pero cada crítica es una lección que vale oro.',             quote:'"El amateur practica hasta hacerlo bien. El maestro practica hasta no poder hacerlo mal." — Bernard Leclerc', bakery:'🌍 ¡Clientes internacionales visitan Sucré!'},
+     {at:195,ep:'CAP. VII · II',   icon:'🔮',title:'La Técnica Prohibida',      text:'Bernard enseña a Mía la técnica del "Caramelizado Perfecto", un proceso de 4 horas que ningún pastelero moderno usa porque requiere demasiada paciencia. Cuando Mía la aplica por primera vez, el resultado es un caramelo tan puro que sabe a recuerdos de infancia.',                  quote:'"La paciencia no es esperar. Es mantener una actitud correcta mientras esperas." — Bernard', bakery:''},
+   ]},
+  {id:8, name:'Técnicas del Mundo',    icon:'🎓',color:'#14532d',levels:[211,240],rivalLevel:240,
+   desc:'Viajas por el mundo aprendiendo recetas únicas.',
+   story:[
+     {at:211,ep:'CAPÍTULO VIII',   icon:'✈️',title:'La Vuelta al Mundo',        text:'Con el sello de Bernard, Mía recorre el mundo. Tokio le enseña la perfección del mochi. Viena, el arte del strudel. Estambul, el baklava con 40 capas de masa. Cada ciudad añade una nueva dimensión a su paleta de sabores. Sucré empieza a ser un destino en sí mismo.',              quote:'"Cada cultura tiene su dulzura. El pastelero la traduce." — Mía, desde Tokio', bakery:'🎓 ¡Sucré es ahora una academia de pastelería!'},
+     {at:225,ep:'CAP. VIII · II',  icon:'🏮',title:'El Secreto de Kyoto',       text:'En un té-ceremony de Kyoto, un anciano maestro comparte con Mía el secreto del wagashi perfecto: "El sabor viene primero de la intención, luego del ingrediente." Mía lo entenderá semanas después, cuando crea por accidente su mejor pastel: uno para celebrar la recuperación de un amigo.',quote:'"La mejor receta es la que se hace con propósito." — Maestro Tanaka', bakery:''},
+   ]},
+  {id:9, name:'La Pastelería Legendaria',icon:'🏰',color:'#3b0764',levels:[241,270],rivalLevel:270,
+   desc:'Sucré se convierte en patrimonio cultural.',
+   story:[
+     {at:241,ep:'CAPÍTULO IX',     icon:'🏰',title:'El Palacio de Azúcar',      text:'El alcalde anuncia que Sucré será declarada Patrimonio Culinario de la Ciudad. Mía llora al escuchar la noticia. La pequeña cocina de la que partió se ha convertido en un palacio del sabor, visitado por gente de todo el mundo. Pero Mía sabe que el mayor premio es cada sonrisa de cliente.',quote:'"El verdadero legado se mide en sonrisas, no en premios." — Mía', bakery:'🏰 ¡Sucré es un palacio del sabor!'},
+     {at:255,ep:'CAP. IX · II',    icon:'💌',title:'La Receta de la Abuela',    text:'Revisando viejas cajas, Mía encuentra la receta original de su abuela: un bizcocho de naranja y almendras escrito en papel amarillento. La prepara exactamente como está escrita. Al probarlo, los ojos se le llenan de lágrimas: es el sabor de su infancia, el mismo que la puso en este camino.',quote:'"Los mejores sabores son los que nos devuelven a casa." — Mía', bakery:''},
+   ]},
+  {id:10,name:'La Creación Suprema',  icon:'✨',color:'#1c0a02',levels:[271,300], rivalLevel:300,
+   desc:'El postre definitivo que cambiará la historia.',
+   story:[
+     {at:271,ep:'CAPÍTULO X',      icon:'👑',title:'El Concurso del Siglo',     text:'La Asociación Mundial de Pastelería anuncia el "Concurso del Siglo": crear el postre definitivo, aquel que represente la esencia del sabor humano. Solo pueden participar 10 pasteleros de todo el mundo. Mía es uno de ellos. El rival final es el más temible que habrá enfrentado jamás.',quote:'"Hay un momento en que ya no cocinas para ganar. Cocinas para dar." — Mía', bakery:'✨ ¡Sucré es candidata al mejor restaurante del mundo!'},
+     {at:285,ep:'CAP. X · II',     icon:'🌟',title:'La Receta del Alma',        text:'Mía pasa semanas sin dormir, probando combinaciones. Ninguna le convence. Un día, Lucía —la niña de aquella primera tarta de cumpleaños— la visita de adulta. "Tu pastel del día que cumplí 7 años sigue siendo el mejor que he probado." Mía comprende: la respuesta siempre estuvo ahí.',quote:'"No crees el mejor postre. Recrea el mejor momento." — Mía', bakery:''},
+     {at:299,ep:'EPÍLOGO',         icon:'✨',title:'La Obra Maestra',            text:'El postre de Mía gana el Concurso del Siglo por unanimidad. No es el más complejo técnicamente. Es el más honesto. Cada capa cuenta una historia, cada sabor evoca un recuerdo. El jurado, compuesto por los más grandes chefs del mundo, guarda silencio varios segundos antes de aplaudir.',quote:'"Sucré no es una pastelería. Es un abrazo con sabor." — Le Monde', bakery:'✨ ¡SUCRÉ: La Pastelería más famosa del universo!'},
+   ]},
+];
+
+// ── STORIES FLAT ──
+const ALL_STORIES={};
+CHAPTERS.forEach(ch=>ch.story.forEach(s=>{ALL_STORIES[s.at]=s;}));
+
+// ── 10 RIVALES ──
+const RIVALS=[
+  {id:1,level:30, name:'CHEF MERLUCI',       title:'El Pastelero Envidioso',   icon:'😤',
+   color:'#b45309',lore:'El señor Merluci lleva 30 años siendo el pastelero más famoso del barrio. Cuando ve a Mía convertirse en la comidilla de todos, su envidia estalla. Usa recetas caducadas y engaña a los proveedores. En este duelo, intentará desestabilizarte a toda costa.',
+   hp:14, maxHp:14, attacks:[
+     {name:'Harina Rancia',  emoji:'🌾',desc:'Convierte 1 tile al nivel mínimo',    id:'floorOne'},
+     {name:'Sabotaje',       emoji:'🔥',desc:'Quema (congela) una fila entera',     id:'burnRow'},
+   ],winLore:'Merluci sale corriendo con el rabo entre las piernas. Al día siguiente pone un cartel de "SE VENDE" en su local. Un mes después, ese local es el nuevo almacén de Sucré.'},
+  {id:2,level:60, name:'INSPECTORA RÍGIDA',  title:'La Jueza sin Corazón',     icon:'👩‍💼',
+   color:'#1e3a5f',lore:'La Inspectora Bertaux tiene un libro de normas con 847 páginas. Visita Sucré con la clara intención de cerrarla por cualquier pequeño defecto. Sus armas son la burocracia y el miedo. Pero Mía tiene algo que ella nunca tuvo: creatividad.',
+   hp:18, maxHp:18, attacks:[
+     {name:'Auditoría',      emoji:'📋',desc:'Añade escudos a 3 tiles aleatorios', id:'addShields'},
+     {name:'Normativa',      emoji:'🛑',desc:'Reduce movimientos en -2',           id:'reduceMoves'},
+     {name:'Congelación',    emoji:'❄️',desc:'Congela 2 tiles',                    id:'freezeTwo'},
+   ],winLore:'La inspectora encuentra al final que Sucré cumple todas las normativas... y además huele de maravilla. Antes de irse, compra un croissant. Vuelve todos los lunes.'},
+  {id:3,level:90, name:'RATÓN GOURMAND',     title:'El Ladrón de Recetas',     icon:'🐭',
+   color:'#065f46',lore:'El Ratón Gourmand es un personaje legendario del mundo culinario: un espía de recetas que vende los secretos de los mejores chefs a grandes corporaciones. Ha robado recetas en París, Tokio y Nueva York. Ahora quiere el cuaderno secreto de Mía.',
+   hp:22, maxHp:22, attacks:[
+     {name:'Robo de Receta', emoji:'📖',desc:'Baja el tier del tile más alto',     id:'stealMax'},
+     {name:'Polvos Mágicos', emoji:'✨',desc:'Confunde 4 tiles (tipo aleatorio)',  id:'confuseAll'},
+     {name:'Huida Rápida',   emoji:'💨',desc:'Dobla el coste de poderes este turno',id:'doubleCost'},
+   ],winLore:'El Ratón Gourmand es atrapado con una trampa de queso... y de croissant. Confiesa tener en su madriguera 47 recetas robadas. Mía las publica gratuitamente online. Se vuelven virales.'},
+  {id:4,level:120,name:'BARON VON ZUCKER',   title:'El Monopolio del Dulce',   icon:'🎩',
+   color:'#0c4a6e',lore:'El Barón Von Zucker es dueño de la mitad de las pastelerías del país. Tiene 200 empleados, 15 fábricas y cero corazón. Quiere comprar Sucré por una miseria y convertirla en una franquicia industrial. Cuando Mía rechaza su oferta, declara la guerra.',
+   hp:26, maxHp:26, attacks:[
+     {name:'Monopolio',      emoji:'💰',desc:'Convierte una columna entera en tier 0', id:'resetCol'},
+     {name:'Presión Legal',  emoji:'⚖️',desc:'Quita 3 movimientos',                 id:'legalSteal'},
+     {name:'Dumping',        emoji:'📉',desc:'Baja todos los tiles de una fila en 1 tier', id:'dumpRow'},
+     {name:'Publicidad Falsa',emoji:'📢',desc:'Añade efecto mohoso a 2 tiles',      id:'curseTwoM'},
+   ],winLore:'Von Zucker pierde el duelo y la apuesta: tendrá que retirar sus pastelerías del barrio. Irónicamente, años después pide a Mía que le asesore. Ella acepta, con una condición: calidad ante todo.'},
+  {id:5,level:150,name:'CHEF AMÈRE',         title:'La Pastelera Amargada',    icon:'😠',
+   color:'#7c2d12',lore:'Chef Amère ganó el Concurso Nacional hace 20 años y nunca lo superó. Desde entonces critica a todo el mundo y no ha vuelto a innovar. Mía representa todo lo que ella dejó de ser: esperanza, pasión, futuro. El miedo disfrazado de desprecio es un enemigo peligroso.',
+   hp:30, maxHp:30, attacks:[
+     {name:'Crítica Ácida',  emoji:'🍋',desc:'Envía mohoso a 3 tiles y reduce su tier', id:'acidCritic'},
+     {name:'Bloqueo Mental', emoji:'🧱',desc:'Escuda los 4 tiles de las esquinas',  id:'cornerShield'},
+     {name:'Receta Antigua', emoji:'📜',desc:'Invierte los tiers del tablero',      id:'invertAll'},
+     {name:'Sarro Gástrico', emoji:'🤢',desc:'Doble ataque este turno',             id:'doubleAttack'},
+   ],winLore:'"Tienes razón," admite Chef Amère en voz baja. "Hace tiempo que cocino por inercia." Esa noche llama a Mía para pedirle consejo. Es el primer paso de un reencuentro con su amor perdido por el oficio.'},
+  {id:6,level:180,name:'INFLUENCER DULCE',   title:'El Fraude Viral',          icon:'🤳',
+   color:'#701a75',lore:'Con 10 millones de seguidores y cero recetas propias, el Influencer Dulce usa pasteles de Sucré en sus vídeos sin dar crédito. Peor aún: lanza una línea de pasteles industriales con el nombre "Súcré" (con acento equivocado). Es una batalla de autenticidad vs algoritmo.',
+   hp:34, maxHp:34, attacks:[
+     {name:'Viral Negativo', emoji:'📱',desc:'Quema (mohoso+tier bajo) 2 tiles',   id:'viralCurse'},
+     {name:'Copiar Receta',  emoji:'©️', desc:'Duplica los tiles malditos del tablero',id:'copyBad'},
+     {name:'Filtro Engañoso',emoji:'🎭',desc:'Baraja y degrada 4 tiles aleatorios',id:'filterChaos'},
+     {name:'Trending',       emoji:'🔥',desc:'Escuda 3 tiles aleatorios',          id:'trendShield'},
+   ],winLore:'Un periodista gastronómico descubre el fraude en directo durante el duelo. El Influencer pierde millones de seguidores en 24 horas. Mía no celebra la caída ajena: dona la recaudación extra de esa semana a una escuela de cocina gratuita.'},
+  {id:7,level:210,name:'MAESTRO CHEN',       title:'El Perfecta Técnica',      icon:'👨‍🍳',
+   color:'#0c4a6e',lore:'Maestro Chen ha ganado cada concurso al que se ha presentado en 30 años. Su técnica es matemáticamente perfecta, sus postres son obras de arte visual. Pero Chen desdeña la emoción en la cocina: para él solo cuenta la precisión. Mía es su antítesis perfecta.',
+   hp:38, maxHp:38, attacks:[
+     {name:'Ecuación',       emoji:'📐',desc:'Resetea todos los tiles a tier par',  id:'roundTiers'},
+     {name:'Cronómetro',     emoji:'⏱️',desc:'Quita 4 movimientos',                id:'clockSteal'},
+     {name:'Precisión Total',emoji:'🎯',desc:'Destruye los 3 tiles más altos',     id:'destroyTop3'},
+     {name:'Algoritmo',      emoji:'💻',desc:'Baraja todo el tablero completamente',id:'fullShuffle'},
+     {name:'Zero Defectos',  emoji:'⭐',desc:'Convierte una columna a tier 1',     id:'columnReset'},
+   ],winLore:'La puntuación de Mía supera la de Chen por primera vez en la historia del concurso. Chen guarda silencio largo tiempo, luego asiente: "Eso que tú tienes no se enseña en ninguna escuela." Es el mayor cumplido que ha hecho en su vida.'},
+  {id:8,level:240,name:'GNOMO GLASEADO',     title:'El Duende de la Azúcar',   icon:'🧙',
+   color:'#14532d',lore:'El Gnomo Glaseado es un ser de leyenda en el mundo de la pastelería: dicen que habita en los hornos más antiguos y que cuando aparece, la masa no sube y el caramelo se corta. Es el espíritu de todos los pasteles fallidos, y ha venido a cobrar lo que cree que le debes.',
+   hp:44, maxHp:44, attacks:[
+     {name:'Maldición',      emoji:'🌑',desc:'Maldice (mohoso) toda una fila',     id:'curseRow'},
+     {name:'Hechizo Invertido',emoji:'🔮',desc:'Todos los tiers aleatorios',       id:'randomTiers'},
+     {name:'Trampa de Azúcar',emoji:'🍯',desc:'Congela 3 tiles y escuda 2 más',   id:'trapSugar'},
+     {name:'Polvo de Hadas', emoji:'🧚',desc:'Escudo + maldición mezclados en 4 tiles aleatorios',id:'fairyDust'},
+     {name:'Gran Hechizo',   emoji:'🌪️',desc:'Destruye los tiles de las 4 esquinas',id:'cornerBlast'},
+   ],winLore:'El Gnomo Glaseado desaparece en una nube de azúcar glas. Al día siguiente, Mía encuentra en su horno más antiguo un papelito doblado: "Receta del Pastel Imposible. Has demostrado ser digna." Es la receta más valiosa que jamás tendrá.'},
+  {id:9,level:270,name:'ROBOT PASTELERO 3000',title:'La Máquina sin Alma',    icon:'🤖',
+   color:'#1c1917',lore:'Una corporación tecnológica ha creado el Robot Pastelero 3000: una IA capaz de replicar cualquier receta con precisión milimétrica. Es más rápido, más barato y nunca comete errores. El concurso del siglo incluye una categoría especial: humano vs máquina. Mía acepta el duelo.',
+   hp:50, maxHp:50, attacks:[
+     {name:'Optimización',   emoji:'⚙️',desc:'Reorganiza el tablero para reducir merges posibles',id:'optimize'},
+     {name:'Datos Masivos',  emoji:'📊',desc:'Quita 5 movimientos de golpe',        id:'bigSteal'},
+     {name:'Réplica',        emoji:'📋',desc:'Copia el tile más alto y bloquéalo con escudo',id:'replicaShield'},
+     {name:'Actualización',  emoji:'🔄',desc:'Invierte y baraja el tablero',        id:'updateBoard'},
+     {name:'Modo Turbo',     emoji:'⚡',desc:'Doble ataque + quita 2 movimientos',  id:'turboMode'},
+     {name:'Error Crítico',  emoji:'💀',desc:'Destruye 7 tiles aleatorios — ¡ATAQUE SUPREMO!',id:'criticalError'},
+   ],winLore:'El Robot comete un error de cálculo: no pudo predecir la variable "intuición". Mía gana por un margen estrechísimo. El ingeniero jefe, emocionado, dice: "Llevamos años intentando programar el alma. Hoy entendemos que no se puede." El Robot 3000 es retirado del concurso... y donado a una escuela de niños.'},
+  {id:10,level:300,name:'GRAND MAESTRO SILVA', title:'El Legendario',         icon:'👴',
+   color:'#78350f',lore:'Grand Maestro Silva tiene 94 años y lleva 70 cocinando. Ha entrenado a los mejores chefs del mundo, ha creado recetas que son patrimonio de la humanidad, y jamás ha perdido un duelo. Dice que buscaba a alguien digno de recibir su último secreto antes de retirarse. Cree que esa persona es Mía. Pero primero debe demostrarlo.',
+   hp:60, maxHp:60, attacks:[
+     {name:'Peso de la Historia',emoji:'📚',desc:'Baja 2 tiers todos los tiles del tablero',id:'historyWeight'},
+     {name:'Receta Perdida',emoji:'🗺️',desc:'Elimina todos los tiles de un tipo aleatorio',id:'eraseTier'},
+     {name:'Paciencia Infinita',emoji:'⏳',desc:'Roba 4 movimientos y regenera 6 HP',id:'infinitePatience'},
+     {name:'Secreto del Maestro',emoji:'🔐',desc:'Añade escudo+maldición a 5 tiles',id:'masterSecret'},
+     {name:'El Gran Examen',emoji:'📝',desc:'Mezcla y degrada todo el tablero',    id:'grandExam'},
+     {name:'LEGADO',       emoji:'🌟',desc:'¡ATAQUE FINAL! Destruye 9 tiles y roba 3 movimientos',id:'legacy'},
+   ],winLore:'"Bien hecho, Mía." Silva sonríe por primera vez en años. "El secreto que quería darte... ya lo tienes. Lo tienes desde el principio." Abre un viejo maletín y saca el primer delantal que usó en su vida, con el nombre "Rosa" bordado. Era el de la abuela de Mía. Todo estaba conectado desde siempre.'},
+];
+
+// ── SAVE ──
+let G={
+  coins:0,gems:100,unlocked:1,
+  powerups:{rodillo:2,mezcla:1,horno:1,tiempo:2},
+  bestScores:{},starsEarned:{},
+  totalMerges:0,totalScore:0,bestCombo:0,
+  streak:0,lastLogin:'',storiesSeen:{},rivalKills:0,
+  bakeryLevel:0,
+};
+function saveG(){try{localStorage.setItem('sucre_v1',JSON.stringify(G))}catch(e){}}
+function loadG(){try{const d=JSON.parse(localStorage.getItem('sucre_v1')||'null');if(d)Object.assign(G,d)}catch(e){}}
+
+// ── GAME STATE ──
+let GM={
+  level:1,score:0,moves:30,maxMoves:30,
+  grid:[],rows:5,cols:5,
+  selected:null,objective:null,objProgress:0,
+  combo:0,levelDef:null,activePu:null,
+  isRival:false,rival:null,rivalHp:0,rivalMaxHp:0,
+  rivalAttackIn:3,comboAbsorbed:false,
+};
+
+// ── OBJECTIVE TYPES ──
+const OBJ=['score','reach','collect','chain','score','reach'];
+
+// ── SPECIAL TILE TYPES ──
+// quemado = frozen (can't merge), glaseado = catalyst (+1 tier), bomba = explodes neighbors
+// mohoso = cursed (-2 moves), doble = mirror (x2 pts), duro = shield (blocks)
+
+function buildLvlDef(num){
+  const chap=CHAPTERS.find(c=>num>=c.levels[0]&&num<=c.levels[1])||CHAPTERS[0];
+  const isRival=RIVALS.some(b=>b.level===num);
+  const rival=isRival?RIVALS.find(b=>b.level===num):null;
+  const maxTier=Math.min(Math.floor(num/10)+2,26);
+  const movesBase=Math.max(10,36-Math.floor(num/10));
+  const moves=isRival?movesBase+10:movesBase;
+  const posInChap=num-chap.levels[0];
+
+  // Special tiles unlock gradually
+  const specs=[];
+  if(num>10)specs.push('quemado');
+  if(num>25)specs.push('glaseado');
+  if(num>40)specs.push('bomba');
+  if(num>60)specs.push('duro');
+  if(num>80)specs.push('mohoso');
+  if(num>110)specs.push('doble');
+
+  let objective;
+  if(isRival){
+    objective={type:'rival',target:rival.hp,text:`¡Derrota a ${rival.name}!`,rivalId:rival.id};
+  } else {
+    const ot=OBJ[(num-1)%OBJ.length];
+    if(ot==='score'){
+      // Escalado razonable: con 25-30 merges puedes conseguirlo
+      const t=Math.max(500, 400+num*100);
+      objective={type:'score',target:t,text:`Consigue ${t.toLocaleString()} puntos`};
+    } else if(ot==='reach'){
+      const t=Math.min(Math.floor(num/9)+2,maxTier,26);
+      objective={type:'reach',target:t,text:`Crea ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='collect'){
+      const t=Math.min(Math.floor(num/11)+1,22);
+      const c=Math.min(1+Math.floor(num/70),3);
+      objective={type:'collect',tier:t,target:c,text:`Crea ×${c} ${EL[t].e} ${EL[t].n}`};
+    } else if(ot==='chain'){
+      const t=Math.min(2+Math.floor(num/55),5);
+      objective={type:'chain',target:t,text:`Consigue un combo de ${t} fusiones seguidas`};
+    } else {
+      const t=Math.max(500,350+num*95);
+      objective={type:'score',target:t,text:`Consigue ${t.toLocaleString()} puntos`};
+    }
+  }
+  return{num,chap,isRival,rival,maxTier,moves,specs,objective};
+}
+
+// ── TILE CREATION ──
+function randTile(def){
+  // Lower-tier tiles more common for playability
+  const pool=[0,0,1,1,1,2,2,2,3,3,4,4,5,5,6];
+  const base=pool[Math.floor(Math.random()*pool.length)];
+  const tier=Math.min(base+Math.floor(Math.random()*Math.max(1,def.maxTier*.3)),def.maxTier);
+  const doSpec=def.specs.length>0&&Math.random()<.09;
+  const sType=doSpec?def.specs[Math.floor(Math.random()*def.specs.length)]:null;
+  return{tier,quemado:sType==='quemado',glaseado:sType==='glaseado',bomba:sType==='bomba',
+    mohoso:sType==='mohoso',doble:sType==='doble',duro:sType==='duro',special:sType};
+}
+function buildGrid(def){
+  const{rows,cols}=GM,grid=[];
+  for(let r=0;r<rows;r++){grid[r]=[];for(let c=0;c<cols;c++)grid[r][c]=randTile(def);}
+  // Guarantee 5-8 adjacent matching pairs
+  const pairs=5+Math.floor(Math.random()*4);
+  for(let k=0;k<pairs;k++){
+    const r=Math.floor(Math.random()*(rows-1)),c=Math.floor(Math.random()*(cols-1));
+    const base={...grid[r][c],quemado:false,glaseado:false,bomba:false,mohoso:false,doble:false,duro:false,special:null};
+    if(Math.random()<.5&&c+1<cols)grid[r][c+1]={...base};
+    else if(r+1<rows)grid[r+1][c]={...base};
+  }
+  return grid;
+}
+
+// ── RENDER ──
+function renderGrid(){
+  const el=document.getElementById('grid');
+  const{rows,cols}=GM;
+  const vw=window.innerWidth,vh=window.innerHeight;
+  const hudH=GM.isRival?160:125;
+  const botH=80;
+  const avail=Math.min(vw*.9,420,(vh-hudH-botH));
+  const cell=Math.max(42,Math.floor((avail-cols*5-20)/cols));
+  el.style.gridTemplateColumns=`repeat(${cols},${cell}px)`;
+  el.innerHTML='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=GM.grid[r]?.[c];
+    if(!t){const d=document.createElement('div');d.style.cssText=`width:${cell}px;height:${cell}px`;el.appendChild(d);continue;}
+    const e=EL[Math.min(t.tier,EL.length-1)];
+    const d=document.createElement('div');
+    d.className='tile'+(t.quemado?' quemado':'')+(t.glaseado?' glaseado':'')+(t.bomba?' bomba':'')+(t.mohoso?' mohoso':'')+(t.doble?' doble':'')+(t.duro?' duro':'');
+    d.style.cssText=`width:${cell}px;height:${cell}px;background:linear-gradient(135deg,${e.c}18,${e.c}35);border-color:${e.c}50;box-shadow:0 0 ${cell*.22}px ${e.g};`;
+    if(GM.selected?.r===r&&GM.selected?.c===c){d.classList.add('sel');d.style.boxShadow=`0 0 ${cell*.45}px ${e.g},0 0 0 2px ${e.c}`;}
+    const fSize=Math.max(15,Math.round(cell*.38));
+    const nSize=Math.max(5,Math.round(cell*.11));
+    d.innerHTML=`<div class="tile-shine"></div><div class="tile-em" style="font-size:${fSize}px">${e.e}</div><div class="tile-nm" style="color:${e.c};font-size:${nSize}px">${e.n}</div>`;
+    d.dataset.r=r;d.dataset.c=c;
+    d.addEventListener('touchstart',ev=>{ev.preventDefault();tapTile(r,c);},{passive:false});
+    d.addEventListener('click',()=>tapTile(r,c));
+    el.appendChild(d);
+  }
+}
+
+// ── TAP ──
+function tapTile(r,c){
+  if(GM.moves<=0)return;
+  const tile=GM.grid[r]?.[c];if(!tile)return;
+  if(GM.activePu){applyPu(GM.activePu,r,c);return;}
+  if(!GM.selected){GM.selected={r,c};renderGrid();sfxT();return;}
+  if(GM.selected.r===r&&GM.selected.c===c){GM.selected=null;renderGrid();return;}
+  const{r:sr,c:sc}=GM.selected;
+  if(Math.abs(r-sr)+Math.abs(c-sc)!==1){GM.selected={r,c};renderGrid();return;}
+  const sel=GM.grid[sr][sc];
+  if(sel.tier===tile.tier&&!tile.quemado&&!sel.quemado&&!tile.duro&&!sel.duro){
+    doMerge(sr,sc,r,c);
+  } else if(sel.duro||tile.duro){
+    // Break shield with any tap
+    if(sel.duro){sel.duro=false;GM.combo=0;}
+    else{tile.duro=false;GM.combo=0;}
+    showNotif('💎 ¡Glaseado duro roto! Combo reiniciado.');
+    GM.selected=null;GM.moves--;updateHUD();renderGrid();
+  } else {
+    GM.selected={r,c};renderGrid();
+  }
+}
+
+function doMerge(r1,c1,r2,c2){
+  const t1=GM.grid[r1][c1],t2=GM.grid[r2][c2];
+  const catalyst=t1.glaseado||t2.glaseado;
+  const doble=t1.doble||t2.doble;
+  let newTier=Math.min(t1.tier+1+(catalyst?1:0),EL.length-1);
+  const elem=EL[newTier];
+  const comboMult=GM.comboAbsorbed?1:Math.max(1,1+(GM.combo-1)*0.35);
+  const dobleMult=doble?2:1;
+  const pts=Math.max(60,(newTier+1)*110)*comboMult*dobleMult|0;
+  GM.score+=pts;GM.combo++;G.totalMerges++;
+  if(GM.comboAbsorbed)GM.comboAbsorbed=false;
+  if(GM.combo>G.bestCombo)G.bestCombo=GM.combo;
+  G.totalScore+=pts;
+
+  const gEl=document.getElementById('grid');
+  const rc=gEl.getBoundingClientRect();
+  const cellsz=gEl.querySelector('.tile')?.offsetWidth||55;
+  const px=rc.left+c2*(cellsz+5)+10+cellsz/2;
+  const py=rc.top+r2*(cellsz+5)+10+cellsz/2;
+  spawnPt(px,py,elem.c,16);spawnPt(px,py,'#fff',4);
+
+  if(t2.bomba||t1.bomba){
+    [[r2-1,c2],[r2+1,c2],[r2,c2-1],[r2,c2+1]].forEach(([nr,nc])=>{
+      if(GM.grid[nr]?.[nc]&&!GM.grid[nr][nc].duro){spawnPt(px,py,EL[GM.grid[nr][nc].tier].c,8);GM.grid[nr][nc]=randTile(GM.levelDef);GM.score+=400;}
+    });
+    showNotif('💣 ¡EXPLOSIÓN PASTELERA! +400 pts');
+  }
+  if(t2.mohoso||t1.mohoso){GM.moves=Math.max(1,GM.moves-2);GM.combo=0;showNotif('🍄 ¡Ingrediente mohoso! −2 movimientos, combo perdido');}
+
+  GM.grid[r2][c2]={tier:newTier,quemado:false,glaseado:false,bomba:false,mohoso:false,doble:false,duro:false,special:null};
+  GM.grid[r1][c1]=randTile(GM.levelDef);
+  GM.selected=null;
+  sfxMerge(newTier);if(newTier>=16)sfxBig();
+  showMergePop(px,py,elem,pts);
+  updateObjProg(newTier);
+  updateHUD();renderGrid();
+
+  if(GM.isRival&&GM.rival){
+    const dmg=Math.max(1,1+Math.floor(newTier/5));
+    GM.rivalHp=Math.max(0,GM.rivalHp-dmg);
+    updateRivalHp();
+    updateObjProg(newTier);
+    if(GM.rivalHp<=0){setTimeout(rivalWin,400);return;}
+  } else {
+    updateObjProg(newTier);
+  }
+  checkObj();
+}
+
+// ── OBJECTIVE ──
+function updateObjProg(tier){
+  const o=GM.objective;
+  if(o.type==='score') GM.objProgress=GM.score;
+  else if(o.type==='reach'){if(tier>=o.target)GM.objProgress=1;}
+  else if(o.type==='collect'){if(tier===o.tier)GM.objProgress++;}
+  else if(o.type==='chain') GM.objProgress=Math.max(GM.objProgress,GM.combo);
+  else if(o.type==='rival') GM.objProgress=GM.rivalMaxHp-GM.rivalHp;
+  const pct=Math.min(GM.objProgress/o.target,1);
+  const fill=document.getElementById('objFill');if(fill)fill.style.width=(pct*100)+'%';
+  document.getElementById('objPrg').textContent=`${Math.min(GM.objProgress,o.target).toLocaleString()}/${o.target.toLocaleString()}`;
+}
+
+function checkObj(){
+  const o=GM.objective;
+  let met=false;
+  if(o.type==='score')met=GM.score>=o.target;
+  else if(o.type==='reach')met=GM.objProgress>=1;
+  else if(o.type==='collect')met=GM.objProgress>=o.target;
+  else if(o.type==='chain')met=GM.objProgress>=o.target;
+  if(met&&!GM.isRival){setTimeout(levelWin,400);return;}
+  GM.moves--;updateHUD();
+  if(GM.moves<=0)setTimeout(triggerLose,400);
+  else if(GM.isRival&&GM.rival)rivalAttackTick();
+}
+
+// ── RIVAL ATTACKS ──
+function rivalAttackTick(){
+  GM.rivalAttackIn--;
+  if(GM.rivalAttackIn<=0){
+    GM.rivalAttackIn=2+Math.floor(Math.random()*2);
+    executeRivalAtk();
+  }
+}
+function executeRivalAtk(){
+  if(!GM.rival)return;
+  const atk=GM.rival.attacks[Math.floor(Math.random()*GM.rival.attacks.length)];
+  showNotif(`👨‍🍳 ${GM.rival.name}: ${atk.emoji} ${atk.name}!`);
+  flashRival();
+  const{rows,cols}=GM;
+  const g=GM.grid;
+
+  switch(atk.id){
+    case 'floorOne':{let n=0;while(n<1){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&g[r][c].tier>0){g[r][c].tier=0;n++;}}break;}
+    case 'burnRow':{const r=~~(Math.random()*rows);for(let c=0;c<cols;c++)if(g[r][c])g[r][c].quemado=true;break;}
+    case 'addShields':{let n=0;while(n<3){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c].duro=true;n++;}}break;}
+    case 'reduceMoves':{GM.moves=Math.max(2,GM.moves-2);showNotif('📋 ¡Normativa! −2 movimientos');break;}
+    case 'freezeTwo':{let n=0;while(n<2){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].quemado){g[r][c].quemado=true;n++;}}break;}
+    case 'stealMax':{let mx=-1,mr=-1,mc=-1;g.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier>mx&&!t.duro){mx=t.tier;mr=r;mc=c;}}));if(mr>=0)g[mr][mc].tier=Math.max(0,g[mr][mc].tier-2);break;}
+    case 'confuseAll':{let n=0;while(n<4){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]){g[r][c].tier=~~(Math.random()*(GM.levelDef.maxTier+1));n++;}}break;}
+    case 'doubleCost':{showNotif('💨 ¡Fuga! Poderes cuestan el doble este turno');break;}
+    case 'resetCol':{const col=~~(Math.random()*cols);for(let r=0;r<rows;r++)if(g[r][col]&&!g[r][col].duro)g[r][col].tier=0;break;}
+    case 'legalSteal':{GM.moves=Math.max(2,GM.moves-3);showNotif('⚖️ ¡Presión legal! −3 movimientos');break;}
+    case 'dumpRow':{const r=~~(Math.random()*rows);for(let c=0;c<cols;c++)if(g[r][c]&&g[r][c].tier>0&&!g[r][c].duro)g[r][c].tier--;break;}
+    case 'curseTwoM':{let n=0;while(n<2){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].mohoso){g[r][c].mohoso=true;n++;}}break;}
+    case 'acidCritic':{let n=0;while(n<3){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].mohoso){g[r][c].mohoso=true;if(g[r][c].tier>0)g[r][c].tier--;n++;}}break;}
+    case 'cornerShield':{[[0,0],[0,cols-1],[rows-1,0],[rows-1,cols-1]].forEach(([r,c])=>{if(g[r][c])g[r][c].duro=true;});break;}
+    case 'invertAll':{g.flat().forEach(t=>{if(t)t.tier=Math.max(0,GM.levelDef.maxTier-t.tier);});break;}
+    case 'doubleAttack':{setTimeout(()=>{if(GM.rival)executeRivalAtk();},500);break;}
+    case 'viralCurse':{let n=0;while(n<2){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]){g[r][c].mohoso=true;if(g[r][c].tier>0)g[r][c].tier--;n++;}}break;}
+    case 'copyBad':{g.flat().forEach(t=>{if(t&&t.mohoso){const nr=~~(Math.random()*rows),nc=~~(Math.random()*cols);if(g[nr][nc])g[nr][nc].mohoso=true;}});break;}
+    case 'filterChaos':{let n=0;while(n<4){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c].tier=Math.max(0,g[r][c].tier-~~(Math.random()*3));n++;}}break;}
+    case 'trendShield':{let n=0;while(n<3){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c].duro=true;n++;}}break;}
+    case 'roundTiers':{g.flat().forEach(t=>{if(t&&t.tier%2!==0&&t.tier>0)t.tier--;});break;}
+    case 'clockSteal':{GM.moves=Math.max(2,GM.moves-4);showNotif('⏱️ ¡Cronómetro! −4 movimientos');break;}
+    case 'destroyTop3':{const sorted=[];g.forEach((row,r)=>row.forEach((t,c)=>{if(t&&!t.duro)sorted.push({r,c,tier:t.tier});}));sorted.sort((a,b)=>b.tier-a.tier).slice(0,3).forEach(({r,c})=>{g[r][c]=randTile(GM.levelDef);});break;}
+    case 'fullShuffle':{const flat=g.flat().sort(()=>Math.random()-.5);let i=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)g[r][c]=flat[i++]||randTile(GM.levelDef);break;}
+    case 'columnReset':{const col=~~(Math.random()*cols);for(let r=0;r<rows;r++)if(g[r][col]&&!g[r][col].duro)g[r][col].tier=1;break;}
+    case 'curseRow':{const r=~~(Math.random()*rows);for(let c=0;c<cols;c++)if(g[r][c])g[r][c].mohoso=true;break;}
+    case 'randomTiers':{g.flat().forEach(t=>{if(t&&Math.random()<.5)t.tier=~~(Math.random()*(GM.levelDef.maxTier+1));});break;}
+    case 'trapSugar':{let n=0;while(n<3){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].quemado){g[r][c].quemado=true;n++;}}let m=0;while(m<2){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c].duro=true;m++;}}break;}
+    case 'fairyDust':{let n=0;while(n<4){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]){if(Math.random()<.5)g[r][c].duro=true;else g[r][c].mohoso=true;n++;}}break;}
+    case 'cornerBlast':{[[0,0],[0,cols-1],[rows-1,0],[rows-1,cols-1]].forEach(([r,c])=>{if(g[r][c]&&!g[r][c].duro)g[r][c]=randTile(GM.levelDef);});break;}
+    case 'optimize':{g.flat().forEach(t=>{if(t&&t.glaseado)t.glaseado=false;});showNotif('⚙️ ¡Optimización! Glaseados eliminados');break;}
+    case 'bigSteal':{GM.moves=Math.max(2,GM.moves-5);showNotif('📊 ¡Datos masivos! −5 movimientos');break;}
+    case 'replicaShield':{let mx=-1,mr=-1,mc=-1;g.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier>mx){mx=t.tier;mr=r;mc=c;}}));if(mr>=0){g[mr][mc].duro=true;}break;}
+    case 'updateBoard':{g.flat().forEach(t=>{if(t&&t.tier>0&&Math.random()<.4)t.tier--;});const flat=g.flat().sort(()=>Math.random()-.5);let i=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)g[r][c]=flat[i++]||randTile(GM.levelDef);break;}
+    case 'turboMode':{GM.moves=Math.max(2,GM.moves-2);setTimeout(()=>{if(GM.rival)executeRivalAtk();},400);break;}
+    case 'criticalError':{let n=0;while(n<7){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c]=randTile(GM.levelDef);n++;}}showNotif('💀 ¡ERROR CRÍTICO! 7 ingredientes destruidos');break;}
+    case 'historyWeight':{g.flat().forEach(t=>{if(t&&t.tier>=2&&!t.duro)t.tier-=2;if(t)t.tier=Math.max(0,t.tier);});break;}
+    case 'eraseTier':{const target=~~(Math.random()*(GM.levelDef.maxTier+1));g.forEach((row,r)=>row.forEach((t,c)=>{if(t&&t.tier===target)g[r][c]=randTile(GM.levelDef);}));showNotif(`📚 ¡${EL[target]?.n} eliminados del tablero!`);break;}
+    case 'infinitePatience':{GM.moves=Math.max(2,GM.moves-4);GM.rivalHp=Math.min(GM.rivalMaxHp,GM.rivalHp+6);showNotif('⏳ ¡Paciencia Infinita! −4 mov, rival se regenera +6');updateRivalHp();break;}
+    case 'masterSecret':{let n=0;while(n<5){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]){g[r][c].duro=Math.random()<.5;g[r][c].mohoso=!g[r][c].duro;n++;}}break;}
+    case 'grandExam':{g.flat().forEach(t=>{if(t&&!t.duro&&t.tier>0)t.tier=Math.max(0,t.tier-1);});const flat=g.flat().sort(()=>Math.random()-.5);let i=0;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)g[r][c]=flat[i++]||randTile(GM.levelDef);showNotif('📝 ¡Gran Examen! Tablero mezclado y degradado');break;}
+    case 'legacy':{let n=0;while(n<9){const r=~~(Math.random()*rows),c=~~(Math.random()*cols);if(g[r][c]&&!g[r][c].duro){g[r][c]=randTile(GM.levelDef);n++;}}GM.moves=Math.max(2,GM.moves-3);showNotif('🌟 ¡LEGADO! 9 ingredientes destruidos, −3 mov');break;}
+  }
+  renderGrid();
+}
+function flashRival(){const d=document.createElement('div');d.className='rival-flash';document.body.appendChild(d);setTimeout(()=>d.remove(),600);}
+
+function updateRivalHp(){
+  const pct=GM.rivalHp/GM.rivalMaxHp;
+  const fill=document.getElementById('rivalHpFill');if(fill)fill.style.width=(pct*100)+'%';
+  document.getElementById('rivalHpVal').textContent=`${GM.rivalHp}/${GM.rivalMaxHp}`;
+  const color=pct>.5?'linear-gradient(90deg,#4c1d95,#7c3aed,#c4b5fd)':pct>.25?'linear-gradient(90deg,#92400e,#f59e0b)':'linear-gradient(90deg,#fbbf24,#fff)';
+  if(fill)fill.style.background=color;
+  updateObjProg(0);
+}
+
+// ── HUD ──
+function updateHUD(){
+  document.getElementById('hScore').textContent=GM.score.toLocaleString();
+  document.getElementById('hMoves').textContent=GM.moves;
+  document.getElementById('hLevel').textContent=GM.level;
+  const pct=GM.moves/GM.maxMoves;
+  document.getElementById('mvArc').style.strokeDashoffset=(131.9*(1-pct)).toString();
+  document.getElementById('mvArc').style.stroke=pct>.5?'url(#mg)':pct>.25?'#fb923c':'#f43f5e';
+  const mv=document.getElementById('hMoves');mv.className='mv-txt'+(GM.moves<=5?' low':'');
+}
+
+// ── POWERUPS ──
+function selPu(type){
+  if(G.powerups[type]<=0){showNotif('❌ Sin poder. ¡Visita la tienda!');sfxFail();return;}
+  if(GM.activePu===type){GM.activePu=null;document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));return;}
+  GM.activePu=type;
+  document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));
+  document.getElementById('pu'+type.charAt(0).toUpperCase()+type.slice(1))?.classList.add('act');
+  const msgs={rodillo:'🫙 Toca para eliminar ingrediente',mezcla:'🔀 Mezclando tablero...',horno:'🔥 Toca para hornear (subir nivel)',tiempo:'⏰ Añadiendo tiempo...'};
+  showNotif(msgs[type]);
+  if(type==='mezcla'||type==='tiempo'){applyPu(type,-1,-1);}
+  else sfxPu();
+}
+function applyPu(type,r,c){
+  G.powerups[type]--;GM.activePu=null;
+  document.querySelectorAll('.pu').forEach(b=>b.classList.remove('act'));
+  updatePuBar();sfxPu();
+  if(type==='rodillo'&&r>=0){GM.grid[r][c]=randTile(GM.levelDef);showNotif('🫙 ¡Ingrediente aplastado!');}
+  else if(type==='mezcla'){const flat=GM.grid.flat().sort(()=>Math.random()-.5);let i=0;for(let rr=0;rr<GM.rows;rr++)for(let cc=0;cc<GM.cols;cc++)GM.grid[rr][cc]=flat[i++]||randTile(GM.levelDef);showNotif('🔀 ¡Tablero mezclado!');}
+  else if(type==='horno'&&r>=0){const t=GM.grid[r][c];if(t){t.tier=Math.min(t.tier+1,EL.length-1);t.quemado=false;showNotif(`🔥 ¡${EL[t.tier].n} horneado!`);}}
+  else if(type==='tiempo'){GM.moves+=5;GM.maxMoves+=5;showNotif('⏰ ¡+5 minutos de horno!');}
+  renderGrid();updateHUD();saveG();
+}
+function updatePuBar(){
+  const keys={rodillo:'Rodillo',mezcla:'Mezcla',horno:'Horno',tiempo:'Tiempo'};
+  Object.entries(keys).forEach(([k,v])=>{
+    const el=document.getElementById('pu'+v+'N')||document.getElementById('pu'+v+'NN');
+    if(!el){const e2=document.getElementById('pu'+k.charAt(0).toUpperCase()+k.slice(1)+'N');if(e2)e2.textContent=G.powerups[k]||0;}
+    else el.textContent=G.powerups[k]||0;
+  });
+  // manual IDs
+  document.getElementById('puRodilloN').textContent=G.powerups.rodillo||0;
+  document.getElementById('puMezclaNN').textContent=G.powerups.mezcla||0;
+  document.getElementById('puHornoN').textContent=G.powerups.horno||0;
+  document.getElementById('puTiempoN').textContent=G.powerups.tiempo||0;
+}
+
+// ── WIN/LOSE ──
+function levelWin(){
+  sfxWin();
+  const prev=G.bestScores[GM.level]||0;
+  if(GM.score>prev)G.bestScores[GM.level]=GM.score;
+  if(GM.level>=G.unlocked&&GM.level<300)G.unlocked=GM.level+1;
+  const coinB=Math.floor(GM.score/150)+10;G.coins+=coinB;
+  const moveRatio=GM.moves/GM.maxMoves;
+  const stars=moveRatio>.5?3:moveRatio>.2?2:1;
+  if(!G.starsEarned[GM.level]||stars>G.starsEarned[GM.level])G.starsEarned[GM.level]=stars;
+  saveG();sfxCoin();
+  document.getElementById('resStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('resScore').textContent=GM.score.toLocaleString()+' pts';
+  document.getElementById('resBest').textContent=GM.score>prev?'🏆 ¡NUEVO RÉCORD!':'MEJOR: '+prev.toLocaleString();
+  document.getElementById('resBonus').textContent=`+🍪${coinB} galletas`;
+  showPanel('winPanel');
+  checkStoryTrigger(GM.level);
+}
+function rivalWin(){
+  sfxWin();sfxWin();
+  const rival=GM.rival;G.rivalKills++;
+  if(GM.level>=G.unlocked&&GM.level<300)G.unlocked=GM.level+1;
+  const coinB=80+Math.floor(GM.level/30)*40;
+  const gemB=12+Math.floor(GM.level/30)*4;
+  G.coins+=coinB;G.gems+=gemB;
+  G.bestScores[GM.level]=GM.score;G.starsEarned[GM.level]=3;
+  // BAKERY EVOLUTION
+  const chapIdx=Math.min(CHAPTERS.findIndex(c=>c.rivalLevel===GM.level),BAKERIES.length-1);
+  if(chapIdx>=0&&chapIdx>G.bakeryLevel){G.bakeryLevel=chapIdx+1;updateBakeryDisplay();}
+  saveG();sfxCoin();sfxCoin();
+  document.getElementById('rwTitle').textContent=`¡${rival.name} VENCIDO!`;
+  document.getElementById('rwSub').textContent=rival.title.toUpperCase();
+  document.getElementById('rwScore').textContent=GM.score.toLocaleString()+' pts';
+  document.getElementById('rwBonus').textContent=`+🍪${coinB} +💎${gemB}`;
+  document.getElementById('rwLore').textContent=rival.winLore;
+  const nextBakery=BAKERIES[Math.min(G.bakeryLevel,BAKERIES.length-1)];
+  document.getElementById('rwBakeryEvolution').textContent=`${nextBakery.icon} ¡Sucré evoluciona: ${nextBakery.name}!`;
+  showPanel('rivalWinPanel');
+  checkStoryTrigger(GM.level);
+}
+function triggerLose(){
+  sfxFail();
+  document.getElementById('goScore').textContent=GM.score.toLocaleString()+' pts';
+  showPanel('losePanel');
+}
+function checkStoryTrigger(level){
+  if(ALL_STORIES[level]&&!G.storiesSeen[level]){G.storiesSeen[level]=true;saveG();setTimeout(()=>showStory(ALL_STORIES[level],()=>{}),4000);}
+}
+
+// ── START LEVEL ──
+function startLevel(num){
+  hideAllPanels();
+  GM.level=num;GM.score=0;GM.combo=0;GM.selected=null;GM.activePu=null;GM.comboAbsorbed=false;GM.objProgress=0;
+  GM.levelDef=buildLvlDef(num);
+  GM.isRival=GM.levelDef.isRival;GM.rival=GM.levelDef.rival||null;
+  GM.objective=GM.levelDef.objective;
+  GM.moves=GM.levelDef.moves;GM.maxMoves=GM.levelDef.moves;
+  GM.rows=5;GM.cols=GM.levelDef.isRival?6:5;
+  GM.grid=buildGrid(GM.levelDef);
+  if(GM.isRival&&GM.rival){GM.rivalHp=GM.rival.hp;GM.rivalMaxHp=GM.rival.hp;GM.rivalAttackIn=3;}
+  hideAllScreens();showScreen('gameScreen');
+  const rBar=document.getElementById('rivalHpBar');
+  if(GM.isRival&&GM.rival){rBar.style.display='block';document.getElementById('rivalHpName').textContent=`${GM.rival.icon} ${GM.rival.name}`;updateRivalHp();}
+  else rBar.style.display='none';
+  document.getElementById('objBanner').innerHTML=`<div class="obj-t">${GM.objective.text}</div><div class="obj-p" id="objPrg">0/${GM.objective.target.toLocaleString()}</div><div class="obj-prog-bar"><div class="obj-prog-fill" id="objFill" style="width:0%"></div></div>`;
+  updateHUD();updatePuBar();renderGrid();
+  if(GM.isRival)showNotif(`⚠️ ¡Duelo contra ${GM.rival?.name}! Deprime su barra de energía.`);
+}
+function nextLvl(){
+  hideAllPanels();
+  const next=Math.min(GM.level+1,300);
+  const story=ALL_STORIES[next-1];
+  if(story&&!G.storiesSeen[next-1]){G.storiesSeen[next-1]=true;saveG();showStory(story,()=>checkRivalIntro(next));}
+  else checkRivalIntro(next);
+}
+function checkRivalIntro(lvl){
+  const rival=RIVALS.find(b=>b.level===lvl);
+  if(rival&&!G.storiesSeen['rival_'+lvl]){G.storiesSeen['rival_'+lvl]=true;saveG();showRivalIntro(rival,()=>startLevel(lvl));}
+  else startLevel(lvl);
+}
+function replayLvl(){hideAllPanels();startLevel(GM.level);}
+function buyMoves(){if(G.gems>=20){G.gems-=20;GM.moves+=5;GM.maxMoves+=5;saveG();hidePanel('losePanel');updateHUD();showNotif('⏰ +5 minutos añadidos!');}else{showNotif('💎 Sin gemas suficientes');sfxFail();}}
+function watchAd(){showNotif('📺 Cargando anuncio...');setTimeout(()=>{GM.moves+=3;GM.maxMoves+=3;hidePanel('losePanel');updateHUD();showNotif('✅ +3 minutos gratis!');},1600);}
+function confirmQuit(){showPanel('quitPanel');}
+function doQuit(){hideAllPanels();goChapters();}
+
+// ── CHAPTERS ──
+function goChapters(){
+  hideAllPanels();hideAllScreens();showScreen('chapterScreen');updateCurrBar();
+  const cont=document.getElementById('chapterCards');cont.innerHTML='';
+  CHAPTERS.forEach(ch=>{
+    const isLocked=G.unlocked<ch.levels[0];
+    const done=Object.keys(G.bestScores).filter(k=>+k>=ch.levels[0]&&+k<=ch.levels[1]).length;
+    const total=ch.levels[1]-ch.levels[0]+1;
+    const div=document.createElement('div');
+    div.className='chap-card'+(isLocked?' locked':'');
+    div.style.background=`linear-gradient(135deg,${ch.color}90,${ch.color}55)`;
+    div.innerHTML=`<div class="chap-icon">${ch.icon}</div>
+      <div class="chap-info">
+        <div class="chap-num">CAPÍTULO ${ch.id}</div>
+        <div class="chap-name">${ch.name}</div>
+        <div class="chap-desc">${ch.desc}</div>
+        ${!isLocked?`<div class="chap-prog">${done}/${total} recetas · Nv.${ch.levels[0]}–${ch.levels[1]}</div>`:''}
+      </div>`;
+    if(!isLocked)div.addEventListener('click',()=>goLevelSelect(ch));
+    cont.appendChild(div);
+  });
+}
+function goLevelSelect(chap){
+  hideAllScreens();showScreen('levelScreen');
+  document.getElementById('levelScreenTitle').textContent=`${chap.icon} ${chap.name}`;
+  const grid2=document.getElementById('lvlGrid');grid2.innerHTML='';
+  for(let i=chap.levels[0];i<=chap.levels[1];i++){
+    const locked=i>G.unlocked,completed=!!G.bestScores[i],isRival=i===chap.rivalLevel;
+    const stars=G.starsEarned[i]||0;
+    const btn=document.createElement('div');
+    btn.className=`lvl-btn${locked?' locked':completed?' completed':' unlocked'}${isRival?' rival-lvl':''}`;
+    btn.innerHTML=`<div class="lvl-ico">${locked?'🔒':isRival?'⚠️':EL[Math.min(~~(i/10),EL.length-1)].e}</div>
+      <div class="lvl-n">${isRival?'DUELO':i}</div>
+      <div class="lvl-stars">${completed?'⭐'.repeat(stars)+'☆'.repeat(3-stars):''}</div>`;
+    if(!locked)btn.addEventListener('click',()=>{
+      const rival=RIVALS.find(b=>b.level===i);
+      if(rival&&!G.storiesSeen['rival_'+i]){G.storiesSeen['rival_'+i]=true;saveG();showRivalIntro(rival,()=>startLevel(i));}
+      else{const st=ALL_STORIES[i];if(st&&!G.storiesSeen[i]){G.storiesSeen[i]=true;saveG();showStory(st,()=>startLevel(i));}else startLevel(i);}
+    });
+    grid2.appendChild(btn);
+  }
+}
+
+// ── STORY ──
+let storyCB=null;
+function showStory(data,cb){
+  storyCB=cb||null;
+  document.getElementById('stEp').textContent=data.ep||'HISTORIA';
+  document.getElementById('stIcon').textContent=data.icon||'🧁';
+  document.getElementById('stTitle').textContent=data.title||'';
+  document.getElementById('stText').textContent=data.text||'';
+  document.getElementById('stQuote').textContent=data.quote||'';
+  document.getElementById('stBakery').textContent=data.bakery||'';
+  hideAllScreens();showScreen('storyScreen');
+}
+function dismissStory(){const cb=storyCB;storyCB=null;if(cb)cb();else goMenu();}
+
+// ── RIVAL INTRO ──
+let rivalIntroCB=null;
+function showRivalIntro(rival,cb){
+  rivalIntroCB=cb||null;
+  document.getElementById('riIcon').textContent=rival.icon;
+  document.getElementById('riName').textContent=rival.name;
+  document.getElementById('riTitle').textContent=rival.title;
+  document.getElementById('riLore').textContent=rival.lore;
+  const ab=document.getElementById('riAbilities');ab.innerHTML='';
+  rival.attacks.forEach(a=>{
+    const d=document.createElement('div');d.className='rival-ability';
+    d.innerHTML=`<div class="ra-icon">${a.emoji}</div><div><div class="ra-text">${a.name}</div><div class="ra-desc">${a.desc}</div></div>`;
+    ab.appendChild(d);
+  });
+  hideAllScreens();showScreen('rivalIntroScreen');
+}
+function dismissRivalIntro(){const cb=rivalIntroCB;rivalIntroCB=null;if(cb)cb();else goMenu();}
+
+// ── SHOP ──
+const SHOP=[
+  {section:'💎 GEMAS ESPECIALES',items:[
+    {icon:'💎',name:'Bolsita',    desc:'50 gemas',        price:'$0.99',action:'g50'},
+    {icon:'💎💎',name:'Paquete',  desc:'200 gemas+BONUS', price:'$2.99',action:'g200',pop:true},
+    {icon:'👑',name:'Caja VIP',  desc:'600 gemas+ÉPICO', price:'$9.99',action:'g600',feat:true},
+    {icon:'✨',name:'Despensa',   desc:'2000 gemas+MEGA', price:'$24.99',action:'g2000'},
+  ]},
+  {section:'🍪 GALLETAS (MONEDAS)',items:[
+    {icon:'🍪',name:'Tarro',     desc:'1.000 galletas',  price:'$0.99',action:'c1k'},
+    {icon:'🍰',name:'Cesta',     desc:'5.000 galletas',  price:'$3.99',action:'c5k',pop:true},
+    {icon:'🏆',name:'Despensa',  desc:'20.000 galletas', price:'$9.99',action:'c20k',feat:true},
+  ]},
+  {section:'⚡ INGREDIENTES MÁGICOS',items:[
+    {icon:'🫙',name:'Rodillo ×5',desc:'Elimina tile',    gems:30,action:'pr5'},
+    {icon:'🔀',name:'Mezcla ×3', desc:'Baraja tablero',  gems:25,action:'pm3'},
+    {icon:'🔥',name:'Horno ×5',  desc:'Sube nivel tile', gems:35,action:'ph5',pop:true},
+    {icon:'⏰',name:'Tiempo ×3', desc:'+5 movimientos',  gems:20,action:'pt3'},
+  ]},
+  {section:'🎂 PACKS ESPECIALES',items:[
+    {icon:'🎁',name:'Pack Inicio',desc:'200💎+5k🍪+poderes',price:'$1.99',action:'starter',feat:true,pop:true},
+    {icon:'🌟',name:'Abono VIP',  desc:'Regalos diarios épicos',price:'$4.99/mes',action:'vip'},
+    {icon:'♾️',name:'Sin Anuncios',desc:'Experiencia pura',price:'$2.99',action:'noads'},
+    {icon:'🍰',name:'Pack Maestro',desc:'Todo incluido',price:'$19.99',action:'master',feat:true},
+  ]},
+];
+function goShop(){hideAllPanels();hideAllScreens();showScreen('shopScreen');document.getElementById('sCoins').textContent=G.coins.toLocaleString();document.getElementById('sGems').textContent=G.gems;buildShop();}
+function buildShop(){
+  const sc=document.getElementById('shopContent');sc.innerHTML='';
+  SHOP.forEach(sec=>{
+    const s=document.createElement('div');s.className='shop-sec';
+    s.innerHTML=`<div class="shop-sec-title">${sec.section}</div>`;
+    const row=document.createElement('div');row.className='shop-row';
+    sec.items.forEach(item=>{
+      const d=document.createElement('div');d.className='shop-card'+(item.feat?' feat':'')+(item.pop?' pop':'');
+      d.innerHTML=`<div class="sc-icon">${item.icon}</div><div class="sc-name">${item.name}</div><div class="sc-desc">${item.desc}</div><div class="sc-price">${item.price||(item.gems?'💎'+item.gems:'')}</div>`;
+      d.onclick=()=>handleBuy(item);row.appendChild(d);
+    });
+    s.appendChild(row);sc.appendChild(s);
+  });
+}
+function handleBuy(item){
+  if(item.gems){
+    if(G.gems<item.gems){showNotif('💎 ¡Sin gemas! Compra más.');sfxFail();return;}
+    G.gems-=item.gems;
+    if(item.action==='pr5')G.powerups.rodillo+=5;
+    else if(item.action==='pm3')G.powerups.mezcla+=3;
+    else if(item.action==='ph5')G.powerups.horno+=5;
+    else if(item.action==='pt3')G.powerups.tiempo+=3;
+    showNotif(`✅ ¡${item.name} añadido!`);sfxCoin();saveG();buildShop();
+    document.getElementById('sGems').textContent=G.gems;return;
+  }
+  showNotif('🧾 Procesando pago...');
+  setTimeout(()=>{
+    const acts={
+      g50:()=>G.gems+=50,g200:()=>G.gems+=200,g600:()=>G.gems+=600,g2000:()=>G.gems+=2000,
+      c1k:()=>G.coins+=1000,c5k:()=>G.coins+=5500,c20k:()=>G.coins+=25000,
+      starter:()=>{G.gems+=200;G.coins+=5000;G.powerups.rodillo+=3;G.powerups.horno+=3;G.powerups.mezcla+=2;},
+      vip:()=>G.gems+=50,noads:()=>showNotif('🍰 ¡Sin anuncios activado!'),
+      master:()=>{G.gems+=1000;G.coins+=50000;G.powerups.rodillo+=10;G.powerups.horno+=10;G.powerups.mezcla+=5;G.powerups.tiempo+=10;},
+    };
+    acts[item.action]?.();sfxWin();saveG();
+    document.getElementById('sCoins').textContent=G.coins.toLocaleString();
+    document.getElementById('sGems').textContent=G.gems;
+    buildShop();showNotif(`✅ ¡${item.name} activado! ¡Gracias! 🎂`);
+  },1400);
+}
+
+// ── STATS ──
+function goStats(){
+  hideAllPanels();hideAllScreens();showScreen('statsScreen');
+  const lvls=Object.keys(G.bestScores).length;
+  const stars=Object.values(G.starsEarned).reduce((a,b)=>a+b,0);
+  const rows=[
+    ['Recetas completadas',`${lvls}/300`],
+    ['Rivales vencidos',`${G.rivalKills}/${RIVALS.length} 🏅`],
+    ['Estrellas ganadas',`${stars}⭐`],
+    ['Fusiones totales',G.totalMerges.toLocaleString()],
+    ['Puntos totales',G.totalScore.toLocaleString()],
+    ['Mejor combo',`×${G.bestCombo}`],
+    ['Galletas ganadas',G.coins.toLocaleString()+'🍪'],
+    ['Racha de días',`${G.streak}🔥`],
+    ['Nivel pastelería',`${G.bakeryLevel}/10 🏠`],
+  ];
+  document.getElementById('statRows').innerHTML=rows.map(([l,v])=>`<div class="stat-row"><span class="sl">${l}</span><span class="sv">${v}</span></div>`).join('');
+}
+
+// ── DAILY ──
+const DAILY=[
+  {day:1,icon:'🍪',val:'+200'},
+  {day:2,icon:'💎',val:'+8'},
+  {day:3,icon:'🫙',val:'Rodillo ×2'},
+  {day:4,icon:'🍪',val:'+1000'},
+  {day:5,icon:'🔥',val:'Horno ×3'},
+  {day:6,icon:'💎',val:'+25'},
+  {day:7,icon:'🎂',val:'¡GRAN PREMIO!'},
+];
+function goDaily(){
+  hideAllPanels();hideAllScreens();showScreen('dailyScreen');
+  const today=new Date().toDateString();
+  const g=document.getElementById('dailyGrid');g.innerHTML='';
+  DAILY.forEach((r,i)=>{
+    const claimed=G.streak>i;const isToday=G.streak===i&&G.lastLogin!==today;
+    const d=document.createElement('div');d.className=`day-box${claimed?' claimed':''}${isToday?' today':''}`;
+    d.innerHTML=`<div class="dl">Día ${i+1}</div><div class="di">${r.icon}</div><div class="dv">${r.val}</div>${claimed?'<div style="font-size:10px;color:#34d399">✓</div>':''}`;
+    g.appendChild(d);
+  });
+  const alreadyClaimed=G.lastLogin===new Date().toDateString();
+  const btn=document.getElementById('claimBtn');btn.textContent=alreadyClaimed?'✅ YA RECOGISTE HOY':'🎁 RECOGER PREMIO';btn.disabled=alreadyClaimed;btn.style.opacity=alreadyClaimed?.5:1;
+}
+function claimDaily(){
+  const today=new Date().toDateString();
+  if(G.lastLogin===today){showNotif('⏰ ¡Vuelve mañana!');return;}
+  G.lastLogin=today;G.streak=Math.min((G.streak||0)+1,7);
+  const r=DAILY[(G.streak-1)%7];
+  if(r.icon==='🍪')G.coins+=parseInt(r.val.replace('+',''))||200;
+  if(r.icon==='💎')G.gems+=parseInt(r.val.replace('+',''))||8;
+  if(r.icon==='🫙')G.powerups.rodillo+=2;
+  if(r.icon==='🔥')G.powerups.horno+=3;
+  if(r.icon==='🎂'){G.gems+=100;G.coins+=5000;}
+  saveG();sfxWin();updateCurrBar();showNotif(`🎁 Día ${G.streak}: ${r.icon} ${r.val} recibido!`);goDaily();
+}
+
+// ── BAKERY DISPLAY ──
+function updateBakeryDisplay(){
+  const b=BAKERIES[Math.min(G.bakeryLevel,BAKERIES.length-1)];
+  document.getElementById('bakeryIcon').textContent=b.icon;
+  document.getElementById('bakeryName').textContent=b.name;
+  const chap=Math.min(G.bakeryLevel,CHAPTERS.length-1);
+  document.getElementById('bakeryLevelTxt').textContent=`Capítulo ${G.bakeryLevel+1} · ${b.desc}`;
+  const pct=((G.unlocked-1)%30)/30*100;
+  document.getElementById('bakeryProgFill').style.width=Math.min(pct,100)+'%';
+}
+
+// ── PANELS ──
+function showPanel(id){const p=document.getElementById(id);p.classList.remove('hidden');requestAnimationFrame(()=>p.classList.add('show'));}
+function hidePanel(id){const p=document.getElementById(id);p.classList.remove('show');setTimeout(()=>p.classList.add('hidden'),350);}
+function hideAllPanels(){document.querySelectorAll('.panel-bg').forEach(p=>{p.classList.remove('show');p.classList.add('hidden');});}
+function showScreen(id){document.getElementById(id)?.classList.remove('hidden');}
+function hideAllScreens(){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));}
+function goMenu(){hideAllPanels();hideAllScreens();showScreen('menuScreen');updateCurrBar();updateBakeryDisplay();}
+function updateCurrBar(){document.getElementById('mCoins').textContent=G.coins.toLocaleString();document.getElementById('mGems').textContent=G.gems;}
+
+// ── NOTIFICATIONS ──
+let notifTimer;
+function showNotif(msg){const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');clearTimeout(notifTimer);notifTimer=setTimeout(()=>el.classList.remove('show'),2800);}
+
+// ── MERGE POPUP ──
+function showMergePop(x,y,elem,pts){
+  const old=document.querySelector('.mpop');if(old)old.remove();
+  const d=document.createElement('div');d.className='mpop';
+  d.style.cssText=`left:${x}px;top:${y}px;color:${elem.c}`;
+  d.innerHTML=`<div class="mpop-em">${elem.e}</div><div class="mpop-nm">${elem.n}</div><div class="mpop-pt">+${pts.toLocaleString()}</div>${GM.combo>2?`<div class="mpop-combo">COMBO ×${GM.combo}!</div>`:''}`;
+  document.body.appendChild(d);setTimeout(()=>d.remove(),950);
+}
+
+// ── BG CANVAS ──
+const bgC=document.getElementById('bgC'),bgX=bgC.getContext('2d');
+const ptC=document.getElementById('ptC'),ptX=ptC.getContext('2d');
+let W,H,bgFloats=[],particles=[];
+function resize(){
+  W=window.innerWidth;H=window.innerHeight;
+  bgC.width=W;bgC.height=H;ptC.width=W;ptC.height=H;
+  // Floating pastry emojis background
+  bgFloats=[];
+  const emojis=['🧁','🍰','🎂','🍩','🥐','🍪','🍫','⭐','🌟','✨','🍬','🍭','🍮'];
+  for(let i=0;i<22;i++) bgFloats.push({
+    x:Math.random()*W,y:Math.random()*H,
+    emoji:emojis[Math.floor(Math.random()*emojis.length)],
+    size:14+Math.random()*18,a:Math.random()*.18+.04,
+    dx:(Math.random()-.5)*.3,dy:-Math.random()*.3-.1,
+    rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.02,
+  });
+}
+function drawBg(){
+  // Warm gradient background
+  const grad=bgX.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,'#3d1308');
+  grad.addColorStop(.5,'#5c1c0d');
+  grad.addColorStop(1,'#2d0a05');
+  bgX.fillStyle=grad;bgX.fillRect(0,0,W,H);
+  // Soft circles
+  [[W*.1,H*.2,180,'rgba(249,168,212,.06)'],[W*.8,H*.1,200,'rgba(251,191,36,.05)'],[W*.5,H*.7,250,'rgba(110,231,183,.04)'],[W*.9,H*.8,160,'rgba(167,139,250,.05)']].forEach(([x,y,r,c])=>{
+    const g=bgX.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'transparent');bgX.fillStyle=g;bgX.fillRect(0,0,W,H);
+  });
+  // Floating emojis
+  bgX.save();
+  bgFloats.forEach(f=>{
+    f.x+=f.dx;f.y+=f.dy;f.rot+=f.rotSpd;
+    if(f.y<-40)f.y=H+40;if(f.x<-40)f.x=W+40;if(f.x>W+40)f.x=-40;
+    bgX.globalAlpha=f.a;bgX.font=`${f.size}px serif`;bgX.textAlign='center';
+    bgX.save();bgX.translate(f.x,f.y);bgX.rotate(f.rot);bgX.fillText(f.emoji,0,0);bgX.restore();
+  });
+  bgX.restore();bgX.globalAlpha=1;
+}
+function spawnPt(x,y,color,count){
+  for(let i=0;i<count;i++){const a=(Math.PI*2/count)*i+Math.random()*.5,sp=1.5+Math.random()*4;
+    particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,decay:.028+Math.random()*.03,r:2+Math.random()*5,color,type:i%3===0?'ring':'dot'});}
+}
+function drawPt(){
+  ptX.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.vx*=.97;p.vy*=.98;p.life-=p.decay;
+    if(p.life<=0)return;ptX.globalAlpha=p.life;
+    if(p.type==='ring'){ptX.beginPath();ptX.arc(p.x,p.y,p.r*p.life+2,0,Math.PI*2);ptX.strokeStyle=p.color;ptX.lineWidth=1.5;ptX.stroke();}
+    else{ptX.beginPath();ptX.arc(p.x,p.y,p.r,0,Math.PI*2);ptX.fillStyle=p.color;ptX.fill();}
+    ptX.globalAlpha=1;
+  });
+  particles=particles.filter(p=>p.life>0);
+}
+let raf;
+function bgLoop(){raf=requestAnimationFrame(bgLoop);drawBg();drawPt();}
+
+// ── MENU DECORATIONS ──
+function buildMenuDeco(){
+  const deco=document.getElementById('menuDeco');deco.innerHTML='';
+  const colors=['#f9a8d4','#fbbf24','#6ee7b7','#a78bfa','#60a5fa','#fb7185'];
+  for(let i=0;i<5;i++){const d=document.createElement('div');d.className='deco-circle';
+    const size=80+Math.random()*160;d.style.cssText=`width:${size}px;height:${size}px;background:${colors[i%colors.length]};left:${Math.random()*100}%;top:${Math.random()*100}%;filter:blur(${30+Math.random()*40}px);opacity:.08`;deco.appendChild(d);}
+}
+
+// ── AUDIO ──
+let actx;
+function ac(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function tone(f,t,v=.13,type='sine'){try{const o=ac().createOscillator(),g=ac().createGain();o.connect(g);g.connect(ac().destination);o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,ac().currentTime);g.gain.exponentialRampToValueAtTime(.001,ac().currentTime+t);o.start();o.stop(ac().currentTime+t);}catch(e){}}
+const sfxT=()=>tone(520,.1,.09);
+const sfxMerge=(t)=>{tone(380+t*70,.18,.13);tone(480+t*90,.14,.08,'triangle');};
+const sfxBig=()=>{tone(900,.25,.16);setTimeout(()=>tone(1300,.18,.12),110);};
+const sfxFail=()=>tone(160,.28,.12,'sawtooth');
+const sfxWin=()=>{[520,650,780,1040].forEach((f,i)=>setTimeout(()=>tone(f,.28,.11),i*100));};
+const sfxCoin=()=>{tone(1300,.09,.07);setTimeout(()=>tone(1600,.09,.05),80);};
+const sfxPu=()=>{tone(700,.18,.11,'square');tone(1000,.14,.09,'square');};
+
+// ── DAILY CHECK ON LOAD ──
+function checkDailyLoad(){if(G.lastLogin!==new Date().toDateString()&&G.unlocked>1)setTimeout(()=>showNotif('🎁 ¡Tu caja diaria te espera!'),2000);}
+
+// ── INIT ──
+window.addEventListener('resize',()=>{resize();if(!document.getElementById('gameScreen').classList.contains('hidden'))renderGrid();});
+loadG();resize();buildMenuDeco();bgLoop();updateCurrBar();updateBakeryDisplay();
+
+if(G.unlocked===1&&!G.storiesSeen[1]){
+  G.storiesSeen[1]=true;saveG();
+  showStory(ALL_STORIES[1]||{ep:'PRÓLOGO',icon:'🌾',title:'El Sueño de Mía',text:'Tu sueño de abrir la mejor pastelería comienza hoy.',quote:'"El mejor ingrediente es el amor." — Abuela Rosa',bakery:'🏠 ¡Tu cocina está lista!'},()=>{
+    hideAllScreens();showScreen('menuScreen');updateCurrBar();updateBakeryDisplay();
+  });
+}else{showScreen('menuScreen');}
+checkDailyLoad();
+</script>
+</body>
+</html>
